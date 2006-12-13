@@ -5,6 +5,7 @@ use warnings;
 use Bio::DOOP::DBSQL;
 use Bio::DOOP::Motif;
 use Bio::DOOP::Sequence;
+use Bio::DOOP::Cluster;
 
 =head1 NAME
 
@@ -58,7 +59,7 @@ sub new {
   $self->{MOTIFNO}         = $fields[3];
   $self->{FEATNO}          = $fields[4];
   $self->{ORIG}            = $fields[5];
-  $self->{CLUSTER}         = $fields[6]; #TODO Nem tudom, hogy erre tenyleg szukseg van
+  $self->{CLUSTER}         = Bio::DOOP::Cluster->new_by_id($db,$fields[6]);
 
   $ret = $db->query("SELECT alignment_dialign,alignment_fasta FROM cluster_subset_data WHERE subset_primary_id = \"$id\";");
 
@@ -67,7 +68,7 @@ sub new {
   $self->{DIALIGN}          = $fields[0];
   $self->{FASTA}            = $fields[1];
 
-# TODO Ha megis tobb dialign tartozna egy subsethez, akkor a kovetkezo reszt kell hasznalni
+# TODO If the subset contins more than one dialign, use the following code
 #
 #  my $i;
 #  my @dialign              = ();

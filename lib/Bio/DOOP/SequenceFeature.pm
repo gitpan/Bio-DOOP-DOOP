@@ -11,11 +11,11 @@ use Bio::DOOP::Motif;
 
 =head1 VERSION
 
-Version 0.01
+Version 0.03
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 =head1 DESCRIPTION
 
@@ -63,7 +63,8 @@ sub new {
   $self->{REPEATID}        = $fields[13];
   $self->{SSRID}           = $fields[14];
   $self->{TSSID}           = $fields[15];
-  $self->{SEQ_ID}          = $fields[16];
+  $self->{SUBSET_ID}       = $fields[16];
+  $self->{SEQ_ID}          = $fields[17];
 
   if    ($self->{TYPE} eq "ssr"){
 	  $ret = $db->query("SELECT * FROM ssr_annotation WHERE ssr_primary_id =".$self->{SSRID});
@@ -298,6 +299,17 @@ sub get_seqid {
   return($self->{SEQ_ID});
 }
 
+=head2 get_subsetid
+
+  The get_subsetid method returns the subset primary id of the feature
+
+=cut
+
+sub get_subsetid {
+  my $self                 = shift;
+  return($self->{SUBSET_ID});
+}
+
 =head2 get_motif
 
   $motif = $seqfeat->get_motif;
@@ -310,5 +322,51 @@ sub get_motif {
   my $self                 = shift;
   return($self->{MOTIF});
 }
+
+=head2 get_tss_type
+
+  Return the tss type, if the feature is tss.
+
+=cut
+
+sub get_tss_type {
+  my $self                 = shift;
+  return($self->{T_TYPE});
+}
+
+=head2 get_tss_id
+
+  Return the tss id, if the feature is tss.
+
+=cut
+
+sub get_tss_id {
+  my $self                 = shift;
+  return($self->{T_ID});
+}
+
+=head2 get_tss_desc
+
+  Return the description of the tss, if the feature is tss
+
+=cut
+
+sub get_tss_desc {
+  my $self                 = shift;
+  return($self->{T_DESC});
+}
+
+=head2 get_tss_xref
+
+  Return the xref of the tss, if the feature is tss
+
+=cut
+
+sub get_tss_xref {
+  my $self                 = shift;
+  return($self->{T_XREF});
+}
+
+
 
 1;

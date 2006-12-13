@@ -13,6 +13,5 @@ lib/Bio/DOOP/Sequence.pm
 lib/Bio/DOOP/SequenceFeature.pm
 lib/Bio/DOOP/Util/Search.pm
 t/00-load.t
-t/boilerplate.t
 t/pod-coverage.t
 t/pod.t

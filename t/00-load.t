@@ -10,8 +10,8 @@ BEGIN {
 	use_ok( 'Bio::DOOP::Motif' );
 	use_ok( 'Bio::DOOP::Sequence' );
 	use_ok( 'Bio::DOOP::SequenceFeature' );
-	use_ok( 'Bio::DOOP::Graphics::Feature' );
 	use_ok( 'Bio::DOOP::Util::Search' );
+	use_ok( 'Bio::DOOP::Graphics::Feature' );
 }
 
 diag( "Testing Bio::DOOP::DOOP $Bio::DOOP::DOOP::VERSION, Perl $], $^X" );

@@ -192,7 +192,7 @@ sub get_all_subsets {
 sub get_all_seqs {
   my $self                 = shift;
   my $id                   = $self->{PRIMARY};
-  my $ret = $self->{DB}->query("SELECT sequence_primary_id FROM subset_xref WHERE cluster_primary_id = $id;");
+  my $ret = $self->{DB}->query("SELECT DISTINCT(sequence_primary_id) FROM subset_xref WHERE cluster_primary_id = $id;");
 
   my @seqs;
   for my $i (@$ret){

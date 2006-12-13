@@ -11,11 +11,11 @@ use Bio::DOOP::SequenceFeature;
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -59,7 +59,7 @@ sub new {
   $self->{DATA}            = $fields[8];
   $self->{TAXON}           = $fields[9];
 
-  if ($self->{ANNOT} ne ""){
+  if (defined($self->{ANNOT})){
 
   $ret = $db->query("SELECT * FROM sequence_annot WHERE sequence_annot_primary_id = ".$self->{ANNOT}.";");
   @fields = @{$$ret[0]};

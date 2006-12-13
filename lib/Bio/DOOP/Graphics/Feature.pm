@@ -13,11 +13,11 @@ use Bio::DOOP::DOOP;
 
 =head1 VERSION
 
-Version 0.01
+Version 0.03
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 =head1 DESCRIPTION
 
@@ -41,12 +41,11 @@ sub create {
   my $self                 = {};
   my $dummy                = shift;
   my $db                   = shift;
-  my $cluster              = shift; 
+  my $subset               = shift;
 
-  my @seqs    = @{$cluster->get_all_seqs};
+  my @seqs    = @{$subset->get_all_seqs};
   my $height  = ($#seqs+1) * 70 + 40;
-  my $width   = $cluster->get_promo_type + 20;
-
+  my $width   = $subset->get_cluster->get_promo_type + 20;
   my $image   = new GD::Image($width,$height); # Create the image
 
   $self->{IMAGE}           = $image;
@@ -55,6 +54,7 @@ sub create {
   $self->{WIDTH}           = $width;
   $self->{HEIGHT}          = $height;
   $self->{POS}             = 0;
+  $self->{SUBSET_ID}       = $subset->get_id;
 
   # This is the map of the image. It is useful for generate html code
   #TODO Later add more types to this hash
@@ -63,26 +63,66 @@ sub create {
                                 dbtss => [],
                                 utr   => []
   };
+  # The color map of the object
+  $self->{COLOR}           = {
+                                background => [200,200,200],
+                                label      => [0,0,0],
+                                strip      => [220,220,220],
+                                utr        => [100,100,255],
+                                motif      => [0,100,0],
+                                tss        => [0,0,0]
+  };
 
   bless $self;
   return($self);
 }
 
-=head2 set_background
+=head2 add_color
 
-  Set the background color of the image. It must be the first method under the create
+  Add an RGB color to the specified drawing element.
+  $image->add_color("background",200,200,200);
+  $image->set_colors;
+  The available drawing elements are the following: background, label, strip, utr, motif, tss
 
 =cut
 
-sub set_background {
+sub add_color {
   my $self                 = shift;
+  my $code                 = shift;
   my $r                    = shift;
   my $g                    = shift;
   my $b                    = shift;
-  $self->{IMAGE}->colorAllocate($r,$g,$b); # Set the background color
-  $self->{BLACK} = $self->{IMAGE}->colorAllocate(0,0,0);   # Set the black color
-  $self->{BLUE}  = $self->{IMAGE}->colorAllocate(100,100,255); # Set the blue color
-  $self->{GREEN} = $self->{IMAGE}->colorAllocate(0,100,0); # Set the green color
+  my @color;
+  @color = ($r,$g,$b);
+  $self->{COLOR}->{"$code"} = \@color;
+}
+
+=head2 set_colors
+
+  Set all the usage colors. Preveously allocate colors with add_color. Use this method only ONCE after you set
+  all the colors.
+  If you use it more than one, the results will be strange.
+
+=cut
+
+sub set_colors {
+  my $self                 = shift;
+
+  my $r;
+  my $g;
+  my $b;
+  ($r,$g,$b) = @{$self->{COLOR}->{background}};
+  $self->{IMAGE}->colorAllocate($r,$g,$b);                         # Set the background color
+  ($r,$g,$b) = @{$self->{COLOR}->{label}};
+  $self->{LABEL}      = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the label color
+  ($r,$g,$b) = @{$self->{COLOR}->{utr}};
+  $self->{UTR}        = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the UTR color
+  ($r,$g,$b) = @{$self->{COLOR}->{motif}};
+  $self->{MOTIFCOLOR} = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the motif color
+  ($r,$g,$b) = @{$self->{COLOR}->{tss}};
+  $self->{TSSCOLOR}   = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the tss color
+  ($r,$g,$b) = @{$self->{COLOR}->{strip}};
+  $self->{STRIP}      = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the strip color
 }
 
 =head2 add_scale
@@ -94,7 +134,7 @@ sub set_background {
 sub add_scale {
   my $self                 = shift;
 
-  my $color = $self->{BLACK};
+  my $color = $self->{LABEL};
 
   # Draw the main axis
   $self->{IMAGE}->line(10,5,$self->{WIDTH}-10,5,$color);
@@ -129,7 +169,7 @@ sub add_scale {
 
 sub add_bck_lines {
   my $self                 = shift;
-  my $color = $self->{IMAGE}->colorAllocate(220,220,220);
+  my $color = $self->{STRIP};
 
   my $i;
   for ($i = 20; $i < $self->{WIDTH}-10; $i += 10){
@@ -154,24 +194,23 @@ sub add_seq {
   my $x2  = $x1-$len;
 
   # Draw the seq line
-  $self->{IMAGE}->line($x2, $index*70+40, $x1, $index*70+40, $self->{BLACK});
+  $self->{IMAGE}->line($x2, $index*70+40, $x1, $index*70+40, $self->{LABEL});
 
   # Print the seq name and the length
   my $text = $seq->get_taxon_name . " " . $len . " bp";
-  $self->{IMAGE}->string(gdTinyFont, $x2, $index*70+30, $text, $self->{BLACK});
+  $self->{IMAGE}->string(gdTinyFont, $x2, $index*70+30, $text, $self->{LABEL});
 
   # Draw UTR
   my $utrlen = $seq->get_utr_length;
   if ($utrlen){
-      $self->{IMAGE}->filledRectangle($x1-$utrlen, $index*70+35, $x1, $index*70+45, $self->{BLUE});
-      $self->{IMAGE}->string(gdTinyFont, $x1-$utrlen, $index*70+36, "UTR ".$utrlen." bp", $self->{BLACK});
+      $self->{IMAGE}->filledRectangle($x1-$utrlen, $index*70+35, $x1, $index*70+45, $self->{UTR});
+      $self->{IMAGE}->string(gdTinyFont, $x1-$utrlen, $index*70+36, "UTR ".$utrlen." bp", $self->{LABEL});
   }
-
   # Draw Motifs
   my @features = @{$seq->get_all_seq_features};
   my $motif_Y = $index*70 + 50;
   for my $feat (@features){
-      if ($feat->get_type eq "con"){
+      if( ($feat->get_type eq "con") && ($feat->get_subsetid eq $self->{SUBSET_ID})){
 
           my %motif_element = ($feat->get_motifid => [ $x1-$feat->get_end,
                                                        $motif_Y,
@@ -182,19 +221,20 @@ sub add_seq {
                                           $motif_Y,
                                           $x1-$feat->get_start,
                                           $motif_Y + 5,
-                                          $self->{GREEN});
-          $self->{IMAGE}->string(gdTinyFont, $x1-$feat->get_end, $motif_Y+10, "m", $self->{BLACK});
-
-          if (($feat->get_start - $feat->get_end) < 10) {
-#             $motif_Y += 5;
-          }
-          else {
-             $motif_Y = $index * 70 + 50;
-          }
+                                          $self->{MOTIFCOLOR});
+          $self->{IMAGE}->string(gdTinyFont, $x1-$feat->get_end, $motif_Y+10, "m", $self->{LABEL});
 
           push @{$self->{MAP}->{"motif"}},\%motif_element;
       }
+      if( ($feat->get_type eq "tss")){
+          $self->{IMAGE}->line($x1-$feat->get_start,
+                               $motif_Y+20,
+                               $x1-$feat->get_start,
+                               $motif_Y+35,
+                               $self->{TSSCOLOR});
+      }
   }
+
 }
 
 sub add_all_seq {
