@@ -12,11 +12,11 @@ use Bio::DOOP::Sequence;
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -202,5 +202,20 @@ sub get_all_seqs {
   return(\@seqs);
 }
 
+=head2 get_orig_subset
+
+  Return the original subset, that is contain the whole cluster
+
+=cut
+
+sub get_orig_subset {
+  my $self                 = shift;
+  my $id                   = $self->{PRIMARY};
+  my $ret = $self->{DB}->query("SELECT subset_primary_id FROM cluster_subset WHERE cluster_primary_id = $id AND original = \"y\"");
+
+  my $subset =  Bio::DOOP::ClusterSubset->new($self->{DB},$$ret[0]->[0]);
+  
+  return($subset);
+}
 
 1;

@@ -1,5 +1,10 @@
 Revision history for Bio-DOOP-DOOP
 
+0.05    2007/01/03
+	Search module recoding. The get_cluster_by_* methods
+	not give back redundant elements
+0.04    2006/12/20
+	Bug fixes. New method in Cluster class: get_orig_subset.
 0.03    2006/12/13
         Advanced color handling in the Graphics::Feature module
         Full access to the TSS annotation

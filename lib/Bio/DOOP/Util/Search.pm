@@ -2,7 +2,11 @@ package Bio::DOOP::Util::Search;
 
 use strict;
 use warnings;
-use Bio::DOOP::DOOP;
+#use Bio::DOOP::DBSQL;
+use Bio::DOOP::Motif;
+use Bio::DOOP::Cluster;
+use Bio::DOOP::ClusterSubset;
+use Bio::DOOP::Sequence;
 
 =head1 NAME
 
@@ -10,11 +14,11 @@ use Bio::DOOP::DOOP;
 
 =head1 VERSION
 
-Version 0.01
+  Version 0.05
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
@@ -81,12 +85,13 @@ sub get_all_original_subset {
 sub get_all_cluster_by_gene_id  {
   my $db                   = shift;
   my $gene_id              = shift;
+  my $promoter_size        = shift;
 
   my @clusters;
-  my $ret = $db->query("SELECT DISTINCT(subset_xref.cluster_primary_id) FROM sequence,subset_xref,sequence_annot WHERE sequence.sequence_annot_primary_id = sequence_annot.sequence_annot_primary_id AND subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence_annot.sequence_gene_name LIKE '$gene_id%';");
+  my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster,sequence,subset_xref,sequence_annot WHERE sequence.sequence_annot_primary_id = sequence_annot.sequence_annot_primary_id AND subset_xref.sequence_primary_id = sequence.sequence_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_annot.sequence_gene_name LIKE '$gene_id%';");
 
   for my $cluster (@$ret){
-          push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
+          push @clusters,Bio::DOOP::Cluster->new($db,$$cluster[0],$promoter_size);
   }
   return(\@clusters);
 }
@@ -100,32 +105,35 @@ sub get_all_cluster_by_gene_id  {
 sub get_all_cluster_by_keyword {
   my $db                   = shift;
   my $keyword              = shift;
+  my $promoter_size        = shift;
 
   my @clusters;
-
-  #TODO Kell valamivel szurni az egyforma ertekekre!
-  #ez itt nem fog menni mer a @clusters valtozoban
-  #cluster ojjektumok vannak
-  #meg egyebkent is egy cluster akar 3 is lehet (500,1000,3000)
-  #amik kulonbozo primary_id-vel rendelkeznek
-  #CpG, repeat, SSR, TFBS annotation
+  my @cluster_db_id;
+  my %seen;
 
   # Query from sequence_annot
-  my $ret = $db->query("SELECT DISTINCT(subset_xref.cluster_primary_id) FROM sequence_annot, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.sequence_annot_primary_id = sequence_annot.sequence_annot_primary_id AND sequence_annot.sequence_desc LIKE '%$keyword%';");
+  my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence_annot, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.sequence_annot_primary_id = sequence_annot.sequence_annot_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_annot.sequence_desc LIKE '%$keyword%';");
     for my $cluster (@$ret){
-          push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
+          push @cluster_db_id,$$cluster[0];
   }
 
   # Query from sequence_xref
-  $ret = $db->query("SELECT DISTINCT(subset_xref.cluster_primary_id) FROM sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND sequence_xref.xref_id LIKE '%$keyword%';");
+  $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_xref.xref_id LIKE '%$keyword%';");
   for my $cluster (@$ret){
-	  push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
+          push @cluster_db_id,$$cluster[0];
   }
 
   # Query from tss_annot
-  $ret = $db->query("SELECT DISTINCT(subset_xref.cluster_primary_id) FROM tss_annotation, sequence_feature, subset_xref WHERE subset_xref.sequence_primary_id = sequence_feature.sequence_primary_id AND sequence_feature.tss_primary_id = tss_annotation.tss_primary_id AND tss_annotation.tss_desc LIKE '%$keyword%';");
+  $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, tss_annotation, sequence_feature, subset_xref WHERE subset_xref.sequence_primary_id = sequence_feature.sequence_primary_id AND sequence_feature.tss_primary_id = tss_annotation.tss_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND tss_annotation.tss_desc LIKE '%$keyword%';");
   for my $cluster (@$ret){
-	  push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
+          push @cluster_db_id,$$cluster[0];
+  }
+
+  #Remove the redundant cluster_db_ids
+  my @cluster_id_uniq = grep { ! $seen{ $_ }++ } @cluster_db_id;
+
+  for my $cluster (@cluster_id_uniq){
+          push @clusters,Bio::DOOP::Cluster->new($db,$cluster,$promoter_size);
   }
   
   return(\@clusters);
@@ -141,12 +149,14 @@ sub get_all_cluster_by_type {
   my $db                   = shift;
   my $type                 = shift;
   my $value                = shift;
+  my $promoter_size        = shift;
+
   my @clusters;
 
-  my $ret = $db->query("SELECT DISTINCT(subset_xref.cluster_primary_id) FROM sequence_xref, subset_xref WHERE sequence_xref.sequence_primary_id = subset_xref.sequence_primary_id AND sequence_xref.xref_type = '$type' AND sequence_xref.xref_id = '$value';");
+  my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence_xref, subset_xref WHERE sequence_xref.sequence_primary_id = subset_xref.sequence_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_xref.xref_type = '$type' AND sequence_xref.xref_id = '$value';");
 
   for my $cluster (@$ret){
-	  push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
+	  push @clusters,Bio::DOOP::Cluster->new($db,$$cluster[0],$promoter_size);
   }
 
   return(\@clusters);
@@ -161,12 +171,14 @@ sub get_all_cluster_by_type {
 sub get_all_cluster_by_taxon_name {
   my $db                   = shift;
   my $taxon                = shift;
+  my $promoter_size        = shift;
+
   my @clusters;
 
-  my $ret = $db->query("SELECT DISTINCT(subset_xref.cluster_primary_id) FROM taxon_annotation, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.taxon_primary_id = taxon_annotation.taxon_primary_id AND taxon_annotation.taxon_name = '$taxon';");
+  my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, taxon_annotation, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.taxon_primary_id = taxon_annotation.taxon_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND taxon_annotation.taxon_name = '$taxon';");
 
   for my $cluster (@$ret){
-	  push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
+	  push @clusters,Bio::DOOP::Cluster->new($db,$$cluster[0],$promoter_size);
   }
   return(\@clusters);
 }
@@ -180,12 +192,14 @@ sub get_all_cluster_by_taxon_name {
 sub get_all_cluster_by_taxon_id {
   my $db                   = shift;
   my $taxon                = shift;
+  my $promoter_size        = shift;
+
   my @clusters;
 
-  my $ret = $db->query("SELECT DISTINCT(subset_xref.cluster_primary_id) FROM taxon_annotation, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.taxon_primary_id = taxon_annotation.taxon_primary_id AND taxon_annotation.taxon_taxid = '$taxon';");
+  my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, taxon_annotation, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.taxon_primary_id = taxon_annotation.taxon_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND taxon_annotation.taxon_taxid = '$taxon';");
 
   for my $cluster (@$ret){
-	  push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
+	  push @clusters,Bio::DOOP::Cluster->new($db,$$cluster[0],$promoter_size);
   }
   return(\@clusters);
 }
@@ -197,16 +211,18 @@ sub get_all_cluster_by_taxon_id {
 =cut
 
 sub get_all_cluster_by_sequence_id {
-	my $db             = shift;
-	my $sequence_id    = shift;
-	my @clusters;
+  my $db                   = shift;
+  my $sequence_id          = shift;
+  my $promoter_size        = shift;
 
-	my $ret = $db->query("SELECT DISTINCT(subset_xref.cluster_primary_id) FROM sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.sequence_fake_gi LIKE '$sequence_id%';");
+  my @clusters;
 
-	for my $cluster (@$ret){
-		push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
-	}
-	return(\@clusters);
+  my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence.sequence_fake_gi LIKE '$sequence_id%';");
+
+  for my $cluster (@$ret){
+	push @clusters,Bio::DOOP::Cluster->new($db,$$cluster[0],$promoter_size);
+  }
+  return(\@clusters);
 }
 
 =head2 get_all_cluster_by_atno
@@ -216,17 +232,18 @@ sub get_all_cluster_by_sequence_id {
 =cut
 
 sub get_all_cluster_by_atno {
-	my $db             = shift;
-	my $atno           = shift;
+  my $db                   = shift;
+  my $atno                 = shift;
+  my $promoter_size        = shift;
 
-	my @clusters;
+  my @clusters;
 
-	my $ret = $db->query("SELECT DISTINCT(subset_xref.cluster_primary_id) FROM sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND sequence_xref.xref_type = 'at_no' AND sequence_xref.xref_id LIKE '$atno%';");
+  my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND sequence_xref.xref_type = 'at_no' AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_xref.xref_id LIKE '$atno%';");
 
-	for my $cluster (@$ret) {
-		push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
-	}
-	return(\@clusters);
+  for my $cluster (@$ret) {
+	push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
+  }
+  return(\@clusters);
 }
 
 =head2 get_all_seq_by_motifid

@@ -386,5 +386,20 @@ sub get_all_seq_features {
   return(\@seqfeatures);
 }
 
+=head2 get_subset
+
+  Return the subset that is contain this sequence
+
+=cut
+
+sub get_subset {
+  my $self                 = shift;
+  my $id    = $self->{PRIMARY};
+  my $query = "SELECT subset_primary_id FROM subset_xrex WHERE sequence_primary_id = $id";
+  my $ref   = $self->{DB}->query($query);
+  my $subset = Bio::DOOP::ClusterSubset->new($self->{DB},$$ref[0]); 
+  return($subset);
+}
+
 
 1;
