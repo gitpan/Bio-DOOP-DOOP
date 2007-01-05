@@ -2,8 +2,9 @@ package Bio::DOOP::Sequence;
 
 use strict;
 use warnings;
-use Bio::DOOP::DBSQL;
-use Bio::DOOP::SequenceFeature;
+use Carp qw(cluck carp verbose);
+#use Bio::DOOP::DBSQL;
+#use Bio::DOOP::SequenceFeature;
 
 =head1 NAME
 
@@ -11,11 +12,11 @@ use Bio::DOOP::SequenceFeature;
 
 =head1 VERSION
 
-Version 0.02
+Version 0.06
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
@@ -61,21 +62,29 @@ sub new {
 
   if (defined($self->{ANNOT})){
 
-  $ret = $db->query("SELECT * FROM sequence_annot WHERE sequence_annot_primary_id = ".$self->{ANNOT}.";");
-  @fields = @{$$ret[0]};
+     $ret = $db->query("SELECT * FROM sequence_annot WHERE sequence_annot_primary_id = ".$self->{ANNOT}.";");
+     @fields = @{$$ret[0]};
 
-  $self->{MAINDBID}        = $fields[1];
-  $self->{UTR}             = $fields[2];
-  $self->{DESC}            = $fields[3];
-  $self->{GENENAME}        = $fields[4];
+     $self->{MAINDBID}        = $fields[1];
+     $self->{UTR}             = $fields[2];
+     $self->{DESC}            = $fields[3];
+     $self->{GENENAME}        = $fields[4];
 
   }
+  else {
+     cluck"No annotation for this sequence\n";
+  }
 
-  $ret = $db->query("SELECT * FROM sequence_data WHERE sequence_data_primary_id =".$self->{DATA}.";");
-  @fields = @{$$ret[0]};
+  if (defined($self->{DATA})) {
+     $ret = $db->query("SELECT * FROM sequence_data WHERE sequence_data_primary_id =".$self->{DATA}.";");
+     @fields = @{$$ret[0]};
 
-  $self->{FASTA}           = $fields[2];
-  $self->{BLAST}           = $fields[3];
+     $self->{FASTA}           = $fields[2];
+     $self->{BLAST}           = $fields[3];
+  }
+  else {
+     cluck"No sequence data\n";
+  }
 
   $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id =".$self->{TAXON}.";");
   @fields = @{$$ret[0]};
@@ -378,6 +387,11 @@ sub get_all_seq_features {
   my $query = "SELECT sequence_feature_primary_id FROM sequence_feature WHERE sequence_primary_id =".$self->{PRIMARY}." ORDER BY feature_start;";
   my $ref = $self->{DB}->query($query);
 
+  if ($#$ref == -1){
+     cluck"No have sequence features!\n";
+     return();
+  }
+
   for my $sfpid (@$ref){
 	  my $sf = Bio::DOOP::SequenceFeature->new($self->{DB},$$sfpid[0]);
 	  push @seqfeatures, $sf;
@@ -386,19 +400,31 @@ sub get_all_seq_features {
   return(\@seqfeatures);
 }
 
-=head2 get_subset
+=head2 get_all_subsets
 
   Return the subset that is contain this sequence
 
 =cut
 
-sub get_subset {
+sub get_all_subsets {
   my $self                 = shift;
+
+  my @subsets;
+
   my $id    = $self->{PRIMARY};
-  my $query = "SELECT subset_primary_id FROM subset_xrex WHERE sequence_primary_id = $id";
+  my $query = "SELECT subset_primary_id FROM subset_xref WHERE sequence_primary_id = $id";
   my $ref   = $self->{DB}->query($query);
-  my $subset = Bio::DOOP::ClusterSubset->new($self->{DB},$$ref[0]); 
-  return($subset);
+
+  if ($#$ref == -1){
+     cluck"No have subset!\n";
+     return();
+  }
+
+  for my $subset (@$ref){
+     push @subsets, Bio::DOOP::ClusterSubset->new($self->{DB},$$subset[0]);
+  }
+
+  return(\@subsets);
 }
 
 

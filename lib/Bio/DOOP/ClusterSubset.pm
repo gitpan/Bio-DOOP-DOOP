@@ -2,10 +2,7 @@ package Bio::DOOP::ClusterSubset;
 
 use strict;
 use warnings;
-use Bio::DOOP::DBSQL;
-use Bio::DOOP::Motif;
-use Bio::DOOP::Sequence;
-use Bio::DOOP::Cluster;
+use Carp qw(cluck carp verbose);
 
 =head1 NAME
 
@@ -13,11 +10,11 @@ use Bio::DOOP::Cluster;
 
 =head1 VERSION
 
-Version 0.01
+Version 0.06
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
@@ -67,21 +64,6 @@ sub new {
 
   $self->{DIALIGN}          = $fields[0];
   $self->{FASTA}            = $fields[1];
-
-# TODO If the subset contins more than one dialign, use the following code
-#
-#  my $i;
-#  my @dialign              = ();
-#  my @fasta                = ();
-#
-#  for($i = 0; $i < $#$ret+1; $i++){
-#	  @fields = @{$$ret[$i]};
-#	  push @dialign,$fields[0];
-#	  push @fasta,$fields[1];
-#  }
-#
-#  $self->{DIALIGN}         = \@dialign;
-#  $self->{FASTA}           = \@fasta;
 
   bless $self;
   return($self);
@@ -221,6 +203,11 @@ sub get_all_motifs {
 
   my $ret = $self->{DB}->query("SELECT motif_feature_primary_id FROM motif_feature WHERE subset_primary_id = $id;");
 
+  if ($#$ret == -1){
+     cluck "No motif!\n";
+     return();
+  }
+
   for($i = 0; $i < $#$ret + 1; $i++){
 	  push @motifs,Bio::DOOP::Motif->new($self->{DB},$$ret[$i]->[0]);
   }
@@ -241,6 +228,12 @@ sub get_all_seqs {
   my $id                   = $self->{PRIMARY};
   my @seqs;
   my $ret = $self->{DB}->query("SELECT sequence_primary_id FROM subset_xref WHERE subset_primary_id = $id;");
+
+  if ($#$ret == -1){
+     cluck "No sequence!\n";
+     return();
+  }
+
   for(@$ret){
 	  push @seqs,Bio::DOOP::Sequence->new($self->{DB},$_->[0]);
   }

@@ -2,8 +2,7 @@ package Bio::DOOP::SequenceFeature;
 
 use strict;
 use warnings;
-use Bio::DOOP::DBSQL;
-use Bio::DOOP::Motif;
+use Carp qw(cluck carp verbose);
 
 =head1 NAME
 
@@ -11,11 +10,11 @@ use Bio::DOOP::Motif;
 
 =head1 VERSION
 
-Version 0.03
+Version 0.06
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.06';
 
 =head1 DESCRIPTION
 

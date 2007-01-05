@@ -10,13 +10,13 @@ use DBI;
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
-=head2 SYNOPSIS
+=head1 SYNOPSIS
 
   $db  = Bio::DOOP::DBSQL->connect("doopuser","dooppass","doop-plant-1_5","localhost");
   $res = $db->query("SELECT * FROM sequence LIMIT 10");
@@ -25,7 +25,7 @@ our $VERSION = '0.01';
      print"@fields\n";
   }
 
-=head2 DESCRIPTION
+=head1 DESCRIPTION
 
   This object is a low level access to the MySQL database. Most of
   the cases you would not need to use because the DOOP API is substitute
@@ -33,13 +33,13 @@ our $VERSION = '0.01';
   database and the DOOP API can not help you, you can make a query with
   the query method.
 
-=head2 AUTHOR
+=head1 AUTHOR
 
   Tibor Nagy, Godollo, Hungary
 
-=head2 METHODS
+=head1 METHODS
 
-=head1 connect
+=head2 connect
 
   You can connect to the database. The arguments is the following:
   user name, password, database name, database host. The return value
@@ -65,7 +65,7 @@ sub connect {
   return ($self);
 }
 
-=head1 query
+=head2 query
 
   You can run special SQL statements on the database. The 
   return is an arrayref to the results.
@@ -79,6 +79,7 @@ sub query {
   my $sth  = $self->{DB}->prepare($q);
   $sth->execute();
   my $results = $sth->fetchall_arrayref();
+
   return($results);
 }
 

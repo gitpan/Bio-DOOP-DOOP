@@ -1,5 +1,9 @@
 Revision history for Bio-DOOP-DOOP
 
+0.06    2007/01/05
+        New method in Cluster class: get_ref_seq
+        Carp uses for module warnings
+        Some methods add warning messages if has an error in the MySQL database
 0.05    2007/01/03
 	Search module recoding. The get_cluster_by_* methods
 	not give back redundant elements

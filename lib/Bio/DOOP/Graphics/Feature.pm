@@ -2,6 +2,7 @@ package Bio::DOOP::Graphics::Feature;
 
 use strict;
 use warnings;
+use Carp qw(cluck carp verbose);
 use GD;
 
 =head1 NAME
@@ -12,11 +13,11 @@ use GD;
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 DESCRIPTION
 
@@ -235,6 +236,12 @@ sub add_seq {
   }
 
 }
+
+=head2 add_all_seq
+
+  Add all seq from subset to the picture.
+
+=cut
 
 sub add_all_seq {
   my $self                 = shift;

@@ -2,9 +2,7 @@ package Bio::DOOP::Cluster;
 
 use strict;
 use warnings;
-use Bio::DOOP::DBSQL;
-use Bio::DOOP::ClusterSubset;
-use Bio::DOOP::Sequence;
+use Carp qw(cluck carp verbose);
 
 =head1 NAME
 
@@ -12,11 +10,11 @@ use Bio::DOOP::Sequence;
 
 =head1 VERSION
 
-Version 0.02
+Version 0.06
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
@@ -77,6 +75,13 @@ sub new_by_id {
 }
 
 =head1 METHODS
+
+=head2 new
+
+  $cluster = Bio::DOOP::Cluster->new($db,"8010110","500");
+  Create a new cluster object from cluster id and promoter type
+
+=cut
 
 =head2 new_by_id
 
@@ -173,10 +178,14 @@ sub get_all_subsets {
   my $id                   = $self->{PRIMARY};
   my $ret = $self->{DB}->query("SELECT subset_primary_id FROM cluster_subset WHERE cluster_primary_id = $id");
 
+  if ($#$ret == -1){
+     cluck "No subset!\n";
+     return();
+  }
+
   my @subsets;
   for my $i (@$ret){
 	  push @subsets,Bio::DOOP::ClusterSubset->new($self->{DB},$$i[0]);
-#	  print $$i[0],"\n";
   }
 
   return(\@subsets);
@@ -193,6 +202,11 @@ sub get_all_seqs {
   my $self                 = shift;
   my $id                   = $self->{PRIMARY};
   my $ret = $self->{DB}->query("SELECT DISTINCT(sequence_primary_id) FROM subset_xref WHERE cluster_primary_id = $id;");
+
+  if ($#$ret == -1){
+     cluck "No seq!\n";
+     return();
+  }
 
   my @seqs;
   for my $i (@$ret){
@@ -212,10 +226,29 @@ sub get_orig_subset {
   my $self                 = shift;
   my $id                   = $self->{PRIMARY};
   my $ret = $self->{DB}->query("SELECT subset_primary_id FROM cluster_subset WHERE cluster_primary_id = $id AND original = \"y\"");
-
+  if ($#$ret == -1){
+     cluck "No original subset!\n";
+     return();
+  }
   my $subset =  Bio::DOOP::ClusterSubset->new($self->{DB},$$ret[0]->[0]);
-  
   return($subset);
 }
+
+=head2 get_ref_seq
+
+  Return the cluster reference sequence (human or arabidopsis)
+
+=cut
+
+sub get_ref_seq {
+  my $self                 = shift;
+  my $id                   = $self->{PRIMARY};
+
+  my $ret = $self->{DB}->query("SELECT sequence.sequence_primary_id FROM sequence, taxon_annotation, subset_xref WHERE cluster_primary_id = $id AND (taxon_name = 'Arabidopsis thaliana' OR taxon_name = 'Homo sapiens') AND taxon_annotation.taxon_primary_id = sequence.taxon_primary_id AND sequence.sequence_primary_id = subset_xref.sequence_primary_id;");
+  
+  my $seq = Bio::DOOP::Sequence->new($self->{DB},$$ret[0]->[0]);
+  return($seq);
+}
+
 
 1;

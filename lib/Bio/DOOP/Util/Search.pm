@@ -2,11 +2,6 @@ package Bio::DOOP::Util::Search;
 
 use strict;
 use warnings;
-#use Bio::DOOP::DBSQL;
-use Bio::DOOP::Motif;
-use Bio::DOOP::Cluster;
-use Bio::DOOP::ClusterSubset;
-use Bio::DOOP::Sequence;
 
 =head1 NAME
 
@@ -14,11 +9,11 @@ use Bio::DOOP::Sequence;
 
 =head1 VERSION
 
-  Version 0.05
+  Version 0.06
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
