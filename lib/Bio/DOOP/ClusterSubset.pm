@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head1 SYNOPSIS
 
@@ -23,7 +23,8 @@ our $VERSION = '0.06';
 
 =head1 DESCRIPTION
 
-  This object is represents one element from the cluster.
+  This object is represents one subset from the cluster. A subset is a set of homologous sequences 
+  those are groupped by evolution distance.
 
 =head1 AUTHOR
 
@@ -33,7 +34,7 @@ our $VERSION = '0.06';
 
 =head2 new
 
-  This is the object creation process. Most of the cases you not need to use.
+  This is the object creation process. Most of the cases you do not need to use.
   $db = Bio::DOOP::DBSQL->connect("doopuser","dooppasswd","localhost");
   $cluster_subset = Bio::DOOP::ClusterSubset->new($db,"123");
 
@@ -72,7 +73,9 @@ sub new {
 =head2 get_id
 
   print $cluster_subset->get_id;
+
   Print out the subset primary id. It is the MySQL field id.
+  Return type: string
 
 =cut
 
@@ -84,7 +87,9 @@ sub get_id {
 =head2 get_type
 
   print $cluster_subset->get_type;
-  print out the subset type. 
+
+  Print out the subset type.
+  Return type: string
 
 =cut
 
@@ -98,8 +103,10 @@ sub get_type {
   for(i = 0; i < $cluster_subset->get_seqno; i++){
       print $seq[$i];
   }
-  print out all of the sequences that linked to the subset.
+
+  Print out all of the sequences that linked to the subset.
   get_seqno is the number of the sequences.
+  Return type: string
 
 =cut
 
@@ -113,7 +120,9 @@ sub get_seqno {
   if ($cluster_subset->get_featno > 4){
       print "Lots of features have\n";
   }
-  get_featno is the number of the features that linked to the subset
+
+  get_featno is the number of the contained features.
+  Return type: string
 
 =cut
 
@@ -124,7 +133,8 @@ sub get_featno {
 
 =head2 get_motifno
 
-  get_motifno is the number of the motifs that linked to the subset
+  get_motifno is the number of the contained motifs.
+  Return type: string
 
 =cut
 
@@ -141,8 +151,10 @@ sub get_motifno {
   elsif ($cluster_subset->get_orig eq "n"){
       print"The subset is not original\n";
   }
-  if the subset is original, then print: The subset is original
-  otherwise print: The subset is not original
+
+  If the subset is original, then print: The subset is original
+  otherwise print: The subset is not original.
+  Return type: string
 
 =cut
 
@@ -154,7 +166,9 @@ sub get_orig {
 =head2 get_cluster
 
   $cluster_id = $cluster_subset->get_cluster;
-  the variable is equal with the cluster id, that is contain the subset
+
+  The variable is equal with the cluster id, that is contain the subset.
+  Return type: string
 
 =cut
 
@@ -166,7 +180,9 @@ sub get_cluster {
 =head2 get_dialign
 
   print $cluster_subset->get_dialign;
-  Print out the dialign alignment of the subset
+
+  Print out the dialign alignment of the subset.
+  Return type: string
 
 =cut
 
@@ -178,7 +194,9 @@ sub get_dialign {
 =head2 get_fasta_align
 
   print $cluster_subset->get_fasta_align;
-  Print out the fasta alignment of the subset
+
+  Print out the fasta alignment of the subset.
+  Return type: string
 
 =cut
 
@@ -190,7 +208,9 @@ sub get_fasta_align {
 =head2 get_all_motifs
 
   @motifs = @{$cluster_subset->get_all_motifs};
-  return the arrayref of all the motifs that contained by the subset
+
+  Returns the arrayref of all the motifs that contained by the subset.
+  Return type: listref of Bio::DOOP::Motif
 
 =cut
 
@@ -218,7 +238,9 @@ sub get_all_motifs {
 =head2 get_all_seqs
 
   @seq = @{$cluster_subset->get_all_seqs};
-  Return the arrayref of all the sequences that contained by the subset
+
+  Return the arrayref of all the sequences that contained by the subset.
+  Return type: listref of Bio::DOOP::Sequence
 
 =cut
 

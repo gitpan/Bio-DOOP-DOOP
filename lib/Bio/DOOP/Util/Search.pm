@@ -236,7 +236,7 @@ sub get_all_cluster_by_atno {
   my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND sequence_xref.xref_type = 'at_no' AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_xref.xref_id LIKE '$atno%';");
 
   for my $cluster (@$ret) {
-	push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0]);
+	push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0],$promoter_size);
   }
   return(\@clusters);
 }

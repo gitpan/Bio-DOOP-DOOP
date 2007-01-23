@@ -10,15 +10,15 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head1 SYNOPSIS
 
-  This object represent the cluster.
+  This object represent a cluster. You can access properties through the methods.
   Usage:
 
   $cluster = Bio::DOOP::Cluster->new($db,"81007400","500");
@@ -79,7 +79,10 @@ sub new_by_id {
 =head2 new
 
   $cluster = Bio::DOOP::Cluster->new($db,"8010110","500");
-  Create a new cluster object from cluster id and promoter type
+  Create a new cluster object from cluster id and promoter type. Every promoter sequence has an uniq number. 
+  This number is the cluster id. We have three promoter size (500,1000,3000 bps), so the uniq sequence is
+  identified by two parameter: cluster id and promoter type.
+  Return type: Bio::DOOP::Cluster
 
 =cut
 
@@ -87,6 +90,7 @@ sub new_by_id {
 
   Bio::DOOP::Cluster->new_by_id($db,"2453");
   Used by internal MySQL querys
+  Return type: Bio::DOOP::Cluster
 
 =cut
 
@@ -94,7 +98,8 @@ sub new_by_id {
 
   $cluster_id = $cluster->get_id;
 
-  Return with the MySQL id.
+  Returns with the MySQL id.
+  Return type: string
 
 =cut
 
@@ -105,7 +110,8 @@ sub get_id {
 
 =head2 get_cluster_id
 
-  Return the cluster id
+  Returns the cluster id.
+  Return type: string
 
 =cut
 
@@ -118,7 +124,8 @@ sub get_cluster_id {
 
   $pt = $cluster->get_promo_type;
 
-  Visszaadja a promoter elvi meretet (500,1000,3000 bp elvi meretu lehet)
+  Returns the size of the promoter (500,1000,3000 bps). This is the maximum number.
+  Return type: string
 
 =cut
 
@@ -131,7 +138,9 @@ sub get_promo_type {
 
   print $cluster->get_type;
 
-  Visszaadja a promoter tipusat (1,2,3,4,5,6 tipusu lehet az exonok fugvenyeben)
+  Returns the type of the promoter (The available return types are the following: 1,2,3,4,5,6). 
+  See the doop homepage for more details.
+  Return type: string
 
 =cut
 
@@ -144,7 +153,8 @@ sub get_type {
 
   $date = $cluster->get_date;
 
-  Az adatbazisba kerulesenek az idopontja
+  Returns the cluster time when we add to the database.
+  Return type: string
 
 =cut
 
@@ -157,7 +167,7 @@ sub get_date {
 
   print $cluster->get_version;
 
-  A cluster verzioszama
+  Returns the version number.
 
 =cut
 
@@ -168,8 +178,10 @@ sub get_version {
 
 =head2 get_all_subsets
 
-  This is return with all the subsets linked to the cluster
   @subsets = @{$cluster->get_all_subsets};
+
+  Returns all the subsets that is linked to this cluster.
+  Return type: Bio::DOOP::ClusterSubset
 
 =cut
 
@@ -194,7 +206,9 @@ sub get_all_subsets {
 =head2 get_all_seqs
 
   @seqs = @{$cluster->get_all_seqs};
+
   Return all the sequences that are linked to the cluster
+  Return type: Bio::DOOP::Sequence
 
 =cut
 
@@ -218,7 +232,10 @@ sub get_all_seqs {
 
 =head2 get_orig_subset
 
-  Return the original subset, that is contain the whole cluster
+  @subsets = @{$cluster->get_orig_subset};
+
+  Return the original subset, that is contain the whole cluster.
+  Return type: Bio::DOOP::ClusterSubset
 
 =cut
 
@@ -236,7 +253,10 @@ sub get_orig_subset {
 
 =head2 get_ref_seq
 
-  Return the cluster reference sequence (human or arabidopsis)
+  $refseq = $cluster->get_ref_seq;
+
+  Return the cluster reference sequence (human or arabidopsis).
+  Return type: Bio::DOOP::Sequence
 
 =cut
 

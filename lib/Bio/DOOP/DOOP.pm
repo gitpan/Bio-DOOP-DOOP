@@ -17,11 +17,11 @@ use Bio::DOOP::Graphics::Feature;
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head1 SYNOPSIS
 
@@ -36,6 +36,9 @@ our $VERSION = '0.06';
 
 =head1 DESCRIPTION
 
+  DOOP is a database containing orthologous clusters of promoters from Homo sapiens, 
+  Arabidopsis thaliana and other organisms. Visit the http://doop.abc.hu/ for more 
+  information.
   This is a container module for all the DOOP modules.
   You can simply use this module to access all DOOP objects.
   For more help, please see the documentation of the individual

@@ -10,11 +10,11 @@ use DBI;
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -29,9 +29,8 @@ our $VERSION = '0.02';
 
   This object is a low level access to the MySQL database. Most of
   the cases you would not need to use because the DOOP API is substitute
-  the database manipulations. But if you need special query from the
-  database and the DOOP API can not help you, you can make a query with
-  the query method.
+  the database manipulations. But if you need special query and the DOOP 
+  API can not help you, you can make a query with the query method.
 
 =head1 AUTHOR
 
@@ -40,6 +39,8 @@ our $VERSION = '0.02';
 =head1 METHODS
 
 =head2 connect
+
+  $db = Bio::DOOP::DBSQL->connect("doopuser","dooppass","doop-plant-1_5","localhost");
 
   You can connect to the database. The arguments is the following:
   user name, password, database name, database host. The return value
@@ -67,8 +68,11 @@ sub connect {
 
 =head2 query
 
-  You can run special SQL statements on the database. The 
-  return is an arrayref to the results.
+  $db->query("SELECT COUNT(*) FROM Cluster;");
+
+  You can run special SQL statements on the database. In this example we count
+  the number of clusters.
+  Return type: arrayref to the results.
 
 =cut
 

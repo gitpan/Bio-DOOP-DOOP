@@ -9,11 +9,11 @@ use warnings;
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head1 SYNOPSIS
 
@@ -70,7 +70,7 @@ sub new {
 
 =head2 type
 
-  Return the type of the motif
+  Returns the type of the motif
 
 =cut
 
@@ -81,7 +81,7 @@ sub type {
 
 =head2 seq
 
-  Return the consensus sequence of the motif (string)
+  Returns the consensus sequence of the motif (string)
 
 =cut
 
