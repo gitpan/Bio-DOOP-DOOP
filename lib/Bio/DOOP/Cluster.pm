@@ -6,27 +6,29 @@ use Carp qw(cluck carp verbose);
 
 =head1 NAME
 
-  Bio::DOOP::Cluster - Doop cluster object
+  Bio::DOOP::Cluster - DoOP cluster object
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 
-  This object represent a cluster. You can access properties through the methods.
+  This object represents a cluster. You can access properties through the methods.
   Usage:
 
   $cluster = Bio::DOOP::Cluster->new($db,"81007400","500");
   print $cluster->get_cluster_id;
 
+=head1 DESCRIPTION
+
 =head1 AUTHOR
 
-  Tibor Nagy, Godollo, Hungary
+  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =cut
 
@@ -34,16 +36,21 @@ sub new {
   my $self                 = {};
   my $dummy                = shift;
   my $db                   = shift;
-     $self->{ID}           = shift;  # This is the cluster_db_id field in the MySQL
+     $self->{ID}           = shift;  # This is the cluster_db_id field in the MySQL tables.
      $self->{PROMO_TYPE}   = shift;
 
   my $id   = $self->{ID};
   my $size = $self->{PROMO_TYPE};
 
   my $ret  = $db->query("SELECT * FROM cluster WHERE cluster_db_id=\"$id\" AND cluster_promoter_type=\"$size\";");
+
+  if ($#$ret == -1){
+     return(-1);
+  }
+
   my @cluster = @{$$ret[0]};
 
-  $self->{PRIMARY}         = $cluster[0];  # This is need for the cluster subset query
+  $self->{PRIMARY}         = $cluster[0];
   $self->{TYPE}            = $cluster[3];
   $self->{DATE}            = $cluster[4];
   $self->{VERSION}         = $cluster[5];
@@ -56,14 +63,19 @@ sub new_by_id {
   my $self                 = {};
   my $dummy                = shift;
   my $db                   = shift;
-     $self->{PRIMARY}      = shift;  # This is the cluster_db_id field in the MySQL
+     $self->{PRIMARY}      = shift;  # This is the cluster_db_id field in the MySQL tables.
 
   my $id   = $self->{PRIMARY};
 
   my $ret  = $db->query("SELECT * FROM cluster WHERE cluster_primary_id=\"$id\";");
+
+  if ($#$ret == -1){
+     return(-1);
+  }
+
   my @cluster = @{$$ret[0]};
 
-  $self->{PRIMARY}         = $cluster[0];  # This is need for the cluster subset query
+  $self->{PRIMARY}         = $cluster[0];
   $self->{PROMO_TYPE}      = $cluster[1];
   $self->{ID}              = $cluster[2];
   $self->{TYPE}            = $cluster[3];
@@ -79,18 +91,18 @@ sub new_by_id {
 =head2 new
 
   $cluster = Bio::DOOP::Cluster->new($db,"8010110","500");
-  Create a new cluster object from cluster id and promoter type. Every promoter sequence has an uniq number. 
-  This number is the cluster id. We have three promoter size (500,1000,3000 bps), so the uniq sequence is
-  identified by two parameter: cluster id and promoter type.
-  Return type: Bio::DOOP::Cluster
+  Create a new cluster object from the cluster id and promoter type. Every promoter cluster has a uniq
+  identifier. This is the cluster id. There are three promoter sizes (500,1000,3000 bp), so the uniq
+  cluster is identified by two parameters : cluster id and promoter type.
+  Return type: Bio::DOOP::Cluster object
 
 =cut
 
 =head2 new_by_id
 
   Bio::DOOP::Cluster->new_by_id($db,"2453");
-  Used by internal MySQL querys
-  Return type: Bio::DOOP::Cluster
+  Used by internal MySQL queries.
+  Return type: Bio::DOOP::Cluster object
 
 =cut
 
@@ -98,7 +110,7 @@ sub new_by_id {
 
   $cluster_id = $cluster->get_id;
 
-  Returns with the MySQL id.
+  Returns the MySQL id.
   Return type: string
 
 =cut
@@ -124,7 +136,7 @@ sub get_cluster_id {
 
   $pt = $cluster->get_promo_type;
 
-  Returns the size of the promoter (500,1000,3000 bps). This is the maximum number.
+  Returns the size of the promoter (500,1000,3000 bp).
   Return type: string
 
 =cut
@@ -138,8 +150,8 @@ sub get_promo_type {
 
   print $cluster->get_type;
 
-  Returns the type of the promoter (The available return types are the following: 1,2,3,4,5,6). 
-  See the doop homepage for more details.
+  Returns the type of the promoter (The available return types are the following: 1,2,3,4,5n,6n). 
+  See http://doop.abc.hu for more details.
   Return type: string
 
 =cut
@@ -153,7 +165,7 @@ sub get_type {
 
   $date = $cluster->get_date;
 
-  Returns the cluster time when we add to the database.
+  Returns the date when the cluster was last modified.
   Return type: string
 
 =cut
@@ -167,7 +179,8 @@ sub get_date {
 
   print $cluster->get_version;
 
-  Returns the version number.
+  Returns the version of the cluster.
+  Return type: string
 
 =cut
 
@@ -180,8 +193,8 @@ sub get_version {
 
   @subsets = @{$cluster->get_all_subsets};
 
-  Returns all the subsets that is linked to this cluster.
-  Return type: Bio::DOOP::ClusterSubset
+  Returns the arrayref of all subsets associated with the cluster.
+  Return type: arrayref, the array containing Bio::DOOP::ClusterSubset objects
 
 =cut
 
@@ -191,8 +204,8 @@ sub get_all_subsets {
   my $ret = $self->{DB}->query("SELECT subset_primary_id FROM cluster_subset WHERE cluster_primary_id = $id");
 
   if ($#$ret == -1){
-     cluck "No subset!\n";
-     return();
+     cluck "No subset found!\n";
+     return(-1);
   }
 
   my @subsets;
@@ -207,8 +220,8 @@ sub get_all_subsets {
 
   @seqs = @{$cluster->get_all_seqs};
 
-  Return all the sequences that are linked to the cluster
-  Return type: Bio::DOOP::Sequence
+  Returns the arrayref of all sequences associated with the cluster.
+  Return type: arrayref, the array containig Bio::DOOP::Sequence objects
 
 =cut
 
@@ -218,8 +231,8 @@ sub get_all_seqs {
   my $ret = $self->{DB}->query("SELECT DISTINCT(sequence_primary_id) FROM subset_xref WHERE cluster_primary_id = $id;");
 
   if ($#$ret == -1){
-     cluck "No seq!\n";
-     return();
+     cluck "No sequence found! Something is really fucked up.\n";
+     return(-1);
   }
 
   my @seqs;
@@ -234,8 +247,8 @@ sub get_all_seqs {
 
   @subsets = @{$cluster->get_orig_subset};
 
-  Return the original subset, that is contain the whole cluster.
-  Return type: Bio::DOOP::ClusterSubset
+  Returns the original subset, containing the whole cluster.
+  Return type: Bio::DOOP::ClusterSubset object
 
 =cut
 
@@ -245,7 +258,7 @@ sub get_orig_subset {
   my $ret = $self->{DB}->query("SELECT subset_primary_id FROM cluster_subset WHERE cluster_primary_id = $id AND original = \"y\"");
   if ($#$ret == -1){
      cluck "No original subset!\n";
-     return();
+     return(-1);
   }
   my $subset =  Bio::DOOP::ClusterSubset->new($self->{DB},$$ret[0]->[0]);
   return($subset);
@@ -255,8 +268,8 @@ sub get_orig_subset {
 
   $refseq = $cluster->get_ref_seq;
 
-  Return the cluster reference sequence (human or arabidopsis).
-  Return type: Bio::DOOP::Sequence
+  Returns the cluster reference sequence (human or arabidopsis).
+  Return type: Bio::DOOP::Sequence object
 
 =cut
 
@@ -264,11 +277,16 @@ sub get_ref_seq {
   my $self                 = shift;
   my $id                   = $self->{PRIMARY};
 
+  #why taxon_name? taxon_taxid is so much nicer.
   my $ret = $self->{DB}->query("SELECT sequence.sequence_primary_id FROM sequence, taxon_annotation, subset_xref WHERE cluster_primary_id = $id AND (taxon_name = 'Arabidopsis thaliana' OR taxon_name = 'Homo sapiens') AND taxon_annotation.taxon_primary_id = sequence.taxon_primary_id AND sequence.sequence_primary_id = subset_xref.sequence_primary_id;");
   
+  if ($#$ret == -1){
+     cluck "No reference sequence!\n";
+     return(-1);
+  }
+
   my $seq = Bio::DOOP::Sequence->new($self->{DB},$$ret[0]->[0]);
   return($seq);
 }
-
 
 1;

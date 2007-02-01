@@ -3,39 +3,36 @@ package Bio::DOOP::Sequence;
 use strict;
 use warnings;
 use Carp qw(cluck carp verbose);
-#use Bio::DOOP::DBSQL;
-#use Bio::DOOP::SequenceFeature;
 
 =head1 NAME
 
-  Bio::DOOP::Sequence - Promoter sequence object
+  Bio::DOOP::Sequence - promoter sequence object
 
 =head1 VERSION
 
-Version 0.06
+Version 0.08
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
 
-  This object represent the promoters in the database.
-  You can access the different annotation through this
-  object.
+  This object represents a specific promoter in the database.
+  You can access the annotation and the sequence through this object.
 
 =head1 AUTHOR
 
-  Tibor Nagy, Godollo, Hungary
+  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
 =head2 new
 
   $seq = Bio::DOOP::Sequence->new($db,"1234");
-  The arguments is the following: Bio::DOOP::DBSQL object, primary id
+  The arguments are the following : Bio::DOOP::DBSQL object, sequence_primary_id
 
 =cut
 
@@ -72,7 +69,7 @@ sub new {
 
   }
   else {
-     cluck"No annotation for this sequence\n";
+     cluck"No annotation is available for this promoter sequence! You are on your own now.\n";
   }
 
   if (defined($self->{DATA})) {
@@ -83,7 +80,7 @@ sub new {
      $self->{BLAST}           = $fields[3];
   }
   else {
-     cluck"No sequence data\n";
+     cluck"No sequence data available! Where did it go?\n";
   }
 
   $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id =".$self->{TAXON}.";");
@@ -107,7 +104,7 @@ sub new {
 
 =head2 get_id
 
-  Return the sequence primary id. It is the MySQL id
+  Returns the sequence primary id. This is the internal ID from the MySQL database.
 
 =cut
 
@@ -118,7 +115,7 @@ sub get_id {
 
 =head2 get_fake_id
 
-  Return the fake gi.
+  Returns the sequence fake GI.
 
 =cut
 
@@ -129,7 +126,7 @@ sub get_fake_id {
 
 =head2 get_db_id
 
-  Return the data primary id. Is is used by the MySQL querys and it is the header of the subset FASTA file
+  Returns the full sequence ID.
 
 =cut
 
@@ -140,7 +137,7 @@ sub get_db_id {
 
 =head2 get_length
 
-  Return the length of the sequence
+  Returns the length of the sequence.
 
 =cut
 
@@ -151,7 +148,7 @@ sub get_length {
 
 =head2 get_date
 
-  Return the modification date of the MySQL record
+  Returns the modification date of the MySQL record.
 
 =cut
 
@@ -162,7 +159,7 @@ sub get_date {
 
 =head2 get_ver
 
-  Return the version of the sequence
+  Returns the version of the sequence.
 
 =cut
 
@@ -173,7 +170,7 @@ sub get_ver {
 
 =head2 get_annot_id
 
-  Return the annotation primary id. Is is used by the MySQL querys
+  Returns the sequence annotation primary id. This is the internal ID from the MySQL database.
 
 =cut
 
@@ -184,7 +181,7 @@ sub get_annot_id {
 
 =head2 get_orig_id
 
-  This is not yet used
+  This method is not yet implemented.
 
 =cut
 
@@ -195,7 +192,7 @@ sub get_orig_id {
 
 =head2 get_data_id
 
-  Return the sequence data primary id. Is is used by the MySQL querys
+  Returns the sequence data primary id. This is the internal ID from the MySQL database.
 
 =cut
 
@@ -206,7 +203,7 @@ sub get_data_id {
 
 =head2 get_taxon_id
 
-  Return the taxon annotiation primary id. Is is used by the MySQL querys
+  Returns the taxon annotation primary id. This is the internal ID from the MySQL database.
 
 =cut
 
@@ -217,7 +214,7 @@ sub get_taxon_id {
 
 =head2 get_data_main_db_id
 
-  Return the sequence annotation data primary id. Is is used by the MySQL querys
+  Returns the sequence annotation primary id. This is the internal ID from the MySQL database.
 
 =cut
 
@@ -229,7 +226,7 @@ sub get_data_main_db_id {
 =head2 get_utr_length
 
   $utr_length = $seq->get_utr_length;
-  Return the length of the UTR contained by the sequence.
+  Returns the length of the 5' UTR included in the sequence.
 
 =cut
 
@@ -241,8 +238,7 @@ sub get_utr_length {
 =head2 get_desc
 
   print $seq->get_desc,"\n";
-  Print out the sequence description. Contain useful informations
-  from the sequence.
+  Returns the description of the sequence.
 
 =cut
 
@@ -254,8 +250,8 @@ sub get_desc {
 =head2 get_gene_name
 
   $gene_name = $seq->get_gene_name;
-  Return the gene name of the promoter. If the gene is
-  unknow or not annotated, it is empty
+  Returns the gene name of the promoter. If the gene is
+  unknow or not annotated, it is empty.
 
 =cut
 
@@ -267,20 +263,33 @@ sub get_gene_name {
 =head2 get_fasta
 
   print $seq->get_fasta;
-  Print out the promoter sequence in FASTA format
+  Returns the promoter sequence in FASTA format.
 
 =cut
 
 sub get_fasta {
   my $self                 = shift;
-  my $seq = ">".$self->{DB_ID}."\n".$self->{FASTA};
+  my $seq = ">".$self->{DB_ID}."\n".$self->{FASTA}."\n";
+  return($seq);
+}
+
+=head2 get_raw_seq
+
+  Returns the raw sequence without any other identifier
+  Return type: string
+
+=cut
+
+sub get_raw_seq {
+  my $self                 = shift;
+  my $seq = $self->{FASTA};
   return($seq);
 }
 
 =head2 get_blast
 
   print $seq->get_blast;
-  Print out the Blast result
+  This method is not yet implemented.
 
 =cut
 
@@ -292,7 +301,7 @@ sub get_blast {
 =head2 get_taxid
 
   $taxid = $seq->get_taxid;
-  Return the NCBI taxid of the sequence
+  Returns the NCBI taxon ID of the sequence.
 
 =cut
 
@@ -304,7 +313,7 @@ sub get_taxid {
 =head2 get_taxon_name
 
   print $seq->get_taxon_name;
-  Print out the taxon name of the sequence
+  Returns the scientific name of the sequence's taxon ID.
 
 =cut
 
@@ -316,8 +325,9 @@ sub get_taxon_name {
 =head2 get_taxon_class
 
   print $seq->get_taxon_class;
-  Print out the taxonomical class (most of the cases it is the family)
-  of the species of the sequence
+  Returns the taxonomic class of the sequence's taxon ID.
+  Used internally, to create monophyletic sets of sequences
+  in an orthologous cluster.
 
 =cut
 
@@ -329,8 +339,15 @@ sub get_taxon_class {
 =head2 print_all_xref
 
   $seq->print_all_xref;
-  Print out all the alternative database connections. It is contain
-  the GO id, NCBI RNA GI and so on. You use this method for debug your database.
+  Prints all the xrefs to other databases.
+  Type of xref IDs : 
+  go_id            : Gene Ontology ID
+  ncbi_gene_id     : NCBI gene ID
+  ncbi_cds_gi      : NCBI CDS GI
+  ncbi_rna_gi      : NCBI RNA GI
+  ncbi_cds_prot_id : NCBI CDS protein ID
+  ncbi_rna_tr_id   : NCBI RNA transcript ID
+  at_no            : At Number
 
 =cut
 
@@ -346,7 +363,7 @@ sub print_all_xref {
 =head2 get_all_xref_keys
 
   @keys = @{$seq->get_all_xref_keys};
-  Return the arrayref of the alternative database names
+  Returns the arrayref of xref names.
 
 =cut
 
@@ -360,7 +377,7 @@ sub get_all_xref_keys {
 =head2 get_xref_value
 
   @values = @{$seq->get_xref_value("go_id")};
-  Return the arrayref of the values that contains the specified database name
+  Returns the arrayref of a given xref's values'.
 
 =cut
 
@@ -374,7 +391,7 @@ sub get_xref_value {
 =head2 get_all_seq_features
 
   @seqfeat = @{$seq->get_all_seq_features};
-  Return the arrayref of all sequence features
+  Returns the arrayref of all sequence features.
 
 =cut
 
@@ -383,12 +400,12 @@ sub get_all_seq_features {
   
   my @seqfeatures;
 
-  # The order by setting is important for the correct motif drawing
+  # The order of the sequence features is important to correctly draw the picture of the cluster.
   my $query = "SELECT sequence_feature_primary_id FROM sequence_feature WHERE sequence_primary_id =".$self->{PRIMARY}." ORDER BY feature_start;";
   my $ref = $self->{DB}->query($query);
 
   if ($#$ref == -1){
-     cluck"No have sequence features!\n";
+     cluck"No sequence feature found!\n";
      return();
   }
 
@@ -402,7 +419,7 @@ sub get_all_seq_features {
 
 =head2 get_all_subsets
 
-  Return the subset that is contain this sequence
+  Returns the subset containing the sequence.
 
 =cut
 
@@ -416,7 +433,7 @@ sub get_all_subsets {
   my $ref   = $self->{DB}->query($query);
 
   if ($#$ref == -1){
-     cluck"No have subset!\n";
+     cluck"No subset found! This is impossible!!\n";
      return();
   }
 
@@ -426,6 +443,5 @@ sub get_all_subsets {
 
   return(\@subsets);
 }
-
 
 1;

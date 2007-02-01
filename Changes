@@ -1,5 +1,15 @@
 Revision history for Bio-DOOP-DOOP
-
+0.08    2007/01/31
+        Add new method for Sequence.pm (get_raw_seq)
+        Fixed the motif drawing in Graphics::Feature module
+        Fixed the get_fasta method (add a new line to the end :-))
+        Add new method for SequenceFeature.pm (length)
+        Add new object (Util::Run::Mofext)
+        Fixed the get_subset_id methods in Bio::DOOP::Motif
+        Add more warning messages to the Cluster and ClusterSubset objects
+0.07    2007/01/12
+        Add more comment for the documentation
+        Remove hungarian comments
 0.06    2007/01/05
         New method in Cluster class: get_ref_seq
         Carp uses for module warnings

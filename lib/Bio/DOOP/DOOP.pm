@@ -9,6 +9,7 @@ use Bio::DOOP::Sequence;
 use Bio::DOOP::SequenceFeature;
 use Bio::DOOP::Motif;
 use Bio::DOOP::Util::Search;
+use Bio::DOOP::Util::Run::Mofext;
 use Bio::DOOP::Graphics::Feature;
 
 =head1 NAME
@@ -17,17 +18,17 @@ use Bio::DOOP::Graphics::Feature;
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 
   use Bio::DOOP::DOOP;
 
-  $db = Bio::DOOP::DBSQL->new("doopuser","dooppass","doop_1_5","localhost");
+  $db = Bio::DOOP::DBSQL->new("doopuser","dooppass","database","localhost");
   $cluster = Bio::DOOP::Cluster->new($db,"8010109","500");
   @seqs = @{$cluster->get_all_seqs};
   foreach $seq (@seqs){
@@ -36,31 +37,31 @@ our $VERSION = '0.07';
 
 =head1 DESCRIPTION
 
-  DOOP is a database containing orthologous clusters of promoters from Homo sapiens, 
-  Arabidopsis thaliana and other organisms. Visit the http://doop.abc.hu/ for more 
-  information.
-  This is a container module for all the DOOP modules.
+  DoOP is a database containing orthologous clusters of promoters from Homo sapiens, 
+  Arabidopsis thaliana and other organisms. Visit the http://doop.abc.hu/ site for
+  more information.
+  This is a container module for all of the DOOP modules.
   You can simply use this module to access all DOOP objects.
   For more help, please see the documentation of the individual
   objects.
 
 =head1 AUTHOR
 
-  Tibor Nagy, Godollo, Hungary
+  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 OBJECTS
 
 =head2 Bio::DOOP::DBSQL
 
-  Object for simple SQL querys
+  Object for simple SQL queries.
 
 =head2 Bio::DOOP::Cluster
 
-  Object for the clusters
+  Object for the clusters.
 
 =head2 Bio::DOOP::ClusterSubset
 
-  Object for the set of sequences that is smaller (or equal) than the cluster itself.
+  Object for the subsets of sequences inside a cluster.
 
 =head2 Bio::DOOP::Sequence
 
@@ -68,15 +69,24 @@ our $VERSION = '0.07';
 
 =head2 Bio::DOOP::SequenceFeature
 
-  Object for the special annotation of the sequences.
+  Object for the different features of the sequences.
 
 =head2 Bio::DOOP::Motif
 
-  Object for the conserved regulatory elements.
+  Object for the conserved sequence features.
 
 =head2 Bio::DOOP::Util::Search
 
-  Module for some useful searching subrutine.
+  Module for different search subrutines.
+
+=head2 Bio::DOOP::Util::Run::Mofext
+
+  Module for Mofext wrapping. Mofext is a motif finder 
+  program developed by the author Tibor Nagy.
+
+=head2 Bio::DOOP::Graphics::Feature
+
+  Module for generating a picture of the sequences and feature of a cluster.
 
 =cut
 

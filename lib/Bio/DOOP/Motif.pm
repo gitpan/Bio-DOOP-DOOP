@@ -9,30 +9,30 @@ use warnings;
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 
   use Bio::DOOP::Motif;
 
-  $db = Bio::DOOP::DBSQL->connect("user","pass","somewhere.where.org");
-  my $motif = Bio::DOOP::Motif->new($db,"160945"); # This is the motif primary id
+  $db = Bio::DOOP::DBSQL->connect("user","pass","database","somewhere.where.org");
+  my $motif = Bio::DOOP::Motif->new($db,"160945");
   print $motif->seq,":",$motif->start," ",$motif->end,"\n";
 
 =head1 DESCRIPTION
 
-  This package represent the conserved motifs.
-  You shoud not use directly the constructor but
-  some times it is useful. Most of the cases you
+  This object represents the conserved motifs.
+  You should not use the constructor directly, but
+  sometimes it is useful. In most of the cases you
   get this object from other objects.
 
 =head1 AUTHOR
 
-  Tibor Nagy, Godollo, Hungary
+  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
@@ -40,8 +40,10 @@ our $VERSION = '0.07';
 
 =head2 new
 
-  Create the new objects from the primary id.
-  It has two arguments: the connected database identifier and the primary id
+  $motif = Bio::DOOP::Motif->new($db,"1234");
+ 
+  You can create the object with the new method.
+  The arguments are the following : Bio::DOOP::DBSQL object, motif_primary_id
 
 =cut
 
@@ -70,7 +72,8 @@ sub new {
 
 =head2 type
 
-  Returns the type of the motif
+  Returns the type of the motif.
+  (explain a little more)
 
 =cut
 
@@ -81,7 +84,7 @@ sub type {
 
 =head2 seq
 
-  Returns the consensus sequence of the motif (string)
+  Returns the consensus sequence of the motif.
 
 =cut
 
@@ -92,7 +95,7 @@ sub seq {
 
 =head2 start
 
-  Return the start position of the motif
+  Returns the start position of the motif.
 
 =cut
 
@@ -103,7 +106,7 @@ sub start {
 
 =head2 end
 
-  Return the end position of the motif
+  Returns the end position of the motif.
 
 =cut
 
@@ -114,18 +117,18 @@ sub end {
 
 =head2 length
 
-  Return the length of the motif
+  Returns the length of the motif.
 
 =cut
 
 sub length {
   my $self                 = shift;
-  return($self->{END} - $self->{START});
+  return($self->{END} - $self->{START} + 1);
 }
 
 =head2 get_id
 
-  Return the motif MySQL primary id
+  Returns the primary ID of the motif. This is the internal ID from the MySQL database.
 
 =cut
 
@@ -136,7 +139,10 @@ sub get_id {
 
 =head2 get_block
 
-  Return the motif block. Not yet implemented
+  Return the multiple alignment block from which the motif
+  was generated.
+
+  Not yet implemented.
 
 =cut
 
@@ -147,7 +153,9 @@ sub get_block {
 
 =head2 get_matrix
 
-  Return the motif matrix. Not yet implemented
+  Returns the position frequency matrix of the motif.
+  
+  Not yet implemented.
 
 =cut
 
@@ -158,7 +166,9 @@ sub get_matrix {
 
 =head2 get_logo
 
-  Return the motif logo. Not yet implemented
+  Return the sequence logo of the motif.
+  
+  Not yet implemented.
 
 =cut
 
@@ -169,16 +179,13 @@ sub get_logo {
 
 =head2 get_subset_id
 
-  Return the motif subset primary id. It is used by internal processes
+  Returns the motif subset primary id.
 
 =cut
 
 sub get_subset_id {
   my $self                 = shift;
-  return($self->{SUBSETID});
+  return($self->{SUBSET_ID});
 }
-
-
-
 
 1;

@@ -10,30 +10,31 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
+
+=head1 SYNOPSIS
 
 =head1 DESCRIPTION
 
-  This object give access for the sequence features ( motif, repeat, cpg
-  and tss annotaion ). This object also contain some web based code
-  for visualize the feature in picture.
+  This object gives access to the sequence features ( conserved motif, repeat, CpG island,
+  TFBS and TSS annotation ).
 
 =head1 AUTHOR
 
-  Tibor Nagy, Godollo, Hungary
+  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
 =head2 new
 
   $seqfeat = Bio::DOOP::SequenceFeature->new($db,"112");
-  You can create the object with new. The arguments is the following:
-  $db is a Bio::DOOP::DBSQL object, the second argument is a
-  SequenceFeature primary id.
+ 
+  You can create the object with the new method.
+  The arguments are the following : Bio::DOOP::DBSQL object, sequence_feature_primary_id
 
 =cut
 
@@ -113,7 +114,7 @@ sub new {
 
 =head2 get_id
 
-  Return the primary id of the features. Use for MySQL queryes
+  Returns the primary ID of the feature. This is the internal ID from the MySQL database.
 
 =cut
 
@@ -124,7 +125,7 @@ sub get_id {
 
 =head2 get_score
 
-  Return the score of the feature. I do not know too much about it.
+  Returns the score of the feature. We don't really need this now.
 
 =cut
 
@@ -135,7 +136,7 @@ sub get_score {
 
 =head2 get_start
 
-  Return the start position of the feature.
+  Returns the start position of the feature.
 
 =cut
 
@@ -146,7 +147,7 @@ sub get_start {
 
 =head2 get_end
 
-  Return the end position of the feature
+  Returns the end position of the feature.
 
 =cut
 
@@ -155,9 +156,21 @@ sub get_end {
   return($self->{END});
 }
 
+=head2 length
+
+  Returns the length of the feature.
+  Return type: string
+
+=cut
+
+sub length {
+  my $self                 = shift;
+  return($self->{END} - $self->{START} + 1);
+}
+
 =head2 get_png_topleft
 
-  Return the picture position of the feature. Used by a web code
+  Nothing to see here. Move along.
 
 =cut
 
@@ -168,7 +181,7 @@ sub get_png_topleft {
 
 =head2 get_png_topright
 
-  Return the picture position of the feature. Used by a web code
+  Nothing to see here. Move along.
 
 =cut
 
@@ -179,7 +192,7 @@ sub get_png_topright {
 
 =head2 get_png_bottomleft
 
-  Return the picture position of the feature. Used by a web code
+  Nothing to see here. Move along.
 
 =cut
 
@@ -190,7 +203,7 @@ sub get_png_bottomleft {
 
 =head2 get_png_bottomright
 
-  Return the picture position of the feature. Used by a web code
+  Nothing to see here. Move along.
 
 =cut
 
@@ -201,7 +214,7 @@ sub get_png_bottomright {
 
 =head2 get_seq
 
-  Return the sequence of the feature.
+  Returns the sequence of the feature.
 
 =cut
 
@@ -212,7 +225,14 @@ sub get_seq {
 
 =head2 get_type
 
-  Return the type of the feature. (con, ssr, tfbs, rep, cpg, tss)
+  Returns the type of the feature. (con, ssr, tfbs, rep, cpg, tss).
+
+  con  : evolutionary conserved non-coding region
+  ssr  : simple sequence repeat
+  tfbs : transcription factor binding site
+  rep  : repeat
+  cpg  : cpg island
+  tss  : transcription start site
 
 =cut
 
@@ -223,7 +243,7 @@ sub get_type {
 
 =head2 get_motifid
 
-  Return the motif primary id, if the feature type is con. Else it is NULL
+  Returns the motif primary ID, if the feature type is "con".
 
 =cut
 
@@ -234,7 +254,7 @@ sub get_motifid {
 
 =head2 get_tfbsid
 
-  Return the tfbs primary id, if the feature type is tfbs. Else it is NULL
+  Returns the tfbs primary ID, if the feature type is "tfbs".
 
 =cut
 
@@ -245,7 +265,7 @@ sub get_tfbsid {
 
 =head2 get_cpgid
 
-  Return the cpg primary id, if the feature type is cpg. Else it is NULL
+  Returns the cpg primary ID, if the feature type is "cpg".
 
 =cut
 
@@ -256,7 +276,7 @@ sub get_cpgid {
 
 =head2 get_repeatid
 
-  Return the repeat primary id, if the feature type is rep. Else it is NULL
+  Returns the repeat primary ID, if the feature type is "rep".
 
 =cut
 
@@ -267,7 +287,7 @@ sub get_repeatid {
 
 =head2 get_ssrid
 
-  Return the ssr primary id, if the feature type is ssr. Else it is NULL
+  Returns the ssr primary ID, if the feature type is "ssr".
 
 =cut
 
@@ -278,7 +298,7 @@ sub get_ssrid {
 
 =head2 get_tssid
 
-  Return the tss primary id, if the feature type is tss. Else it is NULL
+  Returns the tss primary ID, if the feature type is "tss".
 
 =cut
 
@@ -289,7 +309,7 @@ sub get_tssid {
 
 =head2 get_seqid
 
-  Return the sequence primary id that is contain this feature
+  Returns the primary ID of the sequence containing this feature.
 
 =cut
 
@@ -300,7 +320,7 @@ sub get_seqid {
 
 =head2 get_subsetid
 
-  The get_subsetid method returns the subset primary id of the feature
+  Returns the subset primary ID of the feature, if the feature type is "con".
 
 =cut
 
@@ -312,8 +332,8 @@ sub get_subsetid {
 =head2 get_motif
 
   $motif = $seqfeat->get_motif;
-  Return the motif object associated to the feature.
-  If the feature type is not con this value is NULL
+  Returns the motif object associated with the feature.
+  If the feature type is not "con" this value is NULL.
 
 =cut
 
@@ -324,7 +344,7 @@ sub get_motif {
 
 =head2 get_tss_type
 
-  Return the tss type, if the feature is tss.
+  Returns the tss type, if the feature type is "tss".
 
 =cut
 
@@ -335,7 +355,7 @@ sub get_tss_type {
 
 =head2 get_tss_id
 
-  Return the tss id, if the feature is tss.
+  Returns the tss id, if the feature type is "tss".
 
 =cut
 
@@ -346,7 +366,7 @@ sub get_tss_id {
 
 =head2 get_tss_desc
 
-  Return the description of the tss, if the feature is tss
+  Returns the description of the tss, if the feature type is "tss".
 
 =cut
 
@@ -357,7 +377,7 @@ sub get_tss_desc {
 
 =head2 get_tss_xref
 
-  Return the xref of the tss, if the feature is tss
+  Returns the xref of the tss, if the feature type is "tss".
 
 =cut
 
@@ -365,7 +385,5 @@ sub get_tss_xref {
   my $self                 = shift;
   return($self->{T_XREF});
 }
-
-
 
 1;

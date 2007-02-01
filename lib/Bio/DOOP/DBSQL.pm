@@ -10,41 +10,41 @@ use DBI;
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 SYNOPSIS
 
-  $db  = Bio::DOOP::DBSQL->connect("doopuser","dooppass","doop-plant-1_5","localhost");
+  $db  = Bio::DOOP::DBSQL->connect("doopuser","dooppass","database","localhost");
   $res = $db->query("SELECT * FROM sequence LIMIT 10");
-  foreach (@$res){
+  foreach (@$res) {
      @fields = @{$_};
-     print"@fields\n";
+     print "@fields\n";
   }
 
 =head1 DESCRIPTION
 
-  This object is a low level access to the MySQL database. Most of
-  the cases you would not need to use because the DOOP API is substitute
-  the database manipulations. But if you need special query and the DOOP 
-  API can not help you, you can make a query with the query method.
+  This object provides low level access to the MySQL database. In most
+  cases you do not need to use it, because the DOOP API handles the database
+  queries. Still if you need some special query and the DOOP 
+  API can't help you, use the query method to access the database.
 
 =head1 AUTHOR
 
-  Tibor Nagy, Godollo, Hungary
+  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
 =head2 connect
 
-  $db = Bio::DOOP::DBSQL->connect("doopuser","dooppass","doop-plant-1_5","localhost");
+  $db = Bio::DOOP::DBSQL->connect("doopuser","dooppass","database","localhost");
 
-  You can connect to the database. The arguments is the following:
-  user name, password, database name, database host. The return value
-  is a Bio::DOOP::DBSQL object. You must use this objects in the argument
+  You can connect to the database with this method. The arguments are the 
+  following : username, password, database name, host. The return value
+  is a Bio::DOOP::DBSQL object. You must use this object in the argument
   of other objects.
 
 =cut
@@ -72,7 +72,7 @@ sub connect {
 
   You can run special SQL statements on the database. In this example we count
   the number of clusters.
-  Return type: arrayref to the results.
+  Returns an arrayref to the results.
 
 =cut
 
@@ -86,9 +86,5 @@ sub query {
 
   return($results);
 }
-
-
-
-
 
 1;

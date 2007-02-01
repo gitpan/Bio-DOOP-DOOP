@@ -13,16 +13,17 @@ use GD;
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 DESCRIPTION
 
   This object is represent a picture that is contain all the sequence features in the subset.
-  This module is enough quick to use it in your CGI scripts.
+  This module is enough quick to use it in your CGI scripts. You can also use it to visualize
+  the subset.
 
 =head1 AUTHOR
 
@@ -32,7 +33,13 @@ our $VERSION = '0.05';
 
 =head2 create
 
+  $pic = Bio::DOOP::Graphics::Feature->create($db,"1234");
+
   Create new picture. Later you can add your own graphics element to this.
+  Arguments: 
+  1. Bio::DOOP::DBSQL object
+  2. Subset primary id.
+  Return type: Bio::DOOP::Graphics::Feature
 
 =cut
 
@@ -127,7 +134,7 @@ sub set_colors {
 
 =head2 add_scale
 
-  Add scale to the picture
+  Draws scale on the picture
 
 =cut
 
@@ -163,7 +170,7 @@ sub add_scale {
 
 =head2 add_bck_lines
 
-  Add scale lines through the whole image background
+  Draws scale lines through the whole image background
 
 =cut
 
@@ -180,7 +187,7 @@ sub add_bck_lines {
 
 =head2 add_seq
 
-  Add a specified seq to the picture. This is an internal code, so do not use it directly
+  Draws a specified seq on the picture. This is an internal code, so do not use it directly
 
 =cut
 
@@ -206,40 +213,55 @@ sub add_seq {
       $self->{IMAGE}->filledRectangle($x1-$utrlen, $index*70+35, $x1, $index*70+45, $self->{UTR});
       $self->{IMAGE}->string(gdTinyFont, $x1-$utrlen, $index*70+36, "UTR ".$utrlen." bp", $self->{LABEL});
   }
-  # Draw Motifs
+  # Draw Features
   my @features = @{$seq->get_all_seq_features};
   my $motif_Y = $index*70 + 50;
+  my $shift_factor = 0;
+  my $motif_count = 0;
   for my $feat (@features){
+      # Draw motifs
       if( ($feat->get_type eq "con") && ($feat->get_subsetid eq $self->{SUBSET_ID})){
-
+if ($feat->length < 12){$shift_factor = 15 - ($shift_factor and 15)}else{$shift_factor = 0}
           my %motif_element = ($feat->get_motifid => [ $x1-$feat->get_end,
-                                                       $motif_Y,
+                                                       $motif_Y + $shift_factor,
                                                        $x1-$feat->get_start,
-                                                       $motif_Y + 5 ]);
-
+                                                       $motif_Y + $shift_factor + 5 ]);
           $self->{IMAGE}->filledRectangle($x1-$feat->get_end,
-                                          $motif_Y,
+                                          $motif_Y + $shift_factor,
                                           $x1-$feat->get_start,
-                                          $motif_Y + 5,
+                                          $motif_Y + $shift_factor + 5,
                                           $self->{MOTIFCOLOR});
-          $self->{IMAGE}->string(gdTinyFont, $x1-$feat->get_end, $motif_Y+10, "m", $self->{LABEL});
-
+          $self->{IMAGE}->string(gdTinyFont, $x1-$feat->get_end, $motif_Y+$shift_factor+7, "m$motif_count", $self->{LABEL});
           push @{$self->{MAP}->{"motif"}},\%motif_element;
+$motif_count++;
       }
+
+      # Draw tss
       if( ($feat->get_type eq "tss")){
           $self->{IMAGE}->line($x1-$feat->get_start,
                                $motif_Y+20,
-                               $x1-$feat->get_start,
+                               $x1-$feat->get_start-5,
+                               $motif_Y+35,
+                               $self->{TSSCOLOR});
+          $self->{IMAGE}->line($x1-$feat->get_start-5,
+                               $motif_Y+35,
+                               $x1-$feat->get_start+5,
+                               $motif_Y+35,
+                               $self->{TSSCOLOR});
+          $self->{IMAGE}->line($x1-$feat->get_start,
+                               $motif_Y+20,
+                               $x1-$feat->get_start+5,
                                $motif_Y+35,
                                $self->{TSSCOLOR});
       }
+
   }
 
 }
 
 =head2 add_all_seq
 
-  Add all seq from subset to the picture.
+  Draws all seq from subset on the picture.
 
 =cut
 
@@ -254,7 +276,12 @@ sub add_all_seq {
 
 =head2 get_png
 
-  Return the png image. Use this when you finish the work and would like to see the results.
+  open IMAGE,">picture.png";
+  binmode IMAGE;
+  print IMAGE $image->get_png;
+  close IMAGE;
+
+  Returns the png image. Use this when you finish the work and would like to see the results.
 
 =cut
 
@@ -266,7 +293,7 @@ sub get_png {
 
 =head2 get_image
 
-  Return the drawed image pointer. Useful for add your own GD methods for uniq picture manipulating.
+  Returns the drawed image pointer. Useful for add your own GD methods for uniq picture manipulating.
 
 =cut
 
@@ -277,8 +304,7 @@ sub get_image {
 
 =head2 get_map
 
-  Return a hash of arrays of hash of arrays reference that is contain the map information.
-
+  Returns a hash of arrays of hash of arrays reference that is contain the map information.
   Here is a real world example of how to handle this method:
 
   use Bio::DOOP::DOOP;
@@ -308,7 +334,7 @@ sub get_map {
 
 =head2 get_motif_map
 
-  Return only the arrayref of motif hashes
+  Returns only the arrayref of motif hashes
 
 =cut
 
@@ -319,7 +345,10 @@ sub get_motif_map {
 
 =head2 get_motif_id_by_coord
 
-  Maybe this is the most useful method. You can get a motif id, if you specify a coordinate of a point
+  $motifi = $image->get_motif_id_by_coord(100,200);
+
+  Maybe this is the most useful method. You can get a motif id, if you specify a coordinate of a point.
+  Return type: string
 
 =cut
 
