@@ -1,4 +1,10 @@
 Revision history for Bio-DOOP-DOOP
+0.10    2007/02/15
+        Add new object (Util::Run::Admin) to handle the running processes
+0.09    2007/02/10
+        Add new methods to Cluster.pm (get_subset_by_type, get_availables_types)
+        Add new methods to Util::Run::Mofext object (run_background, get_results_from_file)
+        Now you can run mofext in the background.
 0.08    2007/01/31
         Add new method for Sequence.pm (get_raw_seq)
         Fixed the motif drawing in Graphics::Feature module

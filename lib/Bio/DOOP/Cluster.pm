@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 SYNOPSIS
 
@@ -216,6 +216,61 @@ sub get_all_subsets {
   return(\@subsets);
 }
 
+=head2 get_subset_by_type
+
+  $subset = $cluster->get_subset_by_type("B");
+  if ($subset == -1){
+     print"No subset! Try another type\n";
+  }
+
+  Returns the subset specified by type.
+  Return type: Bio::DOOP::ClusterSubset object
+
+=cut
+
+sub get_subset_by_type {
+  my $self                 = shift;
+  my $type                 = shift;
+
+  my $id  = $self->{PRIMARY};
+  my $ret = $self->{DB}->query("SELECT subset_primary_id FROM cluster_subset WHERE cluster_primary_id = $id AND subset_type = \"$type\"");
+
+  if ($#$ret == -1){
+     cluck "No subset found!\n";
+     return(-1);
+  }
+
+  my $subset = Bio::DOOP::ClusterSubset->new($self->{DB},$$ret[0]->[0]);
+  return($subset);
+}
+
+=head2 get_available_types
+
+  @types = @{$cluster->get_available_types};
+
+  Returns all available cluster subset types.
+  Return type: arrayref of string.
+
+=cut
+
+sub get_available_types {
+  my $self                 = shift;
+  my $id = $self->{PRIMARY};
+  my $ret = $self->{DB}->query("SELECT subset_type FROM cluster_subset WHERE cluster_primary_id = $id");
+
+  if ($#$ret == -1){
+     cluck "No types found! That is very strange\n";
+     return(-1);
+  }
+
+  my @types;
+
+  for my $i (@$ret){
+     push @types,$$i[0];
+  }
+  return(\@types);
+}
+
 =head2 get_all_seqs
 
   @seqs = @{$cluster->get_all_seqs};
@@ -237,7 +292,7 @@ sub get_all_seqs {
 
   my @seqs;
   for my $i (@$ret){
-	  push @seqs,Bio::DOOP::Sequence->new($self->{DB},$$i[0]);
+     push @seqs,Bio::DOOP::Sequence->new($self->{DB},$$i[0]);
   }
 
   return(\@seqs);

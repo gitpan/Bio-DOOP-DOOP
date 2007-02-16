@@ -18,11 +18,11 @@ use Bio::DOOP::Graphics::Feature;
 
 =head1 VERSION
 
-Version 0.08
+Version 0.1
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.1';
 
 =head1 SYNOPSIS
 

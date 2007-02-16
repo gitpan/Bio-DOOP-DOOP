@@ -13,6 +13,7 @@ lib/Bio/DOOP/Sequence.pm
 lib/Bio/DOOP/SequenceFeature.pm
 lib/Bio/DOOP/Util/Search.pm
 lib/Bio/DOOP/Util/Run/Mofext.pm
+lib/Bio/DOOP/Util/Run/Admin.pm
 t/00-load.t
 t/pod-coverage.t
 t/pod.t

@@ -5,31 +5,27 @@ use warnings;
 
 =head1 NAME
 
-  Bio::DOOP::Util::Search - useful subrutines for easy search
+  Bio::DOOP::Util::Search - useful methods for easy search.
 
 =head1 VERSION
 
-  Version 0.06
+  Version 0.07
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.7';
 
 =head1 SYNOPSIS
 
   use Bio::DOOP::DOOP;
 
-  $db = Bio::DOOP::DBSQL->connect("doopuser","dooppasswd","doop-plant","localhost");
+  $db = Bio::DOOP::DBSQL->connect("doopuser","dooppasswd","database","localhost");
   @motifs = @{Bio::DOOP::Util::Search::get_all_motifs_by_type($db,"V")};
 
 =head1 DESCRIPTION
 
-  Collection of utilities managing big queries. Most of
-  the subrutines return arrayrefs of motifs, sequences, clusters.
-  For example: You want all the motifs that can be found in al of the
-  subsets. Instead of you go through all the motif in the jungle of 
-  SQL querys, you use the ... subrutine. Your code will be more 
-  simple.
+  Collection of utilities handling large queries. Most of
+  the methods return arrayrefs of motifs, sequences or clusters.
 
 =head1 AUTHOR
 
@@ -39,7 +35,7 @@ our $VERSION = '0.06';
 
 =head2 get_all_motifs_by_type
 
-  Return the arrayref of all motifs that type is specified in the argument.
+  Returns the arrayref of motifs with the type specified in the arguments.
 
 =cut
 
@@ -57,7 +53,7 @@ sub get_all_motifs_by_type {
 
 =head2 get_all_original_subset
 
-  Return the arrayref of all original subset.
+  Returns the arrayref of all original subsets.
 
 =cut
 
@@ -73,7 +69,7 @@ sub get_all_original_subset {
 
 =head2 get_all_cluster_by_gene_id
 
-  Return the arrayref of all clusters defined by the gene id
+  Returns the arrayref of all clusters defined by the gene id.
 
 =cut
 
@@ -93,7 +89,7 @@ sub get_all_cluster_by_gene_id  {
 
 =head2 get_all_cluster_by_keyword
 
-  Return all clusters that is contain the keyword in its description, tss annotation or sequence xref
+  Returns all clusters containing the keyword in its description, tss annotation or sequence xref.
 
 =cut
 
@@ -106,25 +102,26 @@ sub get_all_cluster_by_keyword {
   my @cluster_db_id;
   my %seen;
 
-  # Query from sequence_annot
+  # Query from sequence_annot.
   my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence_annot, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.sequence_annot_primary_id = sequence_annot.sequence_annot_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_annot.sequence_desc LIKE '%$keyword%';");
     for my $cluster (@$ret){
           push @cluster_db_id,$$cluster[0];
   }
 
-  # Query from sequence_xref
+  # Query from sequence_xref.
+  # Do we really need this?
   $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_xref.xref_id LIKE '%$keyword%';");
   for my $cluster (@$ret){
           push @cluster_db_id,$$cluster[0];
   }
 
-  # Query from tss_annot
+  # Query from tss_annot.
   $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, tss_annotation, sequence_feature, subset_xref WHERE subset_xref.sequence_primary_id = sequence_feature.sequence_primary_id AND sequence_feature.tss_primary_id = tss_annotation.tss_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND tss_annotation.tss_desc LIKE '%$keyword%';");
   for my $cluster (@$ret){
           push @cluster_db_id,$$cluster[0];
   }
 
-  #Remove the redundant cluster_db_ids
+  #Remove the redundant cluster_db_ids.
   my @cluster_id_uniq = grep { ! $seen{ $_ }++ } @cluster_db_id;
 
   for my $cluster (@cluster_id_uniq){
@@ -136,7 +133,7 @@ sub get_all_cluster_by_keyword {
 
 =head2 get_all_cluster_by_type
 
-  Return the arrayref of clusters that xref contain this type and value
+  Returns the arrayref of clusters containing a given xref.
 
 =cut
 
@@ -159,7 +156,8 @@ sub get_all_cluster_by_type {
 
 =head2 get_all_cluster_by_taxon_name
 
-  Return the arrayref of clusters that is contain this taxon name
+  Returns the arrayref of clusters containing the taxon name.
+  Don't use this, use get_all_cluster_by_taxon_id with NCBI IDs.
 
 =cut
 
@@ -180,7 +178,7 @@ sub get_all_cluster_by_taxon_name {
 
 =head2 get_all_cluster_by_taxon_id
 
-  Return the arrayref of clusters that is contain this taxon id
+  Returns the arrayref of clusters containing the taxon id (NCBI).
 
 =cut
 
@@ -201,7 +199,7 @@ sub get_all_cluster_by_taxon_id {
 
 =head2 get_all_cluster_by_sequence_id
   
-  Returns the arrayref of clusters containing the given sequence id (fake GI)
+  Returns the arrayref of clusters containing the given sequence id (fake GI).
 
 =cut
 
@@ -222,7 +220,7 @@ sub get_all_cluster_by_sequence_id {
 
 =head2 get_all_cluster_by_atno
 
-  Returns the arrayref of clusters containing the given At Number
+  Returns the arrayref of clusters containing the given At Number.
 
 =cut
 
@@ -243,7 +241,7 @@ sub get_all_cluster_by_atno {
 
 =head2 get_all_seq_by_motifid
 
-  Return the arrayref of sequences containing the given motif id
+  Returns the arrayref of sequences containing the given motif id.
 
 =cut
 

@@ -6,24 +6,24 @@ use Carp qw(cluck carp verbose);
 
 =head1 NAME
 
-  Bio::DOOP::Util::Run::Mofext - Mofext runner module
+  Bio::DOOP::Util::Run::Mofext - Mofext runner module.
 
 =head1 VERSION
 
-  Version 0.08
+  Version 0.09
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 SYNOPSIS
 
 #!/usr/bin/perl -w
 
 use Bio::DOOP::DOOP
-$db      = Bio::DOOP::DBSQL->connect("user","pass","doop-plant-1_5","localhost");
+$db     = Bio::DOOP::DBSQL->connect("user","pass","doop-plant-1_5","localhost");
 
-@list = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680","81001680","81001690","81001725","81001780","81001930","81001950","81002100","81002130","81002140","81002160");
+@list   = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680","81001680","81001690","81001725","81001780","81001930","81001950","81002100","81002130","81002140","81002160");
 
 $mofext = Bio::DOOP::Util::Run::Mofext->new($db,'500',\@list);
 
@@ -34,17 +34,17 @@ print $mofext->get_tmp_file_name,"\n";
 $error = $mofext->write_to_tmp;
 
 if($error != 0){
-   die"Write error\n";
+   die "Write error!\n";
 }
 
 $error = $mofext->run('TTGGGC' , 6 , 0.6 , '/data/default_matrix' );
 
 if ($error == -1){
-   die"No results or error\n";
+   die "No results or error!\n";
 }
 
 @res = @{$mofext->get_results};
-# Return the cluster object and the motif primary id
+# Return the cluster objects and the motif primary ids.
 for $result (@res){
   print $$result[0]->get_id," ",$$result[1],"\n";
 }
@@ -52,8 +52,8 @@ for $result (@res){
 
 =head1 DESCRIPTION
 
-  Mofext is a motif search utility developed by Tibor Nagy. This module is a wrapper
-  object for this tool. Is is allowed to the user to search similar motifs in the 
+  Mofext is a fuzzy sequence pattern search tool developed by Tibor Nagy. This module 
+  is a wrapper object for mofext. It allows the user to search for similar motifs in the 
   DOOP database.
 
 =head1 AUTHOR
@@ -64,8 +64,8 @@ for $result (@res){
 
 =head2 new
 
-  Create a new Mofext running object.
-  Arguments: DBSQL object, promoter type (500,1000,3000), listref of cluster id
+  Create a new Mofext object.
+  Arguments: DBSQL object, promoter type (500,1000,3000), arrayref of cluster ids.
 
 =cut
 
@@ -83,7 +83,7 @@ sub new {
      for my $subset (@subsets){
         my $motifs = $subset->get_all_motifs;
         if(!$motifs){
-           cluck("No motifs, so I leap through.\n")
+           cluck("No motifs, cluster skipped!\n")
         }
         for my $motif (@$motifs){
            push @motif_collection, [$motif->get_id,$motif->seq];
@@ -103,8 +103,8 @@ sub new {
 
 =head2 new_by_file
 
-  Create a new Mofext running object from a file.
-  Arguments: DBSQL object, promoter type (500, 1000, 3000), filename of the cluster ids
+  Create a new Mofext object from a file.
+  Arguments: DBSQL object, promoter type (500, 1000, 3000), name of the file with cluster ids.
 
 =cut
 
@@ -117,7 +117,7 @@ sub new_by_file {
   my @motif_collection;
   my @cluster_id_list;
 
-  open CLUSTER_ID_FILE,$filename or cluck("No such file or directory\n");
+  open CLUSTER_ID_FILE,$filename or cluck("No such file or directory!\n");
   while(<CLUSTER_ID_FILE>){
      chomp;
      my $cl_id = $_;
@@ -127,7 +127,7 @@ sub new_by_file {
      for my $subset (@subsets){
         my $motifs = $subset->get_all_motifs;
         if(!$motifs){
-           cluck("No motifs, so I leap through.\n");
+           cluck("No motifs, cluster skipped!\n");
         }
         for my $motif (@$motifs){
            push @motif_collection, [$motif->get_id,$motif->seq];
@@ -175,8 +175,7 @@ sub set_tmp_file_name {
 =head2 write_to_tmp
 
   Write out the collected motifs to the temporary file.
-  This step is important for mofext.
-  Return type: 0 -> success -1 -> error
+  Return type: 0 -> success, -1 -> error
 
 =cut
 
@@ -194,9 +193,9 @@ sub write_to_tmp {
 
 =head2 run
 
-  Run program mofext in temporary file
-  Arguments: query seq, wordsize, cutoff, matrix file name
-  Return type: 0 -> success, -1 -> no results or error
+  Run mofext on temporary file, containing motifs.
+  Arguments: query sequence, wordsize, cutoff, matrix file path.
+  Return type: 0 -> success, -1 -> no result or error
 
 =cut
 
@@ -213,15 +212,42 @@ sub run {
   my @results = `mofext $params`;
 
   my @id_uniq = grep { ! $seen{ $_ }++ } @results;
-  if ($#id_uniq == -1){return(-1)} # No results
 
-  $self->{RESULT}          = \@id_uniq;  # Listref of hit motif ids.
+  if ($#id_uniq == -1){return(-1)} # No result.
+
+  $self->{RESULT} = \@id_uniq;  # Arrayref of motif ids.
   return(0);
+}
+
+=head2 run_background
+
+  Run mofext, but don not wait for the end
+  Arguents: query sequence, wordsize, cutoff, matrix file path, output file name
+  Return type: the process id
+
+=cut
+
+sub run_background {
+  my $self                 = shift;
+  my $query                = shift;
+  my $wordsize             = shift;
+  my $cutoff               = shift;
+  my $matrix_file          = shift;
+  my $outfile              = shift;
+  my $pid;
+
+  unless($pid = fork){
+
+  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o i";
+  my @results = `mofext $params | sort | uniq >$outfile`;
+  }
+
+  return($pid);
 }
 
 =head2 get_results
 
-  Returns the arrayref of array of cluster objects and motif primary ids
+  Returns the arrayref of array of cluster objects and motif primary ids.
 
 =cut
 
@@ -244,9 +270,35 @@ sub get_results {
   return(\@cluster_res);
 }
 
+=head2 get_results_from_file
 
+  Returns the arrayref of the array of cluster objects and motif primary ids or -1 in case
+  of error.
+  This is a very uniq methods because it is not depend to the object. So you can fetch more
+  different results of different mofext objects. Maybe it is going to out from this module
+  in the future.
 
+=cut
 
+sub get_results_from_file {
+  my $self                 = shift;
+  my $filename             = shift;
 
+  my @cluster_res;
+  open RES,$filename or return(-1);
+  while(<RES>){
+     my $id = $_;
+
+     chomp($id);
+     my $motif     = Bio::DOOP::Motif->new($self->{DB},$id);
+     my $subsetid  = $motif->get_subset_id;
+     my $subset    = Bio::DOOP::ClusterSubset->new($self->{DB},$subsetid);
+     my $cluster   = $subset->get_cluster;
+
+     push @cluster_res, [$cluster,$id];
+  }
+  close RES;
+  return(\@cluster_res);
+}
 
 1;
