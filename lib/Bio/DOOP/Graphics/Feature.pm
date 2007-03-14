@@ -13,11 +13,11 @@ use GD;
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 DESCRIPTION
 
@@ -51,7 +51,7 @@ sub create {
   my $subset               = shift;
 
   my @seqs    = @{$subset->get_all_seqs};
-  my $height  = ($#seqs+1) * 70 + 40;
+  my $height  = ($#seqs+1) * 80 + 40;
 
   my $width   = $subset->get_cluster->get_promo_type + 20;
   my $image   = new GD::Image($width,$height); # Create the image
@@ -152,8 +152,8 @@ sub add_scale {
       if( ($i / 100) == int($i / 100) ) {
           $self->{IMAGE}->line($i+10,0,$i+10,10,$color);     # Big scale.
           my $str = ($self->{WIDTH} - 20 - $i) * -1;   # The scale label.
-          my $posx = $i - (length($str)/2)*5 + 10;     # Nice label positioning.
-          $self->{IMAGE}->string(gdTinyFont,$posx,10,$str,$color);
+          my $posx = $i - (length($str)/2)*6 + 10;     # Nice label positioning.
+          $self->{IMAGE}->string(gdSmallFont,$posx,10,$str,$color);
       }
       else {
           $self->{IMAGE}->line($i+10,3,$i+10,7,$color); # Little scale.
@@ -201,58 +201,59 @@ sub add_seq {
   my $x2  = $x1-$len;
 
   # Draw the seq line.
-  $self->{IMAGE}->line($x2, $index*70+40, $x1, $index*70+40, $self->{LABEL});
-
-  # Print the seq name and the length.
-  my $text = $seq->get_taxon_name . " " . $len . " bp";
-  $self->{IMAGE}->string(gdTinyFont, $x2, $index*70+30, $text, $self->{LABEL});
+  $self->{IMAGE}->line($x2, $index*80+40, $x1, $index*80+40, $self->{LABEL});
 
   # Draw UTR.
   my $utrlen = $seq->get_utr_length;
   if ($utrlen){
-      $self->{IMAGE}->filledRectangle($x1-$utrlen, $index*70+35, $x1, $index*70+45, $self->{UTR});
-      $self->{IMAGE}->string(gdTinyFont, $x1-$utrlen, $index*70+36, "UTR ".$utrlen." bp", $self->{LABEL});
+      my $utrlen2 = $x1 - $utrlen;
+      if ($utrlen2 < 10){$utrlen2 = 10}
+      $self->{IMAGE}->filledRectangle($utrlen2, $index*80+35, $x1, $index*80+45, $self->{UTR});
+      $self->{IMAGE}->string(gdTinyFont, $utrlen2, $index*80+36, "UTR ".$utrlen." bp", $self->{LABEL});
   }
+
+  # Print the seq name and the length.
+  my $text = $seq->get_taxon_name . " " . $len . " bp";
+  $self->{IMAGE}->string(gdSmallFont, $x2, $index*80+22, $text, $self->{LABEL});
+
   # Draw Features.
-  my @features = @{$seq->get_all_seq_features};
-  my $motif_Y = $index*70 + 50;
+  my $features = $seq->get_all_seq_features;
+  if ($features == -1){ return }
+  my $motif_Y = $index*80 + 50;
   my $shift_factor = 0;
-  my $motif_count = 0;
-  for my $feat (@features){
+  my $motif_count = 1;
+  for my $feat (@$features){
       # Draw motifs.
       if( ($feat->get_type eq "con") && ($feat->get_subsetid eq $self->{SUBSET_ID})){
-if ($feat->length < 12){$shift_factor = 15 - ($shift_factor and 15)}else{$shift_factor = 0}
-          my %motif_element = ($feat->get_motifid => [ $x1-$feat->get_end,
+          # This code help me to make two rows for the motifs
+          if ($feat->length < 12){
+              $shift_factor = 18 - ($shift_factor and 18)
+          }
+          else{
+              $shift_factor = 0
+          }
+          my %motif_element = ($feat->get_motifid => [ $feat->get_start,
                                                        $motif_Y + $shift_factor,
-                                                       $x1-$feat->get_start,
+                                                       $feat->get_end,
                                                        $motif_Y + $shift_factor + 5 ]);
-          $self->{IMAGE}->filledRectangle($x1-$feat->get_end,
+          $self->{IMAGE}->filledRectangle($feat->get_start,
                                           $motif_Y + $shift_factor,
-                                          $x1-$feat->get_start,
+                                          $feat->get_end,
                                           $motif_Y + $shift_factor + 5,
                                           $self->{MOTIFCOLOR});
-          $self->{IMAGE}->string(gdTinyFont, $x1-$feat->get_end, $motif_Y+$shift_factor+7, "m$motif_count", $self->{LABEL});
+          $self->{IMAGE}->string(gdSmallFont, $feat->get_start, $motif_Y+$shift_factor+5, "m$motif_count", $self->{LABEL});
           push @{$self->{MAP}->{"motif"}},\%motif_element;
-$motif_count++;
+          $motif_count++;
       }
 
       # Draw tss.
       if( ($feat->get_type eq "tss")){
-          $self->{IMAGE}->line($x1-$feat->get_start,
-                               $motif_Y+20,
-                               $x1-$feat->get_start-5,
-                               $motif_Y+35,
-                               $self->{TSSCOLOR});
-          $self->{IMAGE}->line($x1-$feat->get_start-5,
-                               $motif_Y+35,
-                               $x1-$feat->get_start+5,
-                               $motif_Y+35,
-                               $self->{TSSCOLOR});
-          $self->{IMAGE}->line($x1-$feat->get_start,
-                               $motif_Y+20,
-                               $x1-$feat->get_start+5,
-                               $motif_Y+35,
-                               $self->{TSSCOLOR});
+          #FIXME it is on the motifs!
+          my $tssfeat = new GD::Polygon;
+          $tssfeat->addPt($x1-$feat->get_start,$motif_Y+20);
+          $tssfeat->addPt($x1-$feat->get_start-5,$motif_Y+35);
+          $tssfeat->addPt($x1-$feat->get_start+5,$motif_Y+35);
+          $self->{IMAGE}->filledPolygon($tssfeat,$self->{TSSCOLOR});
       }
 
   }
@@ -261,7 +262,7 @@ $motif_count++;
 
 =head2 add_all_seq
 
-  Draws all sequences from the subset.
+  Draws all sequences from the subset. The first one is the reference species.
 
 =cut
 

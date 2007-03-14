@@ -1,4 +1,9 @@
 Revision history for Bio-DOOP-DOOP
+0.11    2007/03/14
+        The motifs is the Graphics::Feature module drawed reverse order. Fixed
+        The first sequence in the graphics is a reference species
+        The UTR doesn't hide the species name
+        If no have motifs the Graphics::Feature module also create picture
 0.10    2007/02/15
         Add new object (Util::Run::Admin) to handle the running processes
 0.09    2007/02/10

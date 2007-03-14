@@ -9,11 +9,11 @@ use warnings;
 
 =head1 VERSION
 
-  Version 0.07
+  Version 0.08
 
 =cut
 
-our $VERSION = '0.7';
+our $VERSION = '0.8';
 
 =head1 SYNOPSIS
 
@@ -234,7 +234,8 @@ sub get_all_cluster_by_atno {
   my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND sequence_xref.xref_type = 'at_no' AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_xref.xref_id LIKE '$atno%';");
 
   for my $cluster (@$ret) {
-	push @clusters,Bio::DOOP::Cluster->new_by_id($db,$$cluster[0],$promoter_size);
+	#method new_by_id changed to new 20070221 E. Sebestyen
+	push @clusters,Bio::DOOP::Cluster->new($db,$$cluster[0],$promoter_size);
   }
   return(\@clusters);
 }
@@ -257,6 +258,27 @@ sub get_all_seq_by_motifid {
   }
 
   return(\@seqs);
+}
+
+=head2 get_all_cluster_by_go_id
+
+  20070221 E. Sebestyen
+  Returns the arrayref of clusters containing the given GO ID.
+
+=cut
+sub get_all_cluster_by_go_id {
+	my $db            = shift;
+	my $goid          = shift;
+	my $promoter_size = shift;
+
+	my @clusters;
+
+	my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND sequence_xref.xref_type = 'go_id' AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_xref.xref_id LIKE '$goid';");
+
+	for my $cluster (@$ret) {
+		push @clusters,Bio::DOOP::Cluster->new($db,$$cluster[0],$promoter_size);
+	}
+	return(\@clusters);
 }
 
 1;

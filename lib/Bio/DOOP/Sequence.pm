@@ -405,8 +405,8 @@ sub get_all_seq_features {
   my $ref = $self->{DB}->query($query);
 
   if ($#$ref == -1){
-     cluck"No sequence feature found!\n";
-     return();
+     #cluck"No sequence feature found!\n";
+     return(-1);
   }
 
   for my $sfpid (@$ref){

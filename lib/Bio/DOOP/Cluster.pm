@@ -259,7 +259,7 @@ sub get_available_types {
   my $ret = $self->{DB}->query("SELECT subset_type FROM cluster_subset WHERE cluster_primary_id = $id");
 
   if ($#$ret == -1){
-     cluck "No types found! That is very strange\n";
+     cluck "No subset type found!\n";
      return(-1);
   }
 

@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 SYNOPSIS
 
@@ -241,7 +241,7 @@ sub get_all_motifs {
   my $ret = $self->{DB}->query("SELECT motif_feature_primary_id FROM motif_feature WHERE subset_primary_id = $id;");
 
   if ($#$ret == -1){
-     cluck "No motif found!\n";
+     #cluck "No motif found!\n";
      return();
   }
 
@@ -270,12 +270,29 @@ sub get_all_seqs {
 
   if ($#$ret == -1){
      cluck "No sequence!\n";
-     return();
+     return(-1);
   }
 
   for(@$ret){
 	  push @seqs,Bio::DOOP::Sequence->new($self->{DB},$_->[0]);
   }
+  # Sortin the sequences to the following criterias:
+  # The first is the reference species (Arabidopsis/Human)
+  # The second is the taxon_class (B E M V in the plants and 
+  # P R E H M N T F V C in the animals )
+  # Finally the alphabet order.
+
+  my $seq;
+  my $i;
+  for($i = 0; $i < $#seqs+1; $i++){
+     if( ($seqs[$i]->get_taxon_name eq "Arabidopsis thaliana") || 
+         ($seqs[$i]->get_taxon_name eq "Homo sapiens") ) {
+         $seq = $seqs[0];
+         $seqs[0] = $seqs[$i];
+         $seqs[$i] = $seq;
+     }
+  }
+#FIXME need more sorting criteria
   return(\@seqs);
 }
 
