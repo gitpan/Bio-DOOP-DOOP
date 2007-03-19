@@ -1,4 +1,7 @@
 Revision history for Bio-DOOP-DOOP
+0.12    2007/03/19
+        The motifs in the Graphics::Feature module drawed correctly
+        The ClusterSubset module get_all_seqs method returns sorted sequences
 0.11    2007/03/14
         The motifs is the Graphics::Feature module drawed reverse order. Fixed
         The first sequence in the graphics is a reference species

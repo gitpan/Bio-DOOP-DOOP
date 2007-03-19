@@ -13,11 +13,11 @@ use GD;
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 DESCRIPTION
 
@@ -51,7 +51,7 @@ sub create {
   my $subset               = shift;
 
   my @seqs    = @{$subset->get_all_seqs};
-  my $height  = ($#seqs+1) * 80 + 40;
+  my $height  = ($#seqs+1) * 90 + 40;
 
   my $width   = $subset->get_cluster->get_promo_type + 20;
   my $image   = new GD::Image($width,$height); # Create the image
@@ -201,58 +201,62 @@ sub add_seq {
   my $x2  = $x1-$len;
 
   # Draw the seq line.
-  $self->{IMAGE}->line($x2, $index*80+40, $x1, $index*80+40, $self->{LABEL});
+  $self->{IMAGE}->line($x2, $index*90+40, $x1, $index*90+40, $self->{LABEL});
 
   # Draw UTR.
   my $utrlen = $seq->get_utr_length;
   if ($utrlen){
       my $utrlen2 = $x1 - $utrlen;
       if ($utrlen2 < 10){$utrlen2 = 10}
-      $self->{IMAGE}->filledRectangle($utrlen2, $index*80+35, $x1, $index*80+45, $self->{UTR});
-      $self->{IMAGE}->string(gdTinyFont, $utrlen2, $index*80+36, "UTR ".$utrlen." bp", $self->{LABEL});
+      $self->{IMAGE}->filledRectangle($utrlen2, $index*90+35, $x1, $index*90+45, $self->{UTR});
+      $self->{IMAGE}->string(gdTinyFont, $utrlen2, $index*90+36, "UTR ".$utrlen." bp", $self->{LABEL});
   }
 
   # Print the seq name and the length.
   my $text = $seq->get_taxon_name . " " . $len . " bp";
-  $self->{IMAGE}->string(gdSmallFont, $x2, $index*80+22, $text, $self->{LABEL});
+  $self->{IMAGE}->string(gdSmallFont, $x2, $index*90+22, $text, $self->{LABEL});
 
   # Draw Features.
   my $features = $seq->get_all_seq_features;
   if ($features == -1){ return }
-  my $motif_Y = $index*80 + 50;
+  my $motif_Y = $index*90 + 60;
   my $shift_factor = 0;
-  my $motif_count = 1;
+  my $motif_count = $#$features+1;
   for my $feat (@$features){
       # Draw motifs.
       if( ($feat->get_type eq "con") && ($feat->get_subsetid eq $self->{SUBSET_ID})){
-          # This code help me to make two rows for the motifs
-          if ($feat->length < 12){
-              $shift_factor = 18 - ($shift_factor and 18)
-          }
-          else{
-              $shift_factor = 0
-          }
-          my %motif_element = ($feat->get_motifid => [ $feat->get_start,
+          my %motif_element = ($feat->get_motifid => [ $x1 - $feat->get_start,
                                                        $motif_Y + $shift_factor,
-                                                       $feat->get_end,
+                                                       $x1 - $feat->get_end,
                                                        $motif_Y + $shift_factor + 5 ]);
-          $self->{IMAGE}->filledRectangle($feat->get_start,
+          $self->{IMAGE}->filledRectangle($x1 - $feat->get_end,
                                           $motif_Y + $shift_factor,
-                                          $feat->get_end,
+                                          $x1 - $feat->get_start,
                                           $motif_Y + $shift_factor + 5,
                                           $self->{MOTIFCOLOR});
-          $self->{IMAGE}->string(gdSmallFont, $feat->get_start, $motif_Y+$shift_factor+5, "m$motif_count", $self->{LABEL});
+          $self->{IMAGE}->string(gdSmallFont, $x1 - $feat->get_end, $motif_Y+$shift_factor+5, "m$motif_count", $self->{LABEL});
           push @{$self->{MAP}->{"motif"}},\%motif_element;
-          $motif_count++;
-      }
+          $motif_count--;
+
+          # This code help me to make two rows for the motifs
+          if ($feat->length > 20){
+              $shift_factor = 0;
+          }
+          elsif( ($feat->length < 20) && ($shift_factor < 36)){
+              $shift_factor += 18;
+          }
+          else {
+              $shift_factor = 0;
+          }
+     }
 
       # Draw tss.
       if( ($feat->get_type eq "tss")){
-          #FIXME it is on the motifs!
+          $motif_Y = $index*90 + 40;
           my $tssfeat = new GD::Polygon;
-          $tssfeat->addPt($x1-$feat->get_start,$motif_Y+20);
-          $tssfeat->addPt($x1-$feat->get_start-5,$motif_Y+35);
-          $tssfeat->addPt($x1-$feat->get_start+5,$motif_Y+35);
+          $tssfeat->addPt($x1-$feat->get_start,$motif_Y);
+          $tssfeat->addPt($x1-$feat->get_start-5,$motif_Y+10);
+          $tssfeat->addPt($x1-$feat->get_start+5,$motif_Y+10);
           $self->{IMAGE}->filledPolygon($tssfeat,$self->{TSSCOLOR});
       }
 

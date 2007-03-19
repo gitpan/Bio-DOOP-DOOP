@@ -284,16 +284,25 @@ sub get_all_seqs {
 
   my $seq;
   my $i;
+  my %groups;
+  my @sortseqs;
+
   for($i = 0; $i < $#seqs+1; $i++){
      if( ($seqs[$i]->get_taxon_name eq "Arabidopsis thaliana") || 
          ($seqs[$i]->get_taxon_name eq "Homo sapiens") ) {
-         $seq = $seqs[0];
-         $seqs[0] = $seqs[$i];
-         $seqs[$i] = $seq;
+         $sortseqs[0] = $seqs[$i];
+         next;
+     }
+     push @{$groups{$seqs[$i]->get_taxon_class}}, $seqs[$i];
+  }
+
+  for my $key ("Brassicaceae","eudicotyledons","Magnoliophyta","Viridiplantae"){
+     if ($groups{$key}){
+        push @sortseqs, sort {$a->get_taxon_name cmp $b->get_taxon_name} @{$groups{$key}};
      }
   }
-#FIXME need more sorting criteria
-  return(\@seqs);
+  #FIXME Add the vertebrata sorting part
+  return(\@sortseqs);
 }
 
 1;

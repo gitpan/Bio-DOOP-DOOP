@@ -391,7 +391,7 @@ sub get_xref_value {
 =head2 get_all_seq_features
 
   @seqfeat = @{$seq->get_all_seq_features};
-  Returns the arrayref of all sequence features.
+  Returns the arrayref of all sequence features or -1 in case of error
 
 =cut
 
