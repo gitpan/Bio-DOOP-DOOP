@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-  Version 0.09
+  Version 0.10
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
@@ -25,7 +25,7 @@ $db     = Bio::DOOP::DBSQL->connect("user","pass","doop-plant-1_5","localhost");
 
 @list   = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680","81001680","81001690","81001725","81001780","81001930","81001950","81002100","81002130","81002140","81002160");
 
-$mofext = Bio::DOOP::Util::Run::Mofext->new($db,'500',\@list);
+$mofext = Bio::DOOP::Util::Run::Mofext->new($db,'500','M',\@list);
 
 $mofext->set_tmp_file_name("/data/DOOP/dummy.txt");
 
@@ -65,7 +65,7 @@ for $result (@res){
 =head2 new
 
   Create a new Mofext object.
-  Arguments: DBSQL object, promoter type (500,1000,3000), arrayref of cluster ids.
+  Arguments: DBSQL object, promoter type (500,1000,3000), subset type (B,M,E,V in plants) arrayref of cluster ids.
 
 =cut
 
@@ -74,21 +74,22 @@ sub new {
   my $dummy                = shift;
   my $db                   = shift;
   my $promo_type           = shift;
+  my $subset_type          = shift;
   my $cluster_id_list      = shift;
   my @motif_collection;
 
   for my $cl_id (@{$cluster_id_list}){
      my $cl = Bio::DOOP::Cluster->new($db,,$cl_id,$promo_type);
-     my @subsets = @{$cl->get_all_subsets};
-     for my $subset (@subsets){
-        my $motifs = $subset->get_all_motifs;
-        if(!$motifs){
-           cluck("No motifs, cluster skipped!\n")
-        }
-        for my $motif (@$motifs){
-           push @motif_collection, [$motif->get_id,$motif->seq];
-#           print $motif->get_id," ",$motif->seq,"\n";
-        }
+     my $subset = $cl->get_subset_by_type($promo_type);
+     if ($subset == -1){ next }
+     my $motifs = $subset->get_all_motifs;
+     if(!$motifs){
+        cluck("No motifs, cluster skipped!\n");
+	next;
+     }
+     for my $motif (@$motifs){
+        push @motif_collection, [$motif->get_id,$motif->seq];
+#       print $motif->get_id," ",$motif->seq,"\n";
      }
   }
 
@@ -104,7 +105,7 @@ sub new {
 =head2 new_by_file
 
   Create a new Mofext object from a file.
-  Arguments: DBSQL object, promoter type (500, 1000, 3000), name of the file with cluster ids.
+  Arguments: DBSQL object, promoter type (500, 1000, 3000), subset type (B,M,E,V in plants), name of the file with cluster ids.
 
 =cut
 
@@ -113,6 +114,7 @@ sub new_by_file {
   my $dummy                = shift;
   my $db                   = shift;
   my $promo_type           = shift;
+  my $subset_type          = shift;
   my $filename             = shift;
   my @motif_collection;
   my @cluster_id_list;
@@ -123,18 +125,17 @@ sub new_by_file {
      my $cl_id = $_;
      push @cluster_id_list,$cl_id;
      my $cl = Bio::DOOP::Cluster->new($db,,$cl_id,$promo_type);
-     my @subsets = @{$cl->get_all_subsets};
-     for my $subset (@subsets){
-        my $motifs = $subset->get_all_motifs;
-        if(!$motifs){
-           cluck("No motifs, cluster skipped!\n");
-        }
-        for my $motif (@$motifs){
-           push @motif_collection, [$motif->get_id,$motif->seq];
-#           print $motif->get_id," ",$motif->seq,"\n";
-        }
+     my $subset = $cl->get_subset_by_type($subset_type);
+     if ($subset == -1) { next }
+     my $motifs = $subset->get_all_motifs;
+     if(!$motifs){
+        cluck("No motifs, cluster skipped!\n");
+	next;
      }
-
+     for my $motif (@$motifs){
+        push @motif_collection, [$motif->get_id,$motif->seq];
+#        print $motif->get_id," ",$motif->seq,"\n";
+     }
   }
   close CLUSTER_ID_FILE;
 

@@ -13,11 +13,11 @@ use GD;
 
 =head1 VERSION
 
-Version 0.09
+Version 0.13
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '0.13';
 
 =head1 DESCRIPTION
 
@@ -221,28 +221,36 @@ sub add_seq {
   if ($features == -1){ return }
   my $motif_Y = $index*90 + 60;
   my $shift_factor = 0;
-  my $motif_count = $#$features+1;
+  my $motif_count;
+
+  my $min_motif_id;
+  for my $feat (@$features){
+     if( ($feat->get_type eq "con") && ($feat->get_subsetid eq $self->{SUBSET_ID})){
+	     $min_motif_id = $feat->get_motifid;
+             last;
+     }
+  }
   for my $feat (@$features){
       # Draw motifs.
       if( ($feat->get_type eq "con") && ($feat->get_subsetid eq $self->{SUBSET_ID})){
-          my %motif_element = ($feat->get_motifid => [ $x1 - $feat->get_start,
+	  $motif_count = $feat->get_motifid - $min_motif_id + 1;
+          # This code help me to make three rows for the motifs
+	  my $label_length = (length($motif_count) + 1) * 6; # Label width with gdSmallFont
+          my %motif_element = ($feat->get_motifid => [ $x1 - $len + $feat->get_start,
                                                        $motif_Y + $shift_factor,
-                                                       $x1 - $feat->get_end,
+                                                       $x1 - $len + $feat->get_end,
                                                        $motif_Y + $shift_factor + 5 ]);
-          $self->{IMAGE}->filledRectangle($x1 - $feat->get_end,
+          $self->{IMAGE}->filledRectangle($x1 - $len + $feat->get_start,
                                           $motif_Y + $shift_factor,
-                                          $x1 - $feat->get_start,
+                                          $x1 - $len + $feat->get_end,
                                           $motif_Y + $shift_factor + 5,
                                           $self->{MOTIFCOLOR});
-          $self->{IMAGE}->string(gdSmallFont, $x1 - $feat->get_end, $motif_Y+$shift_factor+5, "m$motif_count", $self->{LABEL});
+          $self->{IMAGE}->string(gdSmallFont, $x1 - $len + $feat->get_start, $motif_Y+$shift_factor+5, "m$motif_count", $self->{LABEL});
           push @{$self->{MAP}->{"motif"}},\%motif_element;
-          $motif_count--;
-
-          # This code help me to make two rows for the motifs
-          if ($feat->length > 20){
+          if ($feat->length > $label_length){
               $shift_factor = 0;
           }
-          elsif( ($feat->length < 20) && ($shift_factor < 36)){
+          elsif( ($feat->length < $label_length) && ($shift_factor < 36)){
               $shift_factor += 18;
           }
           else {
@@ -252,11 +260,11 @@ sub add_seq {
 
       # Draw tss.
       if( ($feat->get_type eq "tss")){
-          $motif_Y = $index*90 + 40;
+          my $motif_Y = $index*90 + 40;
           my $tssfeat = new GD::Polygon;
-          $tssfeat->addPt($x1-$feat->get_start,$motif_Y);
-          $tssfeat->addPt($x1-$feat->get_start-5,$motif_Y+10);
-          $tssfeat->addPt($x1-$feat->get_start+5,$motif_Y+10);
+          $tssfeat->addPt($x1-$len+$feat->get_start,$motif_Y);
+          $tssfeat->addPt($x1-$len+$feat->get_start-5,$motif_Y+10);
+          $tssfeat->addPt($x1-$len+$feat->get_start+5,$motif_Y+10);
           $self->{IMAGE}->filledPolygon($tssfeat,$self->{TSSCOLOR});
       }
 

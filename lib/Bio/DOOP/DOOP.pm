@@ -10,6 +10,8 @@ use Bio::DOOP::SequenceFeature;
 use Bio::DOOP::Motif;
 use Bio::DOOP::Util::Search;
 use Bio::DOOP::Util::Run::Mofext;
+use Bio::DOOP::Util::Run::Fuzznuc;
+use Bio::DOOP::Util::Run::Admin;
 use Bio::DOOP::Graphics::Feature;
 
 =head1 NAME
@@ -18,11 +20,11 @@ use Bio::DOOP::Graphics::Feature;
 
 =head1 VERSION
 
-Version 0.12
+Version 0.16
 
 =cut
 
-our $VERSION = '0.12';
+our $VERSION = '0.16';
 
 =head1 SYNOPSIS
 
@@ -83,6 +85,14 @@ our $VERSION = '0.12';
 
   Module for Mofext wrapping. Mofext is a motif finder 
   program developed by the author Tibor Nagy.
+
+=head2 Bio::DOOP::Util::Run::Fuzznuc
+
+  Module for controll Emboss program fuzznuc.
+
+=head2 Bio::DOOP::Util::Run::Admin
+
+  Module for controll all the running DOOP wrapper objects
 
 =head2 Bio::DOOP::Graphics::Feature
 

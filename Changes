@@ -1,4 +1,13 @@
 Revision history for Bio-DOOP-DOOP
+0.16    2007/04/12
+        The Graphics::Feature module fixed, but Endre found some bug :-(
+0.15    2007/04/12
+        The ClusterSubset class can manage the chordata database
+0.14    2007/04/01
+        New module Util::Run::Fuzznuc.
+	New modification in Graphics::Feature, because it is not correct.
+0.13    2007/03/28
+        The motifs in the Graphics::Feature module drawed incorrectly. Now fixed. Maybe
 0.12    2007/03/19
         The motifs in the Graphics::Feature module drawed correctly
         The ClusterSubset module get_all_seqs method returns sorted sequences

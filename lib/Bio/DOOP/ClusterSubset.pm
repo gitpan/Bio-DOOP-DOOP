@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
@@ -301,7 +301,11 @@ sub get_all_seqs {
         push @sortseqs, sort {$a->get_taxon_name cmp $b->get_taxon_name} @{$groups{$key}};
      }
   }
-  #FIXME Add the vertebrata sorting part
+  #FIXME Meybe not perfect
+  for my $key ("Primates", "Glires","Euarchontoglires" , "Cetartiodactyla","Carnivora","Laurasiatheria","Xenarthra","Afrotheria" , "Metatheria" , "Prototheria" , "Aves","Sauropsida" , "Amphibia" , "Teleostomi" , "Chondrichthyes","Vertebrata" , "Chordata"){     if ($groups{$key}){
+        push @sortseqs, sort {$a->get_taxon_name cmp $b->get_taxon_name} @{$groups{$key}};
+     }
+  }
   return(\@sortseqs);
 }
 

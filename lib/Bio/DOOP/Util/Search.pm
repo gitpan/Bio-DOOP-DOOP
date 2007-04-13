@@ -281,4 +281,25 @@ sub get_all_cluster_by_go_id {
 	return(\@clusters);
 }
 
+=head2 get_all_cluster_by_ensno
+
+  Returns the arrayref of clusters containing the given ENSEMBL gene ID.
+
+=cut
+
+sub get_all_cluster_by_ensno {
+  my $db                   = shift;
+  my $ensno                = shift;
+  my $promoter_size        = shift;
+
+  my @clusters;
+
+  my $ret = $db->query("SELECT DISTINCT(cluster.cluster_db_id) FROM cluster, sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND sequence_xref.xref_type = 'ensembl_id' AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_xref.xref_id LIKE '$ensno%';");
+
+  for my $cluster (@$ret) {
+	push @clusters,Bio::DOOP::Cluster->new($db,$$cluster[0],$promoter_size);
+  }
+  return(\@clusters);
+}
+
 1;
