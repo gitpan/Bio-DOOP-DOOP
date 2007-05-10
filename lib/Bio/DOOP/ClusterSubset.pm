@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 =head1 SYNOPSIS
 
@@ -54,7 +54,7 @@ sub new {
   my $ret    = $db->query("SELECT * FROM cluster_subset WHERE subset_primary_id = \"$id\";");
 
   if ($#$ret == -1){
-     cluck "No subset!\n";
+     #cluck "No subset!\n";
      return(-1);
   }
 
@@ -72,7 +72,7 @@ sub new {
   $ret = $db->query("SELECT alignment_dialign,alignment_fasta FROM cluster_subset_data WHERE subset_primary_id = \"$id\";");
 
   if ($#$ret == -1){
-     cluck "No alignment for this subset! $id\n";
+     #cluck "No alignment for this subset! $id\n";
      return(-1);
   }
 
@@ -242,7 +242,7 @@ sub get_all_motifs {
 
   if ($#$ret == -1){
      #cluck "No motif found!\n";
-     return();
+     return(-1);
   }
 
   for($i = 0; $i < $#$ret + 1; $i++){
@@ -269,18 +269,18 @@ sub get_all_seqs {
   my $ret = $self->{DB}->query("SELECT sequence_primary_id FROM subset_xref WHERE subset_primary_id = $id;");
 
   if ($#$ret == -1){
-     cluck "No sequence!\n";
+     #cluck "No sequence!\n";
      return(-1);
   }
 
   for(@$ret){
 	  push @seqs,Bio::DOOP::Sequence->new($self->{DB},$_->[0]);
   }
-  # Sortin the sequences to the following criterias:
+  # Sorting the sequences by the following criteria:
   # The first is the reference species (Arabidopsis/Human)
   # The second is the taxon_class (B E M V in the plants and 
   # P R E H M N T F V C in the animals )
-  # Finally the alphabet order.
+  # Third is the alphabetical order.
 
   my $seq;
   my $i;
@@ -301,7 +301,6 @@ sub get_all_seqs {
         push @sortseqs, sort {$a->get_taxon_name cmp $b->get_taxon_name} @{$groups{$key}};
      }
   }
-  #FIXME Meybe not perfect
   for my $key ("Primates", "Glires","Euarchontoglires" , "Cetartiodactyla","Carnivora","Laurasiatheria","Xenarthra","Afrotheria" , "Metatheria" , "Prototheria" , "Aves","Sauropsida" , "Amphibia" , "Teleostomi" , "Chondrichthyes","Vertebrata" , "Chordata"){     if ($groups{$key}){
         push @sortseqs, sort {$a->get_taxon_name cmp $b->get_taxon_name} @{$groups{$key}};
      }

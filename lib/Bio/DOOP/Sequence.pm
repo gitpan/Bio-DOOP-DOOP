@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 SYNOPSIS
 
@@ -43,6 +43,78 @@ sub new {
   my $id                   = shift;
   my $i;
   my $ret = $db->query("SELECT * FROM sequence WHERE sequence_primary_id = $id;");
+  my @fields = @{$$ret[0]};
+
+  $self->{DB}              = $db;
+  $self->{PRIMARY}         = $fields[0];
+  $self->{FAKE}            = $fields[1];
+  $self->{DB_ID}           = $fields[2];
+  $self->{LENGTH}          = $fields[3];
+  $self->{DATE}            = $fields[4];
+  $self->{VERSION}         = $fields[5];
+  $self->{ANNOT}           = $fields[6];
+  $self->{ORIG}            = $fields[7];
+  $self->{DATA}            = $fields[8];
+  $self->{TAXON}           = $fields[9];
+
+  if (defined($self->{ANNOT})){
+
+     $ret = $db->query("SELECT * FROM sequence_annot WHERE sequence_annot_primary_id = ".$self->{ANNOT}.";");
+     @fields = @{$$ret[0]};
+
+     $self->{MAINDBID}        = $fields[1];
+     $self->{UTR}             = $fields[2];
+     $self->{DESC}            = $fields[3];
+     $self->{GENENAME}        = $fields[4];
+
+  }
+  else {
+     cluck"No annotation is available for this promoter sequence! You are on your own now.\n";
+  }
+
+  if (defined($self->{DATA})) {
+     $ret = $db->query("SELECT * FROM sequence_data WHERE sequence_data_primary_id =".$self->{DATA}.";");
+     @fields = @{$$ret[0]};
+
+     $self->{FASTA}           = $fields[2];
+     $self->{BLAST}           = $fields[3];
+  }
+  else {
+     cluck"No sequence data available! Where did it go?\n";
+  }
+
+  $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id =".$self->{TAXON}.";");
+  @fields = @{$$ret[0]};
+
+  $self->{TAXID}           = $fields[1];
+  $self->{TAXNAME}         = $fields[2];
+  $self->{TAXCLASS}        = $fields[3];
+
+  my %xref;
+  $ret = $db->query("SELECT xref_id,xref_type FROM sequence_xref WHERE sequence_primary_id = $id;");
+  for($i = 0; $i < $#$ret+1; $i++){
+	  @fields = @{$$ret[$i]};
+	  push @{ $xref{$fields[1]} }, $fields[0];
+  }
+  $self->{XREF}            = \%xref;
+
+  bless $self;
+  return($self);
+}
+
+=head2 new_from_dbid
+
+
+
+=cut
+
+sub new_from_dbid {
+  my $self                 = {};
+  my $dummy                = shift;
+  my $db                   = shift;
+  my $id                   = shift;
+  my $i;
+  my $ret = $db->query("SELECT * FROM sequence WHERE sequence_db_id = $id;");
   my @fields = @{$$ret[0]};
 
   $self->{DB}              = $db;

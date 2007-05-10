@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
@@ -36,13 +36,13 @@ sub new {
   my $self                 = {};
   my $dummy                = shift;
   my $db                   = shift;
-     $self->{ID}           = shift;  # This is the cluster_db_id field in the MySQL tables.
+     $self->{ID}           = shift;  # This is the cluster_id field in the MySQL tables.
      $self->{PROMO_TYPE}   = shift;
 
   my $id   = $self->{ID};
   my $size = $self->{PROMO_TYPE};
 
-  my $ret  = $db->query("SELECT * FROM cluster WHERE cluster_db_id=\"$id\" AND cluster_promoter_type=\"$size\";");
+  my $ret  = $db->query("SELECT * FROM cluster WHERE cluster_id=\"$id\" AND cluster_promoter_type=\"$size\";");
 
   if ($#$ret == -1){
      return(-1);
@@ -63,7 +63,7 @@ sub new_by_id {
   my $self                 = {};
   my $dummy                = shift;
   my $db                   = shift;
-     $self->{PRIMARY}      = shift;  # This is the cluster_db_id field in the MySQL tables.
+     $self->{PRIMARY}      = shift;  # This is the cluster_id field in the MySQL tables.
 
   my $id   = $self->{PRIMARY};
 
@@ -204,7 +204,7 @@ sub get_all_subsets {
   my $ret = $self->{DB}->query("SELECT subset_primary_id FROM cluster_subset WHERE cluster_primary_id = $id");
 
   if ($#$ret == -1){
-     cluck "No subset found!\n";
+     #cluck "No subset found!\n";
      return(-1);
   }
 
@@ -236,7 +236,7 @@ sub get_subset_by_type {
   my $ret = $self->{DB}->query("SELECT subset_primary_id FROM cluster_subset WHERE cluster_primary_id = $id AND subset_type = \"$type\"");
 
   if ($#$ret == -1){
-     cluck "No subset found!\n";
+     #cluck "No subset found!\n";
      return(-1);
   }
 
@@ -259,7 +259,7 @@ sub get_available_types {
   my $ret = $self->{DB}->query("SELECT subset_type FROM cluster_subset WHERE cluster_primary_id = $id");
 
   if ($#$ret == -1){
-     cluck "No subset type found!\n";
+     #cluck "No subset type found!\n";
      return(-1);
   }
 
@@ -286,7 +286,7 @@ sub get_all_seqs {
   my $ret = $self->{DB}->query("SELECT DISTINCT(sequence_primary_id) FROM subset_xref WHERE cluster_primary_id = $id;");
 
   if ($#$ret == -1){
-     cluck "No sequence found! Something is really fucked up.\n";
+     #cluck "No sequence found! Something is really fucked up.\n";
      return(-1);
   }
 
@@ -312,7 +312,7 @@ sub get_orig_subset {
   my $id                   = $self->{PRIMARY};
   my $ret = $self->{DB}->query("SELECT subset_primary_id FROM cluster_subset WHERE cluster_primary_id = $id AND original = \"y\"");
   if ($#$ret == -1){
-     cluck "No original subset!\n";
+     #cluck "No original subset!\n";
      return(-1);
   }
   my $subset =  Bio::DOOP::ClusterSubset->new($self->{DB},$$ret[0]->[0]);
@@ -333,10 +333,10 @@ sub get_ref_seq {
   my $id                   = $self->{PRIMARY};
 
   #why taxon_name? taxon_taxid is so much nicer.
-  my $ret = $self->{DB}->query("SELECT sequence.sequence_primary_id FROM sequence, taxon_annotation, subset_xref WHERE cluster_primary_id = $id AND (taxon_name = 'Arabidopsis thaliana' OR taxon_name = 'Homo sapiens') AND taxon_annotation.taxon_primary_id = sequence.taxon_primary_id AND sequence.sequence_primary_id = subset_xref.sequence_primary_id;");
+  my $ret = $self->{DB}->query("SELECT sequence.sequence_primary_id FROM sequence, taxon_annotation, subset_xref WHERE cluster_primary_id = $id AND (taxon_taxid = '3702' OR taxon_taxid = '9606') AND taxon_annotation.taxon_primary_id = sequence.taxon_primary_id AND sequence.sequence_primary_id = subset_xref.sequence_primary_id;");
   
   if ($#$ret == -1){
-     cluck "No reference sequence!\n";
+     #cluck "No reference sequence!\n";
      return(-1);
   }
 

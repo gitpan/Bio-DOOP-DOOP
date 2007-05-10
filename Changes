@@ -1,4 +1,11 @@
 Revision history for Bio-DOOP-DOOP
+0.19    2007/05/10
+        Tha database have been changed, so the modules also changed. New
+        methods not added, but some old stuff have been removed.
+0.18    2007/05/09
+        Modification in the Motif module. Correct the get_seqfeature_ids method
+0.17    2007/04/24
+        Changes in the Sequence objects
 0.16    2007/04/12
         The Graphics::Feature module fixed, but Endre found some bug :-(
 0.15    2007/04/12

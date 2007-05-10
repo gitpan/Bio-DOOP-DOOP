@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 
@@ -51,20 +51,16 @@ sub new {
   $self->{SCORE}           = $fields[1];
   $self->{START}           = $fields[2];
   $self->{END}             = $fields[3];
-  $self->{TOPLEFT}         = $fields[4];
-  $self->{TOPRIGHT}        = $fields[5];
-  $self->{BOTTOMLEFT}      = $fields[6];
-  $self->{BOTTOMRIGHT}     = $fields[7];
-  $self->{SEQ}             = $fields[8];
-  $self->{TYPE}            = $fields[9];
-  $self->{MOTIFID}         = $fields[10];
-  $self->{TFBSID}          = $fields[11];
-  $self->{CPGID}           = $fields[12];
-  $self->{REPEATID}        = $fields[13];
-  $self->{SSRID}           = $fields[14];
-  $self->{TSSID}           = $fields[15];
-  $self->{SUBSET_ID}       = $fields[16];
-  $self->{SEQ_ID}          = $fields[17];
+  $self->{SEQ}             = $fields[4];
+  $self->{TYPE}            = $fields[5];
+  $self->{MOTIFID}         = $fields[6];
+  $self->{TFBSID}          = $fields[7];
+  $self->{CPGID}           = $fields[8];
+  $self->{REPEATID}        = $fields[9];
+  $self->{SSRID}           = $fields[10];
+  $self->{TSSID}           = $fields[11];
+  $self->{SUBSET_ID}       = $fields[12];
+  $self->{SEQ_ID}          = $fields[13];
 
   if    ($self->{TYPE} eq "ssr"){
 	  $ret = $db->query("SELECT * FROM ssr_annotation WHERE ssr_primary_id =".$self->{SSRID});
@@ -166,50 +162,6 @@ sub get_end {
 sub length {
   my $self                 = shift;
   return($self->{END} - $self->{START} + 1);
-}
-
-=head2 get_png_topleft
-
-  Nothing to see here. Move along.
-
-=cut
-
-sub get_png_topleft {
-  my $self                 = shift;
-  return($self->{TOPLEFT});
-}
-
-=head2 get_png_topright
-
-  Nothing to see here. Move along.
-
-=cut
-
-sub get_png_topright {
-  my $self                 = shift;
-  return($self->{TOPRIGHT});
-}
-
-=head2 get_png_bottomleft
-
-  Nothing to see here. Move along.
-
-=cut
-
-sub get_png_bottomleft {
-  my $self                 = shift;
-  return($self->{BOTTOMLEFT});
-}
-
-=head2 get_png_bottomright
-
-  Nothing to see here. Move along.
-
-=cut
-
-sub get_png_bottomright {
-  my $self                 = shift;
-  return($self->{BOTTOMRIGHT});
 }
 
 =head2 get_seq

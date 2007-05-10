@@ -9,11 +9,11 @@ use warnings;
 
 =head1 VERSION
 
-Version 0.08
+Version 0.5
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.5';
 
 =head1 SYNOPSIS
 
@@ -62,10 +62,8 @@ sub new {
 	$self->{TYPE}      = $motif[3];
 	$self->{START}     = $motif[4];
 	$self->{END}       = $motif[5];
-	$self->{BLOCK}     = $motif[6];
-	$self->{MATRIX}    = $motif[7];
-	$self->{LOGO}      = $motif[8];
-	$self->{SUBSET_ID} = $motif[9];
+	$self->{SUBSET_ID} = $motif[6];
+	$self->{DB}        = $db;
 	bless $self;
 	return($self);
 }
@@ -137,46 +135,6 @@ sub get_id {
   return($self->{PRIMARY});
 }
 
-=head2 get_block
-
-  Return the multiple alignment block from which the motif
-  was generated.
-
-  Not yet implemented.
-
-=cut
-
-sub get_block {
-  my $self                 = shift;
-  return($self->{BLOCK});
-}
-
-=head2 get_matrix
-
-  Returns the position frequency matrix of the motif.
-  
-  Not yet implemented.
-
-=cut
-
-sub get_matrix {
-  my $self                 = shift;
-  return($self->{MATRIX});
-}
-
-=head2 get_logo
-
-  Return the sequence logo of the motif.
-  
-  Not yet implemented.
-
-=cut
-
-sub get_logo {
-  my $self                 = shift;
-  return($self->{LOGO});
-}
-
 =head2 get_subset_id
 
   Returns the motif subset primary id.
@@ -186,6 +144,26 @@ sub get_logo {
 sub get_subset_id {
   my $self                 = shift;
   return($self->{SUBSET_ID});
+}
+
+=head2 get_seqfeat_ids
+
+  Returns all the sequence feature primary ids.
+
+=cut
+
+sub get_seqfeat_ids {
+  my $self                 = shift;
+  my $db  = $self->{DB};
+  my $id  = $self->{PRIMARY};
+  my $ret = $db->query("SELECT sequence_feature_primary_id FROM sequence_feature WHERE motif_feature_primary_id = \"$id\";");
+  my @subsets;
+
+  for my $i (@$ret){
+     push @subsets,Bio::DOOP::SequenceFeature->new($db,$$i[0]);
+  }
+
+  return(\@subsets);
 }
 
 1;
