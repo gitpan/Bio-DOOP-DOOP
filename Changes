@@ -1,4 +1,6 @@
 Revision history for Bio-DOOP-DOOP
+0.20    2007/05/14
+        Fix a Makefile.pm error. Now no problem at the installation
 0.19    2007/05/10
         Tha database have been changed, so the modules also changed. New
         methods not added, but some old stuff have been removed.

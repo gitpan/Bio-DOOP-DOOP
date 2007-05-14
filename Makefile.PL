@@ -9,10 +9,11 @@ WriteMakefile(
     ABSTRACT_FROM       => 'lib/Bio/DOOP/DOOP.pm',
     PL_FILES            => {},
     PREREQ_PM => {
-        'Test::More' => 0,
-        'GD'         => 2.35,
-        'DBI'        => 1.52,
-        'Carp'       => 0
+        'Test::More'         => 0,
+        'GD'                 => 2.35,
+        'DBI'                => 1.52,
+        'Carp'               => 0,
+        'Proc::ProcessTable' => 0.41 
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Bio-DOOP-DOOP-*' },
