@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-  Version 0.10
+  Version 0.13
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.13';
 
 =head1 SYNOPSIS
 
@@ -79,14 +79,12 @@ sub new {
   my @motif_collection;
 
   for my $cl_id (@{$cluster_id_list}){
-     my $cl = Bio::DOOP::Cluster->new($db,,$cl_id,$promo_type);
-     my $subset = $cl->get_subset_by_type($promo_type);
+     my $cl      = Bio::DOOP::Cluster->new($db,$cl_id,$promo_type);
+     if ($cl == -1){ next }
+     my $subset  = $cl->get_subset_by_type($subset_type);
      if ($subset == -1){ next }
-     my $motifs = $subset->get_all_motifs;
-     if(!$motifs){
-        cluck("No motifs, cluster skipped!\n");
-	next;
-     }
+     my $motifs  = $subset->get_all_motifs;
+     if($motifs  == -1){ next }
      for my $motif (@$motifs){
         push @motif_collection, [$motif->get_id,$motif->seq];
 #       print $motif->get_id," ",$motif->seq,"\n";
@@ -124,17 +122,13 @@ sub new_by_file {
      chomp;
      my $cl_id = $_;
      push @cluster_id_list,$cl_id;
-     my $cl = Bio::DOOP::Cluster->new($db,,$cl_id,$promo_type);
+     my $cl = Bio::DOOP::Cluster->new($db,$cl_id,$promo_type);
      my $subset = $cl->get_subset_by_type($subset_type);
      if ($subset == -1) { next }
      my $motifs = $subset->get_all_motifs;
-     if(!$motifs){
-        cluck("No motifs, cluster skipped!\n");
-	next;
-     }
+     if($motifs == -1){ next }
      for my $motif (@$motifs){
         push @motif_collection, [$motif->get_id,$motif->seq];
-#        print $motif->get_id," ",$motif->seq,"\n";
      }
   }
   close CLUSTER_ID_FILE;
@@ -147,6 +141,40 @@ sub new_by_file {
   bless $self;
   return($self);
 }
+
+=head2 new_by_tmp
+
+  Create a new Mofext object from a existed tmp file. It is good when you have a tmp file, and you want 
+  to use it over and over again or your tmp file is large (the new constructor is very slow when you use
+  big cluster list). If you use this constructor, you no need to use set_tmp_file_name, write_to_tmp.
+  Arguments: Bio::DOOP::DBSQL object, temporary file name.
+  Return type: none
+  Example:
+
+  use Bio::DOOP::DOOP
+  $db      = Bio::DOOP::DBSQL->connect("username","pswd","doop-chordate-1_4","localhost");
+
+  $mofext = Bio::DOOP::Util::Run::Mofext->new_by_tmp($db,"/adatok/prg/perl/DOOP/ize.txt");
+  $ret = $mofext->run('GGATCCTGGAT',10,0.95,'default_matrix.txt');
+  @res = @{$mofext->get_results};
+
+  for $res (@res){
+    print $$res[0]->get_id," ",$$res[1],"\n";
+  }
+
+
+=cut
+
+sub new_by_tmp {
+  my $self                 = {};
+  my $dummy                = shift;
+     $self->{DB}           = shift;
+     $self->{TMP_FILE}     = shift;
+
+  bless $self;
+  return($self);
+}
+
 
 =head2 get_tmp_file_name
 
@@ -163,6 +191,7 @@ sub get_tmp_file_name {
 =head2 set_tmp_file_name
 
   Set the temporary file name.
+  Arguments: temporary file name
   Return type: none
 
 =cut
@@ -275,7 +304,7 @@ sub get_results {
 
   Returns the arrayref of the array of cluster objects and motif primary ids or -1 in case
   of error.
-  This is a very uniq methods because it is not depend to the object. So you can fetch more
+  This is a very uniq method because it is not depend to the object. So you can fetch more
   different results of different mofext objects. Maybe it is going to out from this module
   in the future.
 

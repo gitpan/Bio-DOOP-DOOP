@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
@@ -59,7 +59,7 @@ sub new {
 
   if (defined($self->{ANNOT})){
 
-     $ret = $db->query("SELECT * FROM sequence_annot WHERE sequence_annot_primary_id = ".$self->{ANNOT}.";");
+     $ret = $db->query("SELECT * FROM sequence_annotation WHERE sequence_annotation_primary_id = ".$self->{ANNOT}.";");
      @fields = @{$$ret[0]};
 
      $self->{MAINDBID}        = $fields[1];
@@ -69,7 +69,7 @@ sub new {
 
   }
   else {
-     cluck"No annotation is available for this promoter sequence! You are on your own now.\n";
+	  #cluck"No annotation is available for this promoter sequence! You are on your own now.\n";
   }
 
   if (defined($self->{DATA})) {
@@ -80,7 +80,7 @@ sub new {
      $self->{BLAST}           = $fields[3];
   }
   else {
-     cluck"No sequence data available! Where did it go?\n";
+	  #cluck"No sequence data available! Where did it go?\n";
   }
 
   $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id =".$self->{TAXON}.";");
@@ -114,7 +114,7 @@ sub new_from_dbid {
   my $db                   = shift;
   my $id                   = shift;
   my $i;
-  my $ret = $db->query("SELECT * FROM sequence WHERE sequence_db_id = $id;");
+  my $ret = $db->query("SELECT * FROM sequence WHERE sequence_id = $id;");
   my @fields = @{$$ret[0]};
 
   $self->{DB}              = $db;
@@ -131,7 +131,7 @@ sub new_from_dbid {
 
   if (defined($self->{ANNOT})){
 
-     $ret = $db->query("SELECT * FROM sequence_annot WHERE sequence_annot_primary_id = ".$self->{ANNOT}.";");
+     $ret = $db->query("SELECT * FROM sequence_annotation WHERE sequence_annotation_primary_id = ".$self->{ANNOT}.";");
      @fields = @{$$ret[0]};
 
      $self->{MAINDBID}        = $fields[1];
@@ -141,7 +141,7 @@ sub new_from_dbid {
 
   }
   else {
-     cluck"No annotation is available for this promoter sequence! You are on your own now.\n";
+	#cluck"No annotation is available for this promoter sequence! You are on your own now.\n";
   }
 
   if (defined($self->{DATA})) {
@@ -152,7 +152,7 @@ sub new_from_dbid {
      $self->{BLAST}           = $fields[3];
   }
   else {
-     cluck"No sequence data available! Where did it go?\n";
+	  #cluck"No sequence data available! Where did it go?\n";
   }
 
   $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id =".$self->{TAXON}.";");
@@ -505,8 +505,8 @@ sub get_all_subsets {
   my $ref   = $self->{DB}->query($query);
 
   if ($#$ref == -1){
-     cluck"No subset found! This is impossible!!\n";
-     return();
+     #cluck"No subset found! This is impossible!!\n";
+     return(-1);
   }
 
   for my $subset (@$ref){

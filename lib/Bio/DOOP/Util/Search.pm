@@ -9,11 +9,11 @@ use warnings;
 
 =head1 VERSION
 
-  Version 0.09
+  Version 0.10
 
 =cut
 
-our $VERSION = '0.9';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
@@ -302,4 +302,26 @@ sub get_all_cluster_by_ensno {
   return(\@clusters);
 }
 
+=head2 get_all_cluster_id
+
+	Returns an arrayref of all the cluster IDs of a given promoter/subset category.
+	For example returns all clusters with 1000 bp E type subsets.
+	E. Sebestyen 20070518
+=cut
+
+sub get_all_cluster_id {
+
+	my $db            = shift;
+	my $promoter_size = shift;
+	my $subset_type   = shift;
+
+	my @clusters;
+
+	my $ret = $db->query("SELECT cluster.cluster_id FROM cluster, cluster_subset WHERE cluster.cluster_promoter_type = '$promoter_size' AND cluster.cluster_primary_id = cluster_subset.cluster_primary_id AND cluster_subset.subset_type = '$subset_type';");
+
+	for my $cluster (@$ret) {
+		push @clusters, $$cluster[0];
+	}
+	return(\@clusters);
+}
 1;

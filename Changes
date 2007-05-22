@@ -1,4 +1,9 @@
 Revision history for Bio-DOOP-DOOP
+0.22    2007/05/22
+        New method in the Mofext.pm. Now you can use previously defined
+        tmp file for the mofext search. Time save option.
+0.21    2007/05/21
+        Fix the Mofext.pm, now the installer won't give error messages
 0.20    2007/05/14
         Fix a Makefile.pm error. Now no problem at the installation
 0.19    2007/05/10
