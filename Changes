@@ -1,4 +1,13 @@
 Revision history for Bio-DOOP-DOOP
+0.24    2007/06/11
+        Modified the Sequence module to return -1 in the get_xref_value method.
+        The Sort and Filt modules have finished
+        Modified the help messages in the Cluster module
+        Add new method to the Search module to return just ids, not objects. (This
+        take lower load on our webserver.)
+0.23    2007/05/29
+        I have started to coding the Sort and Filt modules. The Mofext is
+        write out the score and extended score.
 0.22    2007/05/22
         New method in the Mofext.pm. Now you can use previously defined
         tmp file for the mofext search. Time save option.

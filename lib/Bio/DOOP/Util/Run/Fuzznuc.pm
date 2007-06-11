@@ -195,7 +195,7 @@ sub run {
 
 =head2 run_background
 
-  Run mofext, but don not wait for the end
+  Run fuzznuc, but don not wait for the end
   Arguents: query pattern, mismatch, complement, output file name
   Return type: the process id
 

@@ -13,11 +13,11 @@ use GD;
 
 =head1 VERSION
 
-Version 0.13
+Version 0.14
 
 =cut
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 =head1 DESCRIPTION
 
@@ -78,7 +78,8 @@ sub create {
                                 strip      => [220,220,220],
                                 utr        => [100,100,255],
                                 motif      => [0,100,0],
-                                tss        => [0,0,0]
+                                tss        => [0,0,0],
+                                frame      => [255,0,0]
   };
 
   bless $self;
@@ -90,7 +91,7 @@ sub create {
   Add an RGB color to the specified drawing element.
   $image->add_color("background",200,200,200);
   $image->set_colors;
-  The available drawing elements are the following : background, label, strip, utr, motif, tss.
+  The available drawing elements are the following : background, label, strip, utr, motif, tss, frame.
 
 =cut
 
@@ -130,6 +131,8 @@ sub set_colors {
   $self->{TSSCOLOR}   = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the tss color.
   ($r,$g,$b) = @{$self->{COLOR}->{strip}};
   $self->{STRIP}      = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the strip color.
+  ($r,$g,$b) = @{$self->{COLOR}->{frame}};
+  $self->{FRAME}      = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the frame color.
 }
 
 =head2 add_scale
@@ -245,7 +248,7 @@ sub add_seq {
                                           $x1 - $len + $feat->get_end,
                                           $motif_Y + $shift_factor + 5,
                                           $self->{MOTIFCOLOR});
-          $self->{IMAGE}->string(gdSmallFont, $x1 - $len + $feat->get_start, $motif_Y+$shift_factor+5, "m$motif_count", $self->{LABEL});
+          $self->{IMAGE}->string(gdSmallFont, $x1 - $len + $feat->get_start, $motif_Y+$shift_factor+6, "m$motif_count", $self->{LABEL});
           push @{$self->{MAP}->{"motif"}},\%motif_element;
           if ($feat->length > $label_length){
               $shift_factor = 0;
@@ -381,5 +384,42 @@ sub get_motif_id_by_coord {
   }
   return(0);
 }
+
+=head2 draw_motif_frame
+
+  $image->draw_motif_frame($motifid);
+
+  This method draw a frame around the given motif.
+  Return type: 0 in success, -1 if the given motif id is not in the picture
+  Arguments: motifid: the motif primary id.
+
+=cut
+
+sub draw_motif_frame {
+  my $self                 = shift;
+  my $motifid              = shift;
+  my $actualid;
+  my $have = 0;
+
+  for my $motif (@{$self->{MAP}->{motif}}){
+     ($actualid) = keys %{$motif};
+     if ($actualid == $motifid){
+        my @choords = @{$$motif{$actualid}};
+        $have = 1;
+
+        # Draw the frame
+        $self->{IMAGE}->rectangle($choords[0]-3,$choords[1]-3,$choords[2]+3,$choords[3]+3,$self->{FRAME});
+        $self->{IMAGE}->rectangle($choords[0]-2,$choords[1]-2,$choords[2]+2,$choords[3]+2,$self->{FRAME});
+     }
+  }
+
+  if ($have == 0){
+      return(-1)
+  }
+  else{
+      return(0)
+  }
+}
+
 
 1;

@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 =head1 SYNOPSIS
 
@@ -104,7 +104,7 @@ sub new {
 
 =head2 new_from_dbid
 
-
+  Create new objects form sequence primary id.
 
 =cut
 
@@ -457,7 +457,12 @@ sub get_xref_value {
   my $self                 = shift;
   my $key                  = shift;
 
-  return(${ $self->{XREF} }{$key});
+  if (${ $self->{XREF} }{$key}){
+     return(${ $self->{XREF} }{$key});
+  }
+  else {
+     return(-1);
+  }
 }
 
 =head2 get_all_seq_features

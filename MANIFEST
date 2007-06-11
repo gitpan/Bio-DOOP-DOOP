@@ -12,6 +12,8 @@ lib/Bio/DOOP/Motif.pm
 lib/Bio/DOOP/Sequence.pm
 lib/Bio/DOOP/SequenceFeature.pm
 lib/Bio/DOOP/Util/Search.pm
+lib/Bio/DOOP/Util/Filt.pm
+lib/Bio/DOOP/Util/Sort.pm
 lib/Bio/DOOP/Util/Run/Mofext.pm
 lib/Bio/DOOP/Util/Run/Fuzznuc.pm
 lib/Bio/DOOP/Util/Run/Admin.pm

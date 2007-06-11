@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-  Version 0.13
+  Version 0.14
 
 =cut
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 =head1 SYNOPSIS
 
@@ -44,9 +44,9 @@ if ($error == -1){
 }
 
 @res = @{$mofext->get_results};
-# Return the cluster objects and the motif primary ids.
+# Return the motif objects and the score, extended score.
 for $result (@res){
-  print $$result[0]->get_id," ",$$result[1],"\n";
+  print $$result[0]->get_id," ",$$result[1],"$$result[2]","\n";
 }
 
 
@@ -238,7 +238,7 @@ sub run {
 
   my %seen;
 
-  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o i";
+  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o ise";
   my @results = `mofext $params`;
 
   my @id_uniq = grep { ! $seen{ $_ }++ } @results;
@@ -268,7 +268,7 @@ sub run_background {
 
   unless($pid = fork){
 
-  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o i";
+  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o ise";
   my @results = `mofext $params | sort | uniq >$outfile`;
   }
 
@@ -285,19 +285,20 @@ sub get_results {
   my $self                 = shift;
 
   my $res = $self->{RESULT};
-  my @cluster_res;
+  my @mofext_res;
+  my $id;
+  my $score;
+  my $extscore;
 
-  for my $id (@{$res}) {
-     chomp($id);
+  for my $line (@{$res}) {
+     chomp($line);
+     ($id,$score,$extscore) = split(/ /,$line);
      my $motif     = Bio::DOOP::Motif->new($self->{DB},$id);
-     my $subsetid  = $motif->get_subset_id;
-     my $subset    = Bio::DOOP::ClusterSubset->new($self->{DB},$subsetid);
-     my $cluster   = $subset->get_cluster;
 
-     push @cluster_res, [$cluster,$id];
+     push @mofext_res, [$motif,$score,$extscore];
   }
 
-  return(\@cluster_res);
+  return(\@mofext_res);
 }
 
 =head2 get_results_from_file
@@ -314,21 +315,23 @@ sub get_results_from_file {
   my $self                 = shift;
   my $filename             = shift;
 
-  my @cluster_res;
+  my @mofext_res;
+  my $id;
+  my $score;
+  my $extscore;
+
   open RES,$filename or return(-1);
   while(<RES>){
-     my $id = $_;
+     my $line = $_;
 
-     chomp($id);
+     chomp($line);
+     ($id,$score,$extscore) = split(/ /,$line);
      my $motif     = Bio::DOOP::Motif->new($self->{DB},$id);
-     my $subsetid  = $motif->get_subset_id;
-     my $subset    = Bio::DOOP::ClusterSubset->new($self->{DB},$subsetid);
-     my $cluster   = $subset->get_cluster;
 
-     push @cluster_res, [$cluster,$id];
+     push @mofext_res, [$motif,$score,$extscore];
   }
   close RES;
-  return(\@cluster_res);
+  return(\@mofext_res);
 }
 
 1;

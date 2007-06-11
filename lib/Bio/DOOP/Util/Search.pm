@@ -9,11 +9,11 @@ use warnings;
 
 =head1 VERSION
 
-  Version 0.10
+  Version 0.11
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 =head1 SYNOPSIS
 
@@ -176,6 +176,28 @@ sub get_all_cluster_by_taxon_name {
   return(\@clusters);
 }
 
+=head2 get_all_cluster_id_by_taxon_name
+
+  Returns the arrayref of cluster ids containing the taxon name.
+  Don't use this, use get_all_cluster_by_taxon_id with NCBI IDs.
+
+=cut
+
+sub get_all_cluster_id_by_taxon_name {
+  my $db                   = shift;
+  my $taxon                = shift;
+  my $promoter_size        = shift;
+
+  my @clusters;
+
+  my $ret = $db->query("SELECT DISTINCT(cluster.cluster_id) FROM cluster, taxon_annotation, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.taxon_primary_id = taxon_annotation.taxon_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND taxon_annotation.taxon_name = '$taxon';");
+
+  for my $cluster (@$ret){
+	  push @clusters,$$cluster[0];
+  }
+  return(\@clusters);
+}
+
 =head2 get_all_cluster_by_taxon_id
 
   Returns the arrayref of clusters containing the taxon id (NCBI).
@@ -193,6 +215,27 @@ sub get_all_cluster_by_taxon_id {
 
   for my $cluster (@$ret){
 	  push @clusters,Bio::DOOP::Cluster->new($db,$$cluster[0],$promoter_size);
+  }
+  return(\@clusters);
+}
+
+=head2 get_all_cluster_id_by_taxon_id
+
+  Returns the arrayref of clusters id containing the taxon id (NCBI).
+
+=cut
+
+sub get_all_cluster_id_by_taxon_id {
+  my $db                   = shift;
+  my $taxon                = shift;
+  my $promoter_size        = shift;
+
+  my @clusters;
+
+  my $ret = $db->query("SELECT DISTINCT(cluster.cluster_id) FROM cluster, taxon_annotation, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.taxon_primary_id = taxon_annotation.taxon_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND taxon_annotation.taxon_taxid = '$taxon';");
+
+  for my $cluster (@$ret){
+	  push @clusters,$$cluster[0];
   }
   return(\@clusters);
 }

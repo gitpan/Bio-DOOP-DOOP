@@ -9,6 +9,8 @@ use Bio::DOOP::Sequence;
 use Bio::DOOP::SequenceFeature;
 use Bio::DOOP::Motif;
 use Bio::DOOP::Util::Search;
+use Bio::DOOP::Util::Sort;
+use Bio::DOOP::Util::Filt;
 use Bio::DOOP::Util::Run::Mofext;
 use Bio::DOOP::Util::Run::Fuzznuc;
 use Bio::DOOP::Util::Run::Admin;
@@ -20,11 +22,11 @@ use Bio::DOOP::Graphics::Feature;
 
 =head1 VERSION
 
-Version 0.22
+Version 0.24
 
 =cut
 
-our $VERSION = '0.22';
+our $VERSION = '0.24';
 
 =head1 SYNOPSIS
 
@@ -80,6 +82,14 @@ our $VERSION = '0.22';
 =head2 Bio::DOOP::Util::Search
 
   Module for different search subrutines.
+
+=head2 Bio::DOOP::Util::Sort
+
+  Sort an array of array by given conditions.
+
+=head2 Bio::DOOP::Util::Filt
+
+  Filter a Cluster array by given conditions.
 
 =head2 Bio::DOOP::Util::Run::Mofext
 
