@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-  Version 0.14
+  Version 0.15
 
 =cut
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 =head1 SYNOPSIS
 
@@ -238,7 +238,7 @@ sub run {
 
   my %seen;
 
-  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o ise";
+  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o iseDfF";
   my @results = `mofext $params`;
 
   my @id_uniq = grep { ! $seen{ $_ }++ } @results;
@@ -268,7 +268,7 @@ sub run_background {
 
   unless($pid = fork){
 
-  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o ise";
+  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o iseDfF";
   my @results = `mofext $params | sort | uniq >$outfile`;
   }
 
@@ -277,7 +277,8 @@ sub run_background {
 
 =head2 get_results
 
-  Returns the arrayref of array of cluster objects and motif primary ids.
+  Returns the arrayref of array of motif objects and score, extended score, full hit sequence,
+  alignment start position in the query sequence, alignment start position in the hit sequence.
 
 =cut
 
@@ -289,13 +290,16 @@ sub get_results {
   my $id;
   my $score;
   my $extscore;
+  my $fullhit;
+  my $querystart;
+  my $hitstart;
 
   for my $line (@{$res}) {
      chomp($line);
-     ($id,$score,$extscore) = split(/ /,$line);
+     ($id,$score,$extscore,$fullhit,$querystart,$hitstart) = split(/ /,$line);
      my $motif     = Bio::DOOP::Motif->new($self->{DB},$id);
 
-     push @mofext_res, [$motif,$score,$extscore];
+     push @mofext_res, [$motif,$score,$extscore,$fullhit,$querystart,$hitstart];
   }
 
   return(\@mofext_res);
@@ -303,7 +307,8 @@ sub get_results {
 
 =head2 get_results_from_file
 
-  Returns the arrayref of the array of cluster objects and motif primary ids or -1 in case
+  Returns the arrayref of the array of motif objects and anything else like the get_results
+  method  or -1 in case
   of error.
   This is a very uniq method because it is not depend to the object. So you can fetch more
   different results of different mofext objects. Maybe it is going to out from this module
@@ -319,16 +324,19 @@ sub get_results_from_file {
   my $id;
   my $score;
   my $extscore;
+  my $fullhit;
+  my $querystart;
+  my $hitstart;
 
   open RES,$filename or return(-1);
   while(<RES>){
      my $line = $_;
 
      chomp($line);
-     ($id,$score,$extscore) = split(/ /,$line);
+     ($id,$score,$extscore,$fullhit,$querystart,$hitstart) = split(/ /,$line);
      my $motif     = Bio::DOOP::Motif->new($self->{DB},$id);
 
-     push @mofext_res, [$motif,$score,$extscore];
+     push @mofext_res, [$motif,$score,$extscore,$fullhit,$querystart,$hitstart];
   }
   close RES;
   return(\@mofext_res);
