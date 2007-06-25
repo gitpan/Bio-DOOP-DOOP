@@ -13,11 +13,11 @@ use GD;
 
 =head1 VERSION
 
-Version 0.14
+Version 0.15
 
 =cut
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 =head1 DESCRIPTION
 
@@ -79,7 +79,8 @@ sub create {
                                 utr        => [100,100,255],
                                 motif      => [0,100,0],
                                 tss        => [0,0,0],
-                                frame      => [255,0,0]
+                                frame      => [255,0,0],
+                                fuzzres    => [0,0,255]
   };
 
   bless $self;
@@ -91,7 +92,7 @@ sub create {
   Add an RGB color to the specified drawing element.
   $image->add_color("background",200,200,200);
   $image->set_colors;
-  The available drawing elements are the following : background, label, strip, utr, motif, tss, frame.
+  The available drawing elements are the following : background, label, strip, utr, motif, tss, frame, fuzzres.
 
 =cut
 
@@ -133,6 +134,8 @@ sub set_colors {
   $self->{STRIP}      = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the strip color.
   ($r,$g,$b) = @{$self->{COLOR}->{frame}};
   $self->{FRAME}      = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the frame color.
+  ($r,$g,$b) = @{$self->{COLOR}->{fuzzres}};
+  $self->{FUZZRES}    = $self->{IMAGE}->colorAllocate($r,$g,$b);   # Set the fuzznuc result color.
 }
 
 =head2 add_scale
@@ -420,6 +423,38 @@ sub draw_motif_frame {
       return(0)
   }
 }
+
+=head2 draw_fuzz_result
+
+  You can draw a fuzznuc result with this method. The arguments are the following:
+  Sequence DB id, the start position, end posiion.
+  To set the drawing color, you can use the setcolor("fuzzres",$r,$g,$b) method.
+  Return value: 0 if successful or -1 if the given seq id can not found.
+  $image->draw_fuzz_result(357,20,70);
+
+=cut
+
+sub draw_fuzz_result {
+  my $self                 = shift;
+  my $seqid                = shift;
+  my $start                = shift;
+  my $end                  = shift;
+  my $index = 0;
+
+  for my $i (@{$self->{SEQS}}){
+     if ($i->get_id eq $seqid){
+        my $y   = $index*90+40;
+        my $len = $self->{WIDTH} - 10 - $i->get_length;
+        my $x1  = $len + $start;
+        my $x2  = $len + $end;
+        $self->{IMAGE}->filledRectangle($x1,$y-1,$x2,$y+1,$self->{FUZZRES});
+        return(0);
+     }
+     $index++;
+  }
+  return(-1);
+}
+
 
 
 1;

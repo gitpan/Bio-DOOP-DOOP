@@ -1,4 +1,8 @@
 Revision history for Bio-DOOP-DOOP
+0.26    2007/06/24
+        New methods in the Graphics::Feature (draw_fuzz_result), Util::Run::Fuzznuc (new_by_tmp).
+        Change the Util::Run::Mofext. Now it is returns the subquery because it is needed by the
+        alignemnt creating script.
 0.25    2007/06/15
         The Mofext results now return the full hit sequence and the positions for the alignment
 0.24    2007/06/11

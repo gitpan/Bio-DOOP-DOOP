@@ -238,7 +238,7 @@ sub run {
 
   my %seen;
 
-  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o iseDfF";
+  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o iseqDfF";
   my @results = `mofext $params`;
 
   my @id_uniq = grep { ! $seen{ $_ }++ } @results;
@@ -268,7 +268,7 @@ sub run_background {
 
   unless($pid = fork){
 
-  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o iseDfF";
+  my $params = "-q $query -m $matrix_file -w $wordsize -c $cutoff -d ".$self->get_tmp_file_name." -o iseqDfF";
   my @results = `mofext $params | sort | uniq >$outfile`;
   }
 
@@ -293,13 +293,14 @@ sub get_results {
   my $fullhit;
   my $querystart;
   my $hitstart;
+  my $querysub;
 
   for my $line (@{$res}) {
      chomp($line);
      ($id,$score,$extscore,$fullhit,$querystart,$hitstart) = split(/ /,$line);
      my $motif     = Bio::DOOP::Motif->new($self->{DB},$id);
 
-     push @mofext_res, [$motif,$score,$extscore,$fullhit,$querystart,$hitstart];
+     push @mofext_res, [$motif,$score,$extscore,$querysub,$fullhit,$querystart,$hitstart];
   }
 
   return(\@mofext_res);
@@ -327,6 +328,7 @@ sub get_results_from_file {
   my $fullhit;
   my $querystart;
   my $hitstart;
+  my $querysub;
 
   open RES,$filename or return(-1);
   while(<RES>){
@@ -336,7 +338,7 @@ sub get_results_from_file {
      ($id,$score,$extscore,$fullhit,$querystart,$hitstart) = split(/ /,$line);
      my $motif     = Bio::DOOP::Motif->new($self->{DB},$id);
 
-     push @mofext_res, [$motif,$score,$extscore,$fullhit,$querystart,$hitstart];
+     push @mofext_res, [$motif,$score,$extscore,$querysub,$fullhit,$querystart,$hitstart];
   }
   close RES;
   return(\@mofext_res);

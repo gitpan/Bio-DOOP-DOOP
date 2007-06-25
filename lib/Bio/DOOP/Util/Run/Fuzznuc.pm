@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-  Version 0.1
+  Version 0.2
 
 =cut
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 =head1 SYNOPSIS
 
@@ -96,7 +96,7 @@ sub new {
 
 =head2 new_by_file
 
-  
+  Create new fuzznuc object from query file.
 
 =cut
 
@@ -132,6 +132,27 @@ sub new_by_file {
 
   $self->{DB}              = $db;
   $self->{CLLIST}          = \@cluster_id_list;
+  $self->{TMP_FILE}        = $tmp_filename;
+
+  bless $self;
+  return($self);
+}
+
+=head2 new_by_tmp
+
+  Create new Fuzznuc object from existing tmp file. It is good for
+  speed up the search with previously created tmp file.
+  Arguments: DBSQL object, tmp filename.
+
+=cut
+
+sub new_by_tmp {
+  my $self                 = {};
+  my $dummy                = shift;
+  my $db                   = shift;
+  my $tmp_filename         = shift;
+
+  $self->{DB}              = $db;
   $self->{TMP_FILE}        = $tmp_filename;
 
   bless $self;
