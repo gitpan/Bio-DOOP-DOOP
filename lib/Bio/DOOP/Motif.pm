@@ -30,7 +30,7 @@ our $VERSION = '0.5';
   sometimes it is useful. In most of the cases you
   get this object from other objects.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

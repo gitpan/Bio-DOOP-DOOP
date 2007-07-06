@@ -27,7 +27,7 @@ our $VERSION = '0.11';
   Collection of utilities handling large queries. Most of
   the methods return arrayrefs of motifs, sequences or clusters.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

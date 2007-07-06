@@ -27,7 +27,7 @@ our $VERSION = '0.11';
   hopefully monophyletic, grouped by evolutionary distance from the reference species (Arabidopsis
   or human).
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

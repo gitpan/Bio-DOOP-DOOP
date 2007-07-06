@@ -1,4 +1,7 @@
 Revision history for Bio-DOOP-DOOP
+0.27    2007/07/06
+        The Mofext object and the Fuzznuc object now have same methods. Easy to use. Correct some
+        documentation errors.
 0.26    2007/06/24
         New methods in the Graphics::Feature (draw_fuzz_result), Util::Run::Fuzznuc (new_by_tmp).
         Change the Util::Run::Mofext. Now it is returns the subquery because it is needed by the

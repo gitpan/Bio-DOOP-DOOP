@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-  Version 0.2
+  Version 0.3
 
 =cut
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 =head1 SYNOPSIS
 
@@ -25,26 +25,20 @@ $db     = Bio::DOOP::DBSQL->connect("user","pass","doop-plant-1_5","localhost");
 
 @list   = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680","81001680","81001690","81001725","81001780","81001930","81001950","81002100","81002130","81002140","81002160");
 
-$fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,'500','M',\@list);
-
-$fuzznuc->set_tmp_file_name("/data/DOOP/dummy.txt");
+$fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,'500','M',\@list,"/data/DOOP/dummy.txt");
 
 print $fuzznuc->get_tmp_file_name,"\n";
 
-$error = $fuzznuc->write_to_tmp;
-
-if($error != 0){
-   die "Write error!\n";
-}
-
-$error = $fuzznuc->run('TTGGGC' , 6 , 0.6 , '/data/default_matrix' );
+$error = $fuzznuc->run('TTGGGC' , 1 , 0);
 
 if ($error == -1){
    die "No results or error!\n";
 }
 
 @res = @{$fuzznuc->get_results};
-
+for $result (@res){
+  print $$result[0]->get_id,"| ",$$result[1]," ",$$result[2]," ",$$result[3]," ",$$result[4],"\n";
+}
 
 =head1 DESCRIPTION
 
@@ -52,7 +46,7 @@ if ($error == -1){
 
   patterns in the promoter sequences.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
@@ -60,7 +54,10 @@ if ($error == -1){
 
 =head2 new
 
-  
+  $fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,500,'M',@list,'/tmp/tmpfile');
+  Create new Fuzznuc object.
+  Arguments: Bio::DOOP::DBSQL object, promoter type (500, 1000, 3000), subset type (depends on reference species),
+  listref of clusters, temp file name (default: /tmp/fuzznuc_run.txt).
 
 =cut
 
@@ -77,6 +74,7 @@ sub new {
   open TMP,">$tmp_filename";
   for my $cl_id (@{$cluster_id_list}){
      my $cl = Bio::DOOP::Cluster->new($db,,$cl_id,$promo_type);
+     if ($cl == -1){ next }
      my $subset = $cl->get_subset_by_type($subset_type);
      if ($subset == -1){ next }
      my @seqs = @{$subset->get_all_seqs};
@@ -86,6 +84,10 @@ sub new {
      }
   }
   close TMP;
+  #Get the Emboss version
+  my $ver = `embossversion -stdout -auto`;
+  chomp($ver);
+  $self->{EMBOSSVER}       = $ver;
   $self->{DB}              = $db;
   $self->{CLLIST}          = $cluster_id_list;
   $self->{TMP_FILE}        = $tmp_filename;
@@ -97,6 +99,8 @@ sub new {
 =head2 new_by_file
 
   Create new fuzznuc object from query file.
+  Arguments: Bio::DOOP::DBSQL object, promoter type (500, 1000, 3000), subset type (depends on reference species),
+  file that contain cluster ids, temp file name (default: /tmp/fuzznuc_run.txt).
 
 =cut
 
@@ -129,6 +133,11 @@ sub new_by_file {
   }
   close CLUSTER_ID_FILE;
   close TMP;
+
+  #Get the Emboss version
+  my $ver = `embossversion -stdout -auto`;
+  chomp($ver);
+  $self->{EMBOSSVER}       = $ver;
 
   $self->{DB}              = $db;
   $self->{CLLIST}          = \@cluster_id_list;
@@ -171,10 +180,22 @@ sub get_tmp_file_name {
   return($self->{TMP_FILE});
 }
 
+=head2 get_emboss_version
+
+  Get the installed emboss version number
+  $fuzznuc->get_emboss_version
+
+=cut
+
+sub get_emboss_version {
+  my $self                 = shift;
+  return($self->{EMBOSSVER});
+}
+
 =head2 run
 
   Run mofext on temporary file, containing motifs.
-  Arguments: query sequence, wordsize, cutoff, matrix file path.
+  Arguments: query pattern, mismatch, complement (0 or 1).
   Return type: 0 -> success, -1 -> no result or error
 
 =cut
@@ -186,16 +207,23 @@ sub run {
   my $complement           = shift;
 
   my $file = $self->{TMP_FILE};
+  my $ver;
+  my $mismopt = "-mismatch";
 
-  my @result = `fuzznuc $file -pattern='$pattern' -pmismatch=$mismatch -complement=$complement -stdout -auto`;
+  if ($self->{EMBOSSVER} =~ /^([0-9]+\.[0-9]+)/) { $ver = $1}
+  if ($ver > 4){ $mismopt = "-pmismatch"}
 
-  #FIXME need some parsing module
+  my @result = `fuzznuc $file -pattern='$pattern' $mismopt=$mismatch -complement=$complement -stdout -auto`;
+
   my $seq_id;
   my $start;
   my $end;
   my $mism;
   my $hitseq;
   my @parsed;
+
+  if ($#result == -1){return(-1)} #No results. It is an error
+
   for my $line (@result){
      if ($line =~ / Sequence: (\S+)/){
         $seq_id = $1;
@@ -211,7 +239,7 @@ sub run {
   }
 
   $self->{RESULT} = \@parsed;
-  return(\@parsed);
+  return(0);
 }
 
 =head2 run_background
@@ -231,12 +259,45 @@ sub run_background {
   my $file = $self->{TMP_FILE};
   my $pid;
 
+  my $ver;
+  my $mismopt = "-mismatch";
+
+  if ($self->{EMBOSSVER} =~ /^([0-9]+\.[0-9]+)/) { $ver = $1}
+  if ($ver > 4){ $mismopt = "-pmismatch"}
+
   unless($pid = fork){
-     `fuzznuc $file -pattern='$pattern' -pmismatch=$mismatch -complement=$complement -outfile=$outfile`;
+     `fuzznuc $file -pattern='$pattern' $mismopt=$mismatch -complement=$complement -outfile=$outfile`;
   }
 
   return($pid);
 }
+
+=head2 get_results
+
+  Returns an arrayref of arrays of cluster objects.
+
+=cut
+
+sub get_results {
+  my $self                = shift;
+
+  my @fuzznuc_res;
+  my $res = $self->{RESULT};
+  my $seq_id;
+  my $start;
+  my $end;
+  my $mism;
+  my $hitseq;
+
+  for my $line (@{$res}){
+     ($seq_id,$start,$end,$mism,$hitseq) = split(/ /,$line);
+     my $cl = Bio::DOOP::Sequence->new($self->{DB},$seq_id); #FIXME ezt at kell irni clusterre
+     push @fuzznuc_res,[$cl,$start,$end,$mism,$hitseq];
+  }
+
+  return(\@fuzznuc_res);
+}
+
 
 =head2 get_results_from_file
 
@@ -272,7 +333,8 @@ sub get_results_from_file {
 	$mism   = $3;
 	$hitseq = $4;
 	$mism =~ s/\./0/;
-	push @parsed,"$seq_id $start $end $mism $hitseq";
+        my $cl = Bio::DOOP::Sequence->new($self->{DB},$seq_id); #FIXME
+	push @parsed,[$cl,$start,$end,$mism,$hitseq];
      }
   }
   close FILE;

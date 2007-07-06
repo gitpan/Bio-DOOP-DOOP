@@ -23,7 +23,7 @@ our $VERSION = '0.11';
   This object represents a specific promoter in the database.
   You can access the annotation and the sequence through this object.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

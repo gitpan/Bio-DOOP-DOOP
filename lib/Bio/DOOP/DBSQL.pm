@@ -32,7 +32,7 @@ our $VERSION = '0.04';
   queries. Still if you need some special query and the DOOP 
   API can't help you, use the query method to access the database.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

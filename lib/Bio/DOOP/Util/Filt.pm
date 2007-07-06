@@ -33,7 +33,7 @@ our $VERSION = '0.1';
   This object can filtering a cluster list. It is useful to find a smaller list from a
   big mofext or fuzznuc search.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

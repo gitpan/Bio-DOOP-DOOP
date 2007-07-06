@@ -26,7 +26,7 @@ our $VERSION = '0.1';
   This class is sort any type of array of array. It can be used to sort the
   mofext or fuzznuc results, but can sort any other data.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

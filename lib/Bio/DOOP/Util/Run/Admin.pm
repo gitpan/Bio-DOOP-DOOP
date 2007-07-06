@@ -25,7 +25,7 @@ our $VERSION = '0.1';
 
   This class can manage the Run objects (Run::Mofext and Run::Fuzznuc).
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

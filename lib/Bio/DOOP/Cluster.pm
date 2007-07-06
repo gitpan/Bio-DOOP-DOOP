@@ -26,7 +26,7 @@ our $VERSION = '0.10';
 
 =head1 DESCRIPTION
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

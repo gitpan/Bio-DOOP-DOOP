@@ -56,7 +56,7 @@ for $result (@res){
   is a wrapper object for mofext. It allows the user to search for similar motifs in the 
   DOOP database.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

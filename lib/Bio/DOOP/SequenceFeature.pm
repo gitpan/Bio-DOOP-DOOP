@@ -23,7 +23,7 @@ our $VERSION = '0.08';
   This object gives access to the sequence features ( conserved motif, repeat, CpG island,
   TFBS and TSS annotation ).
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 

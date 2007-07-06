@@ -22,11 +22,11 @@ use Bio::DOOP::Graphics::Feature;
 
 =head1 VERSION
 
-Version 0.26
+Version 0.27
 
 =cut
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 =head1 SYNOPSIS
 
@@ -49,7 +49,7 @@ our $VERSION = '0.26';
   For more help, please see the documentation of the individual
   objects.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
