@@ -10,11 +10,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-  Version 0.15
+  Version 0.16
 
 =cut
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 =head1 SYNOPSIS
 
@@ -23,7 +23,7 @@ our $VERSION = '0.15';
 use Bio::DOOP::DOOP
 $db     = Bio::DOOP::DBSQL->connect("user","pass","doop-plant-1_5","localhost");
 
-@list   = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680","81001680","81001690","81001725","81001780","81001930","81001950","81002100","81002130","81002140","81002160");
+@list   = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680","81001680","81001690");
 
 $mofext = Bio::DOOP::Util::Run::Mofext->new($db,'500','M',\@list);
 
@@ -87,7 +87,6 @@ sub new {
      if($motifs  == -1){ next }
      for my $motif (@$motifs){
         push @motif_collection, [$motif->get_id,$motif->seq];
-#       print $motif->get_id," ",$motif->seq,"\n";
      }
   }
 
@@ -144,9 +143,9 @@ sub new_by_file {
 
 =head2 new_by_tmp
 
-  Create a new Mofext object from a existed tmp file. It is good when you have a tmp file, and you want 
-  to use it over and over again or your tmp file is large (the new constructor is very slow when you use
-  big cluster list). If you use this constructor, you no need to use set_tmp_file_name, write_to_tmp.
+  Create a new Mofext object from a existing tmp file. It is useful when you have a tmp file, and you want 
+  to use it over and over, or your tmp file is large (the new constructor is very slow when you use
+  large cluster lists). If you use this constructor, you don't need to use set_tmp_file_name and write_to_tmp.
   Arguments: Bio::DOOP::DBSQL object, temporary file name.
   Return type: none
   Example:
@@ -251,8 +250,8 @@ sub run {
 
 =head2 run_background
 
-  Run mofext, but don not wait for the end
-  Arguents: query sequence, wordsize, cutoff, matrix file path, output file name
+  Run mofext, but do not wait for it to finish.
+  Arguments: query sequence, wordsize, cutoff, matrix file path, output file name.
   Return type: the process id
 
 =cut
@@ -309,11 +308,9 @@ sub get_results {
 =head2 get_results_from_file
 
   Returns the arrayref of the array of motif objects and anything else like the get_results
-  method  or -1 in case
-  of error.
-  This is a very uniq method because it is not depend to the object. So you can fetch more
-  different results of different mofext objects. Maybe it is going to out from this module
-  in the future.
+  method  or -1 in the case of an error.
+  This is a very uniq method because it does not depend on the object. So you can fetch
+  different results of different mofext objects.
 
 =cut
 

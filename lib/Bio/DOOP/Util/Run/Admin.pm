@@ -2,7 +2,6 @@ package Bio::DOOP::Util::Run::Admin;
 
 use strict;
 use warnings;
-use Carp qw(cluck carp verbose);
 use Proc::ProcessTable;
 
 =head1 NAME
@@ -11,19 +10,17 @@ use Proc::ProcessTable;
 
 =head1 VERSION
 
-  Version 0.1
+  Version 0.2
 
 =cut
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 =head1 SYNOPSIS
 
-
-
 =head1 DESCRIPTION
 
-  This class can manage the Run objects (Run::Mofext and Run::Fuzznuc).
+  This class manages the Run objects (Run::Mofext and Run::Fuzznuc).
 
 =head1 AUTHORS
 
@@ -34,6 +31,7 @@ our $VERSION = '0.1';
 =head2 new
 
   $admin = Bio::DOOP::Util::Run::Admin->new;
+
   Create new Admin class.
 
 =cut
@@ -63,6 +61,7 @@ sub new {
   for my $i (@{$admin->get_run_pids}){
      $admin->kill($i,9);
   }
+
   Returns the arrayref of running pids.
 
 =cut
@@ -75,6 +74,7 @@ sub get_run_pids {
 =head2 kill
 
   $admin->kill(1234,SIGINT);
+
   Send specified signal to a process given by the first arguments.
   Return type: none
 
@@ -95,7 +95,7 @@ sub kill {
 =head2 nice
 
   $admin->nice(1234,19);
-  This process goes slow down.
+
   Set the priority of the process.
   Return type: none
 
@@ -112,6 +112,5 @@ sub nice {
      }
   }
 }
-
 
 1;

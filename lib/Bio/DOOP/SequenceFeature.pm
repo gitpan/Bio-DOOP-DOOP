@@ -2,7 +2,6 @@ package Bio::DOOP::SequenceFeature;
 
 use strict;
 use warnings;
-use Carp qw(cluck carp verbose);
 
 =head1 NAME
 
@@ -10,11 +9,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 SYNOPSIS
 
@@ -45,6 +44,10 @@ sub new {
   my $id                   = shift;
 
   my $ret = $db->query("SELECT * FROM sequence_feature WHERE sequence_feature_primary_id = $id;");
+
+  if ($#$ret == -1) {
+  	return(-1);
+  }
   my @fields = @{$$ret[0]};
 
   $self->{PRIMARY}         = $fields[0];
@@ -155,7 +158,6 @@ sub get_end {
 =head2 length
 
   Returns the length of the feature.
-  Return type: string
 
 =cut
 
@@ -284,6 +286,7 @@ sub get_subsetid {
 =head2 get_motif
 
   $motif = $seqfeat->get_motif;
+
   Returns the motif object associated with the feature.
   If the feature type is not "con" this value is NULL.
 

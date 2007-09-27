@@ -2,7 +2,6 @@ package Bio::DOOP::ClusterSubset;
 
 use strict;
 use warnings;
-use Carp qw(cluck carp verbose);
 
 =head1 NAME
 
@@ -10,11 +9,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.11
+Version 0.12
 
 =cut
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 =head1 SYNOPSIS
 
@@ -54,7 +53,6 @@ sub new {
   my $ret    = $db->query("SELECT * FROM cluster_subset WHERE subset_primary_id = \"$id\";");
 
   if ($#$ret == -1){
-     #cluck "No subset!\n";
      return(-1);
   }
 
@@ -72,7 +70,6 @@ sub new {
   $ret = $db->query("SELECT alignment_dialign,alignment_fasta FROM cluster_subset_data WHERE subset_primary_id = \"$id\";");
 
   if ($#$ret == -1){
-     #cluck "No alignment for this subset! $id\n";
      return(-1);
   }
 
@@ -90,7 +87,7 @@ sub new {
   print $cluster_subset->get_id;
 
   Prints out the subset primary id. This is the internal ID from the MySQL database.
-  Return type: string.
+  Return type: string
 
 =cut
 
@@ -104,7 +101,7 @@ sub get_id {
   print $cluster_subset->get_type;
 
   Prints out the subset type.
-  Return type: string.
+  Return type: string
 
 =cut
 
@@ -118,11 +115,9 @@ sub get_type {
   for(i = 0; i < $cluster_subset->get_seqno; i++){
       print $seq[$i];
   }
-
   Prints out all sequences linked to the subset.
 
-  get_seqno returns the number of sequences in the
-  subset.
+  The get_seqno method returns the number of sequences in the subset.
   Return type: string
 
 =cut
@@ -138,8 +133,7 @@ sub get_seqno {
       print "We have lots of features!!!\n";
   }
 
-  get_featno returns the total number of features in the
-  subset.
+  The get_featno method returns the total number of features in the subset.
   Return type: string
 
 =cut
@@ -151,8 +145,9 @@ sub get_featno {
 
 =head2 get_motifno
 
-  get_motifno returns the number of motifs in the
-  subset.
+  $motifs = $cluster_subset->get_motifno;
+
+  The get_motifno method returns the number of motifs in the subset.
   Return type: string
 
 =cut
@@ -241,7 +236,6 @@ sub get_all_motifs {
   my $ret = $self->{DB}->query("SELECT motif_feature_primary_id FROM motif_feature WHERE subset_primary_id = $id;");
 
   if ($#$ret == -1){
-     #cluck "No motif found!\n";
      return(-1);
   }
 
@@ -269,7 +263,6 @@ sub get_all_seqs {
   my $ret = $self->{DB}->query("SELECT sequence_primary_id FROM subset_xref WHERE subset_primary_id = $id;");
 
   if ($#$ret == -1){
-     #cluck "No sequence!\n";
      return(-1);
   }
 
@@ -277,10 +270,9 @@ sub get_all_seqs {
 	  push @seqs,Bio::DOOP::Sequence->new($self->{DB},$_->[0]);
   }
   # Sorting the sequences by the following criteria:
-  # The first is the reference species (Arabidopsis/Human)
-  # The second is the taxon_class (B E M V in the plants and 
-  # P R E H M N T F V C in the animals )
-  # Third is the alphabetical order.
+  # The first sequence is always the reference species (Arabidopsis/Human).
+  # All other sequences are sorted first by the taxon_class (B E M V in the plants and 
+  # P R E H M N T F V C in the chordates ) and then by the alphabetical order.
 
   my $seq;
   my $i;

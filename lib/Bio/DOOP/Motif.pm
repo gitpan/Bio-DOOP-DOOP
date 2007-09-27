@@ -5,15 +5,15 @@ use warnings;
 
 =head1 NAME
 
-  Bio::DOOP::Motif - DOOP database conserved motif object
+  Bio::DOOP::Motif - DOOP database motif object
 
 =head1 VERSION
 
-Version 0.5
+Version 0.6
 
 =cut
 
-our $VERSION = '0.5';
+our $VERSION = '0.6';
 
 =head1 SYNOPSIS
 
@@ -27,7 +27,7 @@ our $VERSION = '0.5';
 
   This object represents the conserved motifs.
   You should not use the constructor directly, but
-  sometimes it is useful. In most of the cases you
+  sometimes it is useful. In most cases you
   get this object from other objects.
 
 =head1 AUTHORS
@@ -55,6 +55,10 @@ sub new {
 
 	my $ret = $db->query("SELECT * FROM motif_feature where motif_feature_primary_id=\"$id\";");
 
+	if ($#$ret == -1) {
+		return(-1);
+	}
+
 	my @motif = @{$$ret[0]};
 	$self->{PRIMARY}   = $motif[0];
 	$self->{SUBSET}    = $motif[1];
@@ -70,8 +74,10 @@ sub new {
 
 =head2 type
 
+  $motif_type = $motif->type;
+
   Returns the type of the motif.
-  (explain a little more)
+  Return type : string
 
 =cut
 
@@ -82,7 +88,10 @@ sub type {
 
 =head2 seq
 
+  $motif_seq = $motif->seq;
+
   Returns the consensus sequence of the motif.
+  Return type : string
 
 =cut
 
@@ -93,7 +102,10 @@ sub seq {
 
 =head2 start
 
+  $start = $motif->start;
+
   Returns the start position of the motif.
+  Return type : string
 
 =cut
 
@@ -104,7 +116,10 @@ sub start {
 
 =head2 end
 
+  $end = $motif->end;
+
   Returns the end position of the motif.
+  Return type : string;
 
 =cut
 
@@ -115,7 +130,10 @@ sub end {
 
 =head2 length
 
+  $length = $motif->length;
+
   Returns the length of the motif.
+  Return type : string
 
 =cut
 
@@ -126,7 +144,10 @@ sub length {
 
 =head2 get_id
 
+  $primary_id = $motif->get_id;
+
   Returns the primary ID of the motif. This is the internal ID from the MySQL database.
+  Return type : string
 
 =cut
 
@@ -137,7 +158,10 @@ sub get_id {
 
 =head2 get_subset_id
 
+  $subset_id = $motif->get_subset_id;
+
   Returns the motif subset primary id.
+  Return type : string
 
 =cut
 
@@ -146,24 +170,31 @@ sub get_subset_id {
   return($self->{SUBSET_ID});
 }
 
-=head2 get_seqfeat_ids
+=head2 get_seqfeats
 
-  Returns all the sequence feature primary ids.
+  @feats = @{$motif->get_seqfeats}
+
+  Returns all the sequence features, associated with the motif.
+  Return type : arrayref, the array containig Bio::DOOP::SequenceFeature objects
 
 =cut
 
-sub get_seqfeat_ids {
+sub get_seqfeats {
   my $self                 = shift;
   my $db  = $self->{DB};
   my $id  = $self->{PRIMARY};
   my $ret = $db->query("SELECT sequence_feature_primary_id FROM sequence_feature WHERE motif_feature_primary_id = \"$id\";");
-  my @subsets;
+
+  if ($#$ret == -1) {
+  	return(-1);
+  }
+  my @seqfeats;
 
   for my $i (@$ret){
-     push @subsets,Bio::DOOP::SequenceFeature->new($db,$$i[0]);
+     push @seqfeats,Bio::DOOP::SequenceFeature->new($db,$$i[0]);
   }
 
-  return(\@subsets);
+  return(\@seqfeats);
 }
 
 1;

@@ -2,7 +2,6 @@ package Bio::DOOP::Sequence;
 
 use strict;
 use warnings;
-use Carp qw(cluck carp verbose);
 
 =head1 NAME
 
@@ -10,11 +9,11 @@ use Carp qw(cluck carp verbose);
 
 =head1 VERSION
 
-Version 0.11
+Version 0.12
 
 =cut
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 =head1 SYNOPSIS
 
@@ -43,6 +42,11 @@ sub new {
   my $id                   = shift;
   my $i;
   my $ret = $db->query("SELECT * FROM sequence WHERE sequence_primary_id = $id;");
+
+  if ($#$ret == -1) {
+  	return(-1);
+  }
+
   my @fields = @{$$ret[0]};
 
   $self->{DB}              = $db;
@@ -68,9 +72,6 @@ sub new {
      $self->{GENENAME}        = $fields[4];
 
   }
-  else {
-	  #cluck"No annotation is available for this promoter sequence! You are on your own now.\n";
-  }
 
   if (defined($self->{DATA})) {
      $ret = $db->query("SELECT * FROM sequence_data WHERE sequence_data_primary_id =".$self->{DATA}.";");
@@ -78,9 +79,6 @@ sub new {
 
      $self->{FASTA}           = $fields[2];
      $self->{BLAST}           = $fields[3];
-  }
-  else {
-	  #cluck"No sequence data available! Where did it go?\n";
   }
 
   $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id =".$self->{TAXON}.";");
@@ -115,6 +113,11 @@ sub new_from_dbid {
   my $id                   = shift;
   my $i;
   my $ret = $db->query("SELECT * FROM sequence WHERE sequence_id = $id;");
+
+  if ($#$ret == -1) {
+  	return(-1);
+  }
+
   my @fields = @{$$ret[0]};
 
   $self->{DB}              = $db;
@@ -140,9 +143,6 @@ sub new_from_dbid {
      $self->{GENENAME}        = $fields[4];
 
   }
-  else {
-	#cluck"No annotation is available for this promoter sequence! You are on your own now.\n";
-  }
 
   if (defined($self->{DATA})) {
      $ret = $db->query("SELECT * FROM sequence_data WHERE sequence_data_primary_id =".$self->{DATA}.";");
@@ -150,9 +150,6 @@ sub new_from_dbid {
 
      $self->{FASTA}           = $fields[2];
      $self->{BLAST}           = $fields[3];
-  }
-  else {
-	  #cluck"No sequence data available! Where did it go?\n";
   }
 
   $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id =".$self->{TAXON}.";");
@@ -176,7 +173,10 @@ sub new_from_dbid {
 
 =head2 get_id
 
+  $sequence_id = $sequence->get_id;
+
   Returns the sequence primary id. This is the internal ID from the MySQL database.
+  Return type : string
 
 =cut
 
@@ -187,7 +187,10 @@ sub get_id {
 
 =head2 get_fake_id
 
+  $fake_id = $sequence->get_fake_id;
+
   Returns the sequence fake GI.
+  Return type : string
 
 =cut
 
@@ -198,7 +201,10 @@ sub get_fake_id {
 
 =head2 get_db_id
 
+  $db_id = $sequence->get_db_id;
+
   Returns the full sequence ID.
+  Return type : string
 
 =cut
 
@@ -209,7 +215,10 @@ sub get_db_id {
 
 =head2 get_length
 
+  $length = $sequence->get_length;
+
   Returns the length of the sequence.
+  Return type : string
 
 =cut
 
@@ -220,7 +229,10 @@ sub get_length {
 
 =head2 get_date
 
+  $date = $sequence->get_date;
+
   Returns the modification date of the MySQL record.
+  Return type : string
 
 =cut
 
@@ -231,7 +243,10 @@ sub get_date {
 
 =head2 get_ver
 
+  $version = $sequence->get_ver;
+
   Returns the version of the sequence.
+  Return type : string
 
 =cut
 
@@ -242,7 +257,10 @@ sub get_ver {
 
 =head2 get_annot_id
 
+  $annotation_id = $sequence->get_annot_id;
+
   Returns the sequence annotation primary id. This is the internal ID from the MySQL database.
+  Return type : string
 
 =cut
 
@@ -264,7 +282,10 @@ sub get_orig_id {
 
 =head2 get_data_id
 
+  $data_id = $sequence->get_data_id;
+
   Returns the sequence data primary id. This is the internal ID from the MySQL database.
+  Return type : string
 
 =cut
 
@@ -275,7 +296,10 @@ sub get_data_id {
 
 =head2 get_taxon_id
 
+  $taxon_id = $sequence->get_taxon_id;
+
   Returns the taxon annotation primary id. This is the internal ID from the MySQL database.
+  Return type : string
 
 =cut
 
@@ -286,7 +310,10 @@ sub get_taxon_id {
 
 =head2 get_data_main_db_id
 
+  $data_main_db_id = $sequence->get_data_main_db_id;
+
   Returns the sequence annotation primary id. This is the internal ID from the MySQL database.
+  Return type : string
 
 =cut
 
@@ -298,7 +325,9 @@ sub get_data_main_db_id {
 =head2 get_utr_length
 
   $utr_length = $seq->get_utr_length;
+
   Returns the length of the 5' UTR included in the sequence.
+  Return type : string
 
 =cut
 
@@ -310,7 +339,9 @@ sub get_utr_length {
 =head2 get_desc
 
   print $seq->get_desc,"\n";
+
   Returns the description of the sequence.
+  Return type : string
 
 =cut
 
@@ -322,8 +353,10 @@ sub get_desc {
 =head2 get_gene_name
 
   $gene_name = $seq->get_gene_name;
+
   Returns the gene name of the promoter. If the gene is
   unknow or not annotated, it is empty.
+  Return type : string
 
 =cut
 
@@ -335,7 +368,9 @@ sub get_gene_name {
 =head2 get_fasta
 
   print $seq->get_fasta;
+
   Returns the promoter sequence in FASTA format.
+  Return type : string
 
 =cut
 
@@ -346,6 +381,8 @@ sub get_fasta {
 }
 
 =head2 get_raw_seq
+
+  print $seq->get_raw_seq;
 
   Returns the raw sequence without any other identifier
   Return type: string
@@ -360,7 +397,6 @@ sub get_raw_seq {
 
 =head2 get_blast
 
-  print $seq->get_blast;
   This method is not yet implemented.
 
 =cut
@@ -373,7 +409,9 @@ sub get_blast {
 =head2 get_taxid
 
   $taxid = $seq->get_taxid;
+
   Returns the NCBI taxon ID of the sequence.
+  Return type : string
 
 =cut
 
@@ -385,7 +423,9 @@ sub get_taxid {
 =head2 get_taxon_name
 
   print $seq->get_taxon_name;
+
   Returns the scientific name of the sequence's taxon ID.
+  Return type : string
 
 =cut
 
@@ -397,9 +437,11 @@ sub get_taxon_name {
 =head2 get_taxon_class
 
   print $seq->get_taxon_class;
+
   Returns the taxonomic class of the sequence's taxon ID.
   Used internally, to create monophyletic sets of sequences
   in an orthologous cluster.
+  Return type : string
 
 =cut
 
@@ -411,6 +453,7 @@ sub get_taxon_class {
 =head2 print_all_xref
 
   $seq->print_all_xref;
+
   Prints all the xrefs to other databases.
   Type of xref IDs : 
   go_id            : Gene Ontology ID
@@ -435,6 +478,7 @@ sub print_all_xref {
 =head2 get_all_xref_keys
 
   @keys = @{$seq->get_all_xref_keys};
+
   Returns the arrayref of xref names.
 
 =cut
@@ -449,6 +493,7 @@ sub get_all_xref_keys {
 =head2 get_xref_value
 
   @values = @{$seq->get_xref_value("go_id")};
+
   Returns the arrayref of a given xref's values'.
 
 =cut
@@ -459,16 +504,16 @@ sub get_xref_value {
 
   if (${ $self->{XREF} }{$key}){
      return(${ $self->{XREF} }{$key});
-  }
-  else {
+  } else {
      return(-1);
   }
 }
 
 =head2 get_all_seq_features
 
-  @seqfeat = @{$seq->get_all_seq_features};
-  Returns the arrayref of all sequence features or -1 in case of error
+  @seqfeats = @{$seq->get_all_seq_features};
+
+  Returns the arrayref of all sequence features or -1 in case of error.
 
 =cut
 
@@ -482,7 +527,6 @@ sub get_all_seq_features {
   my $ref = $self->{DB}->query($query);
 
   if ($#$ref == -1){
-     #cluck"No sequence feature found!\n";
      return(-1);
   }
 
@@ -496,7 +540,10 @@ sub get_all_seq_features {
 
 =head2 get_all_subsets
 
-  Returns the subset containing the sequence.
+  @subsets = @{$seq->get_all_subsets};
+
+  Returns the subsets containing the sequence.
+  Return type : arrayref, the array containig Bio::DOOP::ClusterSubset objects
 
 =cut
 
@@ -510,7 +557,6 @@ sub get_all_subsets {
   my $ref   = $self->{DB}->query($query);
 
   if ($#$ref == -1){
-     #cluck"No subset found! This is impossible!!\n";
      return(-1);
   }
 

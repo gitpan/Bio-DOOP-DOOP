@@ -2,7 +2,6 @@ package Bio::DOOP::Graphics::Feature;
 
 use strict;
 use warnings;
-use Carp qw(cluck carp verbose);
 use GD;
 
 =head1 NAME
@@ -13,11 +12,11 @@ use GD;
 
 =head1 VERSION
 
-Version 0.15
+Version 0.16
 
 =cut
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 =head1 DESCRIPTION
 
@@ -71,7 +70,7 @@ sub create {
                                 dbtss => [],
                                 utr   => []
   };
-  # The color map of the object.
+  # The colormap of the object.
   $self->{COLOR}           = {
                                 background => [200,200,200],
                                 label      => [0,0,0],
@@ -162,7 +161,7 @@ sub add_scale {
           $self->{IMAGE}->string(gdSmallFont,$posx,10,$str,$color);
       }
       else {
-          $self->{IMAGE}->line($i+10,3,$i+10,7,$color); # Little scale.
+          $self->{IMAGE}->line($i+10,3,$i+10,7,$color); # Small scale.
       }
   }
 
@@ -240,7 +239,7 @@ sub add_seq {
       # Draw motifs.
       if( ($feat->get_type eq "con") && ($feat->get_subsetid eq $self->{SUBSET_ID})){
 	  $motif_count = $feat->get_motifid - $min_motif_id + 1;
-          # This code help me to make three rows for the motifs
+          # This code helps me to make three rows for the motifs
 	  my $label_length = (length($motif_count) + 1) * 6; # Label width with gdSmallFont
           my %motif_element = ($feat->get_motifid => [ $x1 - $len + $feat->get_start,
                                                        $motif_Y + $shift_factor,
@@ -342,7 +341,7 @@ sub get_image {
   }
   
   It is a somewhat difficult, but if you are familiar with references and nested data structures, you
-  will understand it.
+  will understand it (or not).
 
 =cut
 
@@ -364,9 +363,9 @@ sub get_motif_map {
 
 =head2 get_motif_id_by_coord
 
-  $motifi = $image->get_motif_id_by_coord(100,200);
+  $motif_id = $image->get_motif_id_by_coord(100,200);
 
-  Maybe this is the most useful method. You can get a motif id, if you specify a coordinate of a point.
+  Maybe this is the most useful method. You can get a motif id, if you specify the coordinates of a pixel.
   Return type: string
 
 =cut
@@ -392,9 +391,9 @@ sub get_motif_id_by_coord {
 
   $image->draw_motif_frame($motifid);
 
-  This method draw a frame around the given motif.
-  Return type: 0 in success, -1 if the given motif id is not in the picture
+  This method draws a frame around a given motif.
   Arguments: motifid: the motif primary id.
+  Return type: 0 in success, -1 if the given motif id is not in the picture.
 
 =cut
 
@@ -426,11 +425,12 @@ sub draw_motif_frame {
 
 =head2 draw_fuzz_result
 
-  You can draw a fuzznuc result with this method. The arguments are the following:
-  Sequence DB id, the start position, end posiion.
-  To set the drawing color, you can use the setcolor("fuzzres",$r,$g,$b) method.
-  Return value: 0 if successful or -1 if the given seq id can not found.
   $image->draw_fuzz_result(357,20,70);
+
+  You can draw a fuzznuc result with this method. The arguments are the following:
+  Sequence DB id, the start position, end position.
+  To set the drawing color, you can use the setcolor("fuzzres",$r,$g,$b) method.
+  Return value: 0 if successful or -1 if the given seq id can't be found.
 
 =cut
 
@@ -454,7 +454,5 @@ sub draw_fuzz_result {
   }
   return(-1);
 }
-
-
 
 1;

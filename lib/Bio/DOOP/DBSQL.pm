@@ -10,11 +10,11 @@ use DBI;
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
@@ -72,7 +72,7 @@ sub connect {
 
   You can run special SQL statements on the database. In this example we count
   the number of clusters.
-  Returns an arrayref to the results.
+  Returns an arrayref of the results.
 
 =cut
 

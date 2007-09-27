@@ -9,11 +9,11 @@ use warnings;
 
 =head1 VERSION
 
-  Version 0.11
+  Version 0.12
 
 =cut
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 =head1 SYNOPSIS
 
@@ -89,7 +89,7 @@ sub get_all_cluster_by_gene_id  {
 
 =head2 get_all_cluster_by_keyword
 
-  Returns all clusters containing the keyword in its description, tss annotation or sequence xref.
+  Returns the arrayref of all clusters containing the keyword in its description, tss annotation or sequence xref.
 
 =cut
 
@@ -277,7 +277,6 @@ sub get_all_cluster_by_atno {
   my $ret = $db->query("SELECT DISTINCT(cluster.cluster_id) FROM cluster, sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND sequence_xref.xref_type = 'at_no' AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_xref.xref_id LIKE '$atno%';");
 
   for my $cluster (@$ret) {
-	#method new_by_id changed to new 20070221 E. Sebestyen
 	push @clusters,Bio::DOOP::Cluster->new($db,$$cluster[0],$promoter_size);
   }
   return(\@clusters);
@@ -305,7 +304,6 @@ sub get_all_seq_by_motifid {
 
 =head2 get_all_cluster_by_go_id
 
-  20070221 E. Sebestyen
   Returns the arrayref of clusters containing the given GO ID.
 
 =cut
@@ -349,7 +347,6 @@ sub get_all_cluster_by_ensno {
 
 	Returns an arrayref of all the cluster IDs of a given promoter/subset category.
 	For example returns all clusters with 1000 bp E type subsets.
-	E. Sebestyen 20070518
 =cut
 
 sub get_all_cluster_id {
