@@ -12,11 +12,11 @@ use GD;
 
 =head1 VERSION
 
-Version 0.16
+Version 0.17
 
 =cut
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 =head1 DESCRIPTION
 
@@ -430,6 +430,7 @@ sub draw_motif_frame {
   You can draw a fuzznuc result with this method. The arguments are the following:
   Sequence DB id, the start position, end position.
   To set the drawing color, you can use the setcolor("fuzzres",$r,$g,$b) method.
+  The method is showes the orientation. An arrow always orients to the start position.
   Return value: 0 if successful or -1 if the given seq id can't be found.
 
 =cut
@@ -440,14 +441,19 @@ sub draw_fuzz_result {
   my $start                = shift;
   my $end                  = shift;
   my $index = 0;
+  my $ori;
 
   for my $i (@{$self->{SEQS}}){
      if ($i->get_id eq $seqid){
-        my $y   = $index*90+40;
+	#my $y   = $index*90+40;
+	my $y = $index*90+30;
         my $len = $self->{WIDTH} - 10 - $i->get_length;
         my $x1  = $len + $start;
         my $x2  = $len + $end;
         $self->{IMAGE}->filledRectangle($x1,$y-1,$x2,$y+1,$self->{FUZZRES});
+	if(($end - $start) > 0){ $ori = 1 }else{ $ori = -1 }
+	$self->{IMAGE}->line($end, $y, $end - 5*$ori, $y - 5, $self->{FUZZRES});
+	$self->{IMAGE}->line($end, $y, $end - 5*$ori, $y + 5, $self->{FUZZRES});
         return(0);
      }
      $index++;
