@@ -446,14 +446,22 @@ sub draw_fuzz_result {
   for my $i (@{$self->{SEQS}}){
      if ($i->get_id eq $seqid){
 	#my $y   = $index*90+40;
-	my $y = $index*90+30;
+	my $y = $index*90+50;
         my $len = $self->{WIDTH} - 10 - $i->get_length;
         my $x1  = $len + $start;
         my $x2  = $len + $end;
-        $self->{IMAGE}->filledRectangle($x1,$y-1,$x2,$y+1,$self->{FUZZRES});
-	if(($end - $start) > 0){ $ori = 1 }else{ $ori = -1 }
-	$self->{IMAGE}->line($end, $y, $end - 5*$ori, $y - 5, $self->{FUZZRES});
-	$self->{IMAGE}->line($end, $y, $end - 5*$ori, $y + 5, $self->{FUZZRES});
+	my $poly = new GD::Polygon;
+	if(($end - $start) > 0){ $ori = -1 }else{ $ori = 1 }
+
+	$poly->addPt($start, $y);
+	$poly->addPt($start - 5*$ori, $y - 5);
+	$poly->addPt($start - 5*$ori, $y - 2);
+	$poly->addPt($end, $y - 2);
+	$poly->addPt($end, $y + 3);
+	$poly->addPt($start - 5*$ori, $y + 3);
+	$poly->addPt($start - 5*$ori, $y + 5);
+
+        $self->{IMAGE}->filledPolygon($poly,$self->{FUZZRES});
         return(0);
      }
      $index++;

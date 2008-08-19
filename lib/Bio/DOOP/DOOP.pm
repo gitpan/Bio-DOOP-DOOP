@@ -22,11 +22,11 @@ use Bio::DOOP::Graphics::Feature;
 
 =head1 VERSION
 
-Version 0.29
+Version 1.00
 
 =cut
 
-our $VERSION = '0.29';
+our $VERSION = '1.00';
 
 =head1 SYNOPSIS
 

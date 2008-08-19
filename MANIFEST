@@ -17,6 +17,7 @@ lib/Bio/DOOP/Util/Sort.pm
 lib/Bio/DOOP/Util/Run/Mofext.pm
 lib/Bio/DOOP/Util/Run/Fuzznuc.pm
 lib/Bio/DOOP/Util/Run/Admin.pm
+lib/Bio/DOOP/Util/Run/GeneMerge.pm
 t/00-load.t
 t/pod-coverage.t
 t/pod.t

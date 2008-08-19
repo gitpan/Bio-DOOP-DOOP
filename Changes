@@ -1,4 +1,6 @@
 Revision history for Bio-DOOP-DOOP
+1.00    2008/08/05
+        GeneMerge module added. Some minor changes to optimize the MySQL querys
 0.29    2008/06/22
         Modifying the draw_fuzz_result
 0.28    2007/09/18
