@@ -39,7 +39,11 @@ our $VERSION = '0.12';
   $cluster_subset = Bio::DOOP::ClusterSubset->new($db,"123");
 
   You can create the object with the new method.
-  The arguments are the following : Bio::DOOP::DBSQL object, subset_primary_id
+  
+  Arguments :
+
+  Bio::DOOP::DBSQL object
+  subset primary id
 
 =cut
 
@@ -87,7 +91,10 @@ sub new {
   print $cluster_subset->get_id;
 
   Prints out the subset primary id. This is the internal ID from the MySQL database.
-  Return type: string
+  
+  Return type :
+
+  string
 
 =cut
 
@@ -101,7 +108,10 @@ sub get_id {
   print $cluster_subset->get_type;
 
   Prints out the subset type.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 
@@ -115,10 +125,14 @@ sub get_type {
   for(i = 0; i < $cluster_subset->get_seqno; i++){
       print $seq[$i];
   }
+
   Prints out all sequences linked to the subset.
 
   The get_seqno method returns the number of sequences in the subset.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 
@@ -134,7 +148,10 @@ sub get_seqno {
   }
 
   The get_featno method returns the total number of features in the subset.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 
@@ -148,7 +165,10 @@ sub get_featno {
   $motifs = $cluster_subset->get_motifno;
 
   The get_motifno method returns the number of motifs in the subset.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 
@@ -166,7 +186,9 @@ sub get_motifno {
       print "This is some smaller subset!\n";
   }
 
-  Return type: string ('y' or 'n')
+  Return type :
+
+  string ('y' or 'n')
 
 =cut
 
@@ -180,7 +202,10 @@ sub get_orig {
   $cluster_id = $cluster_subset->get_cluster;
 
   Returns the ID of the cluster, from which the subset originates.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 
@@ -194,7 +219,10 @@ sub get_cluster {
   print $cluster_subset->get_dialign;
 
   Prints out the dialign format alignment of the subset.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 
@@ -208,7 +236,10 @@ sub get_dialign {
   print $cluster_subset->get_fasta_align;
 
   Prints out the fasta format alignment of the subset.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 
@@ -222,7 +253,10 @@ sub get_fasta_align {
   @motifs = @{$cluster_subset->get_all_motifs};
 
   Returns the arrayref of all motifs associated with the subset.
-  Return type: arrayref, the array containig Bio::DOOP::Motif objects
+
+  Return type :
+
+  arrayref, the array containig Bio::DOOP::Motif objects
 
 =cut
 
@@ -233,7 +267,7 @@ sub get_all_motifs {
   my $i;
   my @motifs;
 
-  my $ret = $self->{DB}->query("SELECT motif_feature_primary_id FROM motif_feature WHERE subset_primary_id = $id;");
+  my $ret = $self->{DB}->query("SELECT motif_feature_primary_id FROM motif_feature WHERE subset_primary_id = \"$id\";");
 
   if ($#$ret == -1){
      return(-1);
@@ -251,7 +285,10 @@ sub get_all_motifs {
   @seq = @{$cluster_subset->get_all_seqs};
 
   Returns the arrayref of all sequences associated with the subset.
-  Return type: arrayref, the array containig Bio::DOOP::Sequence objects
+
+  Return type :
+
+  arrayref, the array containig Bio::DOOP::Sequence objects
 
 =cut
 
@@ -260,7 +297,7 @@ sub get_all_seqs {
 
   my $id                   = $self->{PRIMARY};
   my @seqs;
-  my $ret = $self->{DB}->query("SELECT sequence_primary_id FROM subset_xref WHERE subset_primary_id = $id;");
+  my $ret = $self->{DB}->query("SELECT sequence_primary_id FROM subset_xref WHERE subset_primary_id = \"$id\";");
 
   if ($#$ret == -1){
      return(-1);
@@ -280,8 +317,8 @@ sub get_all_seqs {
   my @sortseqs;
 
   for($i = 0; $i < $#seqs+1; $i++){
-     if( ($seqs[$i]->get_taxon_name eq "Arabidopsis thaliana") || 
-         ($seqs[$i]->get_taxon_name eq "Homo sapiens") ) {
+     if( ($seqs[$i]->get_taxid eq "3702") || 
+         ($seqs[$i]->get_taxid eq "9606") ) {
          $sortseqs[0] = $seqs[$i];
          next;
      }
@@ -293,9 +330,10 @@ sub get_all_seqs {
         push @sortseqs, sort {$a->get_taxon_name cmp $b->get_taxon_name} @{$groups{$key}};
      }
   }
-  for my $key ("Primates", "Glires","Euarchontoglires" , "Cetartiodactyla","Carnivora","Laurasiatheria","Xenarthra","Afrotheria" , "Metatheria" , "Prototheria" , "Aves","Sauropsida" , "Amphibia" , "Teleostomi" , "Chondrichthyes","Vertebrata" , "Chordata"){     if ($groups{$key}){
-        push @sortseqs, sort {$a->get_taxon_name cmp $b->get_taxon_name} @{$groups{$key}};
-     }
+  for my $key ("Primates","Glires","Euarchontoglires","Cetartiodactyla","Carnivora","Laurasiatheria","Xenarthra","Afrotheria","Metatheria","Prototheria","Aves","Sauropsida","Amphibia","Teleostomi","Chondrichthyes","Vertebrata","Chordata"){
+	  if ($groups{$key}) {
+		push @sortseqs, sort {$a->get_taxon_name cmp $b->get_taxon_name} @{$groups{$key}};
+	  }
   }
   return(\@sortseqs);
 }

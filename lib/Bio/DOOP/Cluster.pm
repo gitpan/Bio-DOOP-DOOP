@@ -18,6 +18,7 @@ our $VERSION = '0.11';
 =head1 SYNOPSIS
 
   This object represents a cluster. You can access the properties through the methods.
+
   Usage:
 
   $cluster = Bio::DOOP::Cluster->new($db,"81007400","500");
@@ -91,10 +92,13 @@ sub new_by_id {
 
   $cluster = Bio::DOOP::Cluster->new($db,"8010110","500");
 
-  Create a new cluster object from the cluster id and promoter type. Every promoter cluster has a uniq
-  identifier. This is the cluster id. There are three promoter sizes (500,1000,3000 bp), so the uniq
+  Create a new cluster object from the cluster id and promoter type. Every promoter cluster has a unique
+  identifier. This is the cluster id. There are three promoter sizes (500,1000,3000 bp), so the unique
   cluster is identified by two parameters : cluster id and promoter type.
-  Return type: Bio::DOOP::Cluster object
+
+  Return type :
+
+  Bio::DOOP::Cluster object
 
 =cut
 
@@ -103,7 +107,9 @@ sub new_by_id {
   Bio::DOOP::Cluster->new_by_id($db,"2453");
 
   Used by internal MySQL queries.
-  Return type: Bio::DOOP::Cluster object
+  Return type :
+
+  Bio::DOOP::Cluster object
 
 =cut
 
@@ -112,7 +118,10 @@ sub new_by_id {
   $cluster_id = $cluster->get_id;
 
   Returns the MySQL id.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 

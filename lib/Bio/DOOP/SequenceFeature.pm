@@ -33,6 +33,7 @@ our $VERSION = '0.09';
   $seqfeat = Bio::DOOP::SequenceFeature->new($db,"112");
  
   You can create the object with the new method.
+
   The arguments are the following : Bio::DOOP::DBSQL object, sequence_feature_primary_id
 
 =cut
@@ -43,7 +44,7 @@ sub new {
   my $db                   = shift;
   my $id                   = shift;
 
-  my $ret = $db->query("SELECT * FROM sequence_feature WHERE sequence_feature_primary_id = $id;");
+  my $ret = $db->query("SELECT * FROM sequence_feature WHERE sequence_feature_primary_id = \"$id\";");
 
   if ($#$ret == -1) {
   	return(-1);
@@ -66,12 +67,12 @@ sub new {
   $self->{SEQ_ID}          = $fields[13];
 
   if    ($self->{TYPE} eq "ssr"){
-	  $ret = $db->query("SELECT * FROM ssr_annotation WHERE ssr_primary_id =".$self->{SSRID});
+	  $ret = $db->query("SELECT * FROM ssr_annotation WHERE ssr_primary_id = \"".$self->{SSRID}."\";");
 	  @fields = @{$$ret[0]};
 	  $self->{SSRUNIT} = $fields[1];
   }
   elsif ($self->{TYPE} eq "rep"){
-	  $ret = $db->query("SELECT * FROM repeat_annotation WHERE repeat_primary_id =".$self->{REPEATID});
+	  $ret = $db->query("SELECT * FROM repeat_annotation WHERE repeat_primary_id = \"".$self->{REPEATID}."\";");
 	  @fields = @{$$ret[0]};
 	  $self->{R_NAME}  = $fields[1];
 	  $self->{R_CLASS} = $fields[2];
@@ -79,7 +80,7 @@ sub new {
 	  $self->{R_XREF}  = $fields[4];
   }
   elsif ($self->{TYPE} eq "tfbs"){
-	  $ret = $db->query("SELECT * FROM tfbs_annotation WHERE tfbs_primary_id =".$self->{TFBSID});
+	  $ret = $db->query("SELECT * FROM tfbs_annotation WHERE tfbs_primary_id = \"".$self->{TFBSID}."\";");
 	  @fields = @{$$ret[0]};
 	  $self->{TF_NAME} = $fields[1];
 	  $self->{TF_ORIG} = $fields[2];
@@ -90,12 +91,12 @@ sub new {
 	  $self->{TF_XREF} = $fields[7];
   }
   elsif ($self->{TYPE} eq "cpg"){
-	  $ret = $db->query("SELECT * FROM cpg_annotation WHERE cpg_primary_id =".$self->{CPGID});
+	  $ret = $db->query("SELECT * FROM cpg_annotation WHERE cpg_primary_id = \"".$self->{CPGID}."\";");
 	  @fields = @{$$ret[0]};
 	  $self->{CPG_P}  = $fields[1];
   }
   elsif ($self->{TYPE} eq "tss"){
-	  $ret = $db->query("SELECT * FROM tss_annotation WHERE tss_primary_id =".$self->{TSSID});
+	  $ret = $db->query("SELECT * FROM tss_annotation WHERE tss_primary_id = \"".$self->{TSSID}."\";");
 	  @fields = @{$$ret[0]};
 	  $self->{T_TYPE}  = $fields[1];
 	  $self->{T_ID}    = $fields[2];

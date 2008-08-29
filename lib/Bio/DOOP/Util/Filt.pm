@@ -37,7 +37,7 @@ our $VERSION = '0.2';
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
-=head1 SUBRUTINES
+=head1 METHODS
 
 =head2 new
 
@@ -122,7 +122,7 @@ sub new_by_id {
 
   @filtered = @{$filt->filt_by_goid("0006523")};
 
-  Filter the cluster list by GO id
+  Filter the cluster list by GO id.
 
 =cut
 

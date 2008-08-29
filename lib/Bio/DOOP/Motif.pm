@@ -27,7 +27,7 @@ our $VERSION = '0.6';
 
   This object represents the conserved motifs.
   You should not use the constructor directly, but
-  sometimes it is useful. In most cases you
+  sometimes it can be useful. In most cases you
   get this object from other objects.
 
 =head1 AUTHORS
@@ -43,6 +43,7 @@ our $VERSION = '0.6';
   $motif = Bio::DOOP::Motif->new($db,"1234");
  
   You can create the object with the new method.
+
   The arguments are the following : Bio::DOOP::DBSQL object, motif_primary_id
 
 =cut
@@ -77,6 +78,7 @@ sub new {
   $motif_type = $motif->type;
 
   Returns the type of the motif.
+
   Return type : string
 
 =cut
@@ -91,6 +93,7 @@ sub type {
   $motif_seq = $motif->seq;
 
   Returns the consensus sequence of the motif.
+
   Return type : string
 
 =cut
@@ -105,6 +108,7 @@ sub seq {
   $start = $motif->start;
 
   Returns the start position of the motif.
+
   Return type : string
 
 =cut
@@ -119,6 +123,7 @@ sub start {
   $end = $motif->end;
 
   Returns the end position of the motif.
+
   Return type : string;
 
 =cut
@@ -133,6 +138,7 @@ sub end {
   $length = $motif->length;
 
   Returns the length of the motif.
+
   Return type : string
 
 =cut
@@ -147,6 +153,7 @@ sub length {
   $primary_id = $motif->get_id;
 
   Returns the primary ID of the motif. This is the internal ID from the MySQL database.
+
   Return type : string
 
 =cut
@@ -161,6 +168,7 @@ sub get_id {
   $subset_id = $motif->get_subset_id;
 
   Returns the motif subset primary id.
+
   Return type : string
 
 =cut
@@ -175,7 +183,8 @@ sub get_subset_id {
   @feats = @{$motif->get_seqfeats}
 
   Returns all the sequence features, associated with the motif.
-  Return type : arrayref, the array containig Bio::DOOP::SequenceFeature objects
+
+  Return type : arrayref, the array containing Bio::DOOP::SequenceFeature objects.
 
 =cut
 

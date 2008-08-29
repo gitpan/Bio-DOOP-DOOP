@@ -34,11 +34,16 @@ our $VERSION = '0.17';
 
   $pic = Bio::DOOP::Graphics::Feature->create($db,"1234");
 
-  Create new picture. Later you can add your own graphics elements to it.
-  Arguments: 
+  Create a new picture. Later you can add your own graphical elements to it.
+
+  Arguments :
+
   1. Bio::DOOP::DBSQL object
-  2. Subset primary id.
-  Return type: Bio::DOOP::Graphics::Feature object
+  2. subset primary id
+
+  Return type :
+
+  Bio::DOOP::Graphics::Feature object
 
 =cut
 
@@ -63,8 +68,8 @@ sub create {
   $self->{POS}             = 0;
   $self->{SUBSET_ID}       = $subset->get_id;
 
-  # This is the map of the image. It is useful for generating html code.
-  #TODO : Add more types to this hash.
+  # This is the map of the image. It is useful for HTML image maps.
+  # TODO : Add more types to this hash.
   $self->{MAP}             = {
                                 motif => [],
                                 dbtss => [],
@@ -88,10 +93,12 @@ sub create {
 
 =head2 add_color
 
-  Add an RGB color to the specified drawing element.
+  Add an RGB color to the specified element.
+
   $image->add_color("background",200,200,200);
   $image->set_colors;
-  The available drawing elements are the following : background, label, strip, utr, motif, tss, frame, fuzzres.
+
+  The available elements are the following : background, label, strip, utr, motif, tss, frame, fuzzres.
 
 =cut
 
@@ -139,7 +146,7 @@ sub set_colors {
 
 =head2 add_scale
 
-  Draws scale on the picture.
+  Draws the scale on the picture.
 
 =cut
 
@@ -155,9 +162,9 @@ sub add_scale {
   my $i;
   for ($i = 20; $i < $self->{WIDTH}-10; $i += 10){
       if( ($i / 100) == int($i / 100) ) {
-          $self->{IMAGE}->line($i+10,0,$i+10,10,$color);     # Big scale.
-          my $str = ($self->{WIDTH} - 20 - $i) * -1;   # The scale label.
-          my $posx = $i - (length($str)/2)*6 + 10;     # Nice label positioning.
+          $self->{IMAGE}->line($i+10,0,$i+10,10,$color);     # Large scale.
+          my $str = ($self->{WIDTH} - 20 - $i) * -1;         # The scale label.
+          my $posx = $i - (length($str)/2)*6 + 10;           # Nice label positioning.
           $self->{IMAGE}->string(gdSmallFont,$posx,10,$str,$color);
       }
       else {
@@ -217,11 +224,11 @@ sub add_seq {
       $self->{IMAGE}->string(gdTinyFont, $utrlen2, $index*90+36, "UTR ".$utrlen." bp", $self->{LABEL});
   }
 
-  # Print the seq name and the length.
+  # Print the sequence name and length.
   my $text = $seq->get_taxon_name . " " . $len . " bp";
   $self->{IMAGE}->string(gdSmallFont, $x2, $index*90+22, $text, $self->{LABEL});
 
-  # Draw Features.
+  # Draw features.
   my $features = $seq->get_all_seq_features;
   if ($features == -1){ return }
   my $motif_Y = $index*90 + 60;
@@ -239,7 +246,7 @@ sub add_seq {
       # Draw motifs.
       if( ($feat->get_type eq "con") && ($feat->get_subsetid eq $self->{SUBSET_ID})){
 	  $motif_count = $feat->get_motifid - $min_motif_id + 1;
-          # This code helps me to make three rows for the motifs
+          # This code helps to make three rows for the motifs
 	  my $label_length = (length($motif_count) + 1) * 6; # Label width with gdSmallFont
           my %motif_element = ($feat->get_motifid => [ $x1 - $len + $feat->get_start,
                                                        $motif_Y + $shift_factor,
@@ -279,7 +286,7 @@ sub add_seq {
 
 =head2 add_all_seq
 
-  Draws all sequences from the subset. The first one is the reference species.
+  Draws all sequences of the subset. The first one is the reference species.
 
 =cut
 
@@ -311,7 +318,7 @@ sub get_png {
 
 =head2 get_image
 
-  Returns the drawn image pointer. Useful for adding your own GD methods for uniq picture manipulation.
+  Returns the drawn image pointer. Useful for adding your own GD methods for unique picture manipulation.
 
 =cut
 
@@ -341,7 +348,7 @@ sub get_image {
   }
   
   It is a somewhat difficult, but if you are familiar with references and nested data structures, you
-  will understand it (or not).
+  will understand it.
 
 =cut
 
@@ -366,7 +373,10 @@ sub get_motif_map {
   $motif_id = $image->get_motif_id_by_coord(100,200);
 
   Maybe this is the most useful method. You can get a motif id, if you specify the coordinates of a pixel.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 
@@ -392,8 +402,14 @@ sub get_motif_id_by_coord {
   $image->draw_motif_frame($motifid);
 
   This method draws a frame around a given motif.
-  Arguments: motifid: the motif primary id.
-  Return type: 0 in success, -1 if the given motif id is not in the picture.
+
+  Arguments :
+
+  motif primary id
+
+  Return type :
+
+  0 if success, -1 if the given motif id is not in the picture.
 
 =cut
 
@@ -427,11 +443,18 @@ sub draw_motif_frame {
 
   $image->draw_fuzz_result(357,20,70);
 
-  You can draw a fuzznuc result with this method. The arguments are the following:
-  Sequence DB id, the start position, end position.
-  To set the drawing color, you can use the setcolor("fuzzres",$r,$g,$b) method.
-  The method is showes the orientation. An arrow always orients to the start position.
-  Return value: 0 if successful or -1 if the given seq id can't be found.
+  You can draw a fuzznuc result with this method.
+
+  Arguments :
+
+  sequence primary id, start position, end position
+
+  To set drawing color, you can use the setcolor("fuzzres",$r,$g,$b) method.
+  The method shows the orientation. The arrow always points to the start position.
+
+  Return value :
+
+  0 if success, -1 if the given sequence id can't be found.
 
 =cut
 
@@ -445,7 +468,6 @@ sub draw_fuzz_result {
 
   for my $i (@{$self->{SEQS}}){
      if ($i->get_id eq $seqid){
-	#my $y   = $index*90+40;
 	my $y = $index*90+50;
         my $len = $self->{WIDTH} - 10 - $i->get_length;
         my $x1  = $len + $start;

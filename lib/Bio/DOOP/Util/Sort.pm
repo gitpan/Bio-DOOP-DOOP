@@ -30,7 +30,7 @@ our $VERSION = '0.2';
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
-=head1 SUBRUTINES
+=head1 METHODS
 
 =head2 new
 

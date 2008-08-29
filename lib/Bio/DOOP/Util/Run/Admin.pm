@@ -26,13 +26,13 @@ our $VERSION = '0.2';
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
-=head1 SUBRUTINES
+=head1 METHODS
 
 =head2 new
 
   $admin = Bio::DOOP::Util::Run::Admin->new;
 
-  Create new Admin class.
+  Create a new Admin class.
 
 =cut
 
@@ -76,7 +76,10 @@ sub get_run_pids {
   $admin->kill(1234,SIGINT);
 
   Send specified signal to a process given by the first arguments.
-  Return type: none
+
+  Return type :
+
+  none
 
 =cut
 
@@ -97,7 +100,10 @@ sub kill {
   $admin->nice(1234,19);
 
   Set the priority of the process.
-  Return type: none
+
+  Return type :
+
+  none
 
 =cut
 

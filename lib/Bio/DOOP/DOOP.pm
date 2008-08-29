@@ -13,6 +13,7 @@ use Bio::DOOP::Util::Sort;
 use Bio::DOOP::Util::Filt;
 use Bio::DOOP::Util::Run::Mofext;
 use Bio::DOOP::Util::Run::Fuzznuc;
+use Bio::DOOP::Util::Run::GeneMerge;
 use Bio::DOOP::Util::Run::Admin;
 use Bio::DOOP::Graphics::Feature;
 
@@ -22,17 +23,17 @@ use Bio::DOOP::Graphics::Feature;
 
 =head1 VERSION
 
-Version 1.00
+Version 1.01
 
 =cut
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 SYNOPSIS
 
   use Bio::DOOP::DOOP;
 
-  $db = Bio::DOOP::DBSQL->new("doopuser","dooppass","database","localhost");
+  $db = Bio::DOOP::DBSQL->new("user","pass","database","localhost");
   $cluster = Bio::DOOP::Cluster->new($db,"8010109","500");
   @seqs = @{$cluster->get_all_seqs};
   foreach $seq (@seqs){
@@ -43,7 +44,13 @@ our $VERSION = '1.00';
 
   DoOP is a database containing orthologous clusters of promoters from Homo sapiens, 
   Arabidopsis thaliana and other organisms. Visit the http://doop.abc.hu/ site for
-  more information.
+  more information or read the following article.
+
+  Endre Barta, Endre Sebestyén, Tamás B. Pálfy, Gábor Tóth, Csaba P. Ortutay, and László Patthy
+  DoOP: Databases of Orthologous Promoters, collections of clusters of orthologous upstream 
+  sequences from chordates and plants
+  Nucl. Acids Res. 2005, Vol 33, Database issue D86-D90
+
   This is a container module for all of the DOOP modules.
   You can simply use this module to access all DOOP objects.
   For more help, please see the documentation of the individual
@@ -65,15 +72,15 @@ our $VERSION = '1.00';
 
 =head2 Bio::DOOP::ClusterSubset
 
-  Object for the subsets of sequences inside a cluster.
+  Object for the subsets of sequences in a cluster.
 
 =head2 Bio::DOOP::Sequence
 
-  Object for the cluster (or cluster subset) sequences.
+  Object for the sequences.
 
 =head2 Bio::DOOP::SequenceFeature
 
-  Object for the different features of the sequences.
+  Object for the different features of a sequence.
 
 =head2 Bio::DOOP::Motif
 
@@ -89,24 +96,29 @@ our $VERSION = '1.00';
 
 =head2 Bio::DOOP::Util::Filt
 
-  Filter a Cluster array by given conditions.
+  Filter a cluster array by given conditions.
 
 =head2 Bio::DOOP::Util::Run::Mofext
 
-  Module for Mofext wrapping. Mofext is a motif finder 
-  program developed by the author Tibor Nagy.
+  MOFEXT wrapper. MOFEXT is a motif search 
+  tool developed by the author Tibor Nagy.
 
 =head2 Bio::DOOP::Util::Run::Fuzznuc
 
-  Module for controll Emboss program fuzznuc.
+  FUZZNUC wrapper.
+
+=head2 Bio::DOOP::Util::Run::GeneMerge
+
+ GeneOntology analyzer, based on the program
+ GeneMerge.
 
 =head2 Bio::DOOP::Util::Run::Admin
 
-  Module for controll all the running DOOP wrapper objects
+  Module for controlling the different wrappers.
 
 =head2 Bio::DOOP::Graphics::Feature
 
-  Module for generating a picture of the sequences and feature of a cluster.
+  Module for generating a picture of the sequences and features of a cluster.
 
 =cut
 

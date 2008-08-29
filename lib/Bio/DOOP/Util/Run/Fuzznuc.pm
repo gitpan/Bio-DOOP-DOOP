@@ -23,7 +23,7 @@ our $VERSION = '0.6';
 use Bio::DOOP::DOOP;
 $db     = Bio::DOOP::DBSQL->connect("user","pass","doop-plant-1_5","localhost");
 
-@list   = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680","81001680","81001690","81001725","81001780","81001930","81001950","81002100","81002130","81002140","81002160");
+@list   = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680");
 
 $fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,'500','M',\@list,"/data/DOOP/dummy.txt");
 
@@ -36,28 +36,35 @@ if ($error == -1){
 }
 
 @res = @{$fuzznuc->get_results};
+
 for $result (@res){
   print $$result[0]->get_id,"| ",$$result[1]," ",$$result[2]," ",$$result[3]," ",$$result[4],"\n";
 }
 
 =head1 DESCRIPTION
 
-  This module is a wrapper for the Emboss program fuzznuc. You can search
-
+  This module is a wrapper for the EMBOSS (http://emboss.sourceforge.net) program fuzznuc. You can search
   patterns in the promoter sequences.
 
 =head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
-=head1 SUBRUTINES
+=head1 METHODS
 
 =head2 new
 
   $fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,500,'M',@list,'/tmp/tmpfile');
+
   Create new Fuzznuc object.
-  Arguments: Bio::DOOP::DBSQL object, promoter type (500, 1000, 3000), subset type (depends on reference species),
-  listref of clusters, temp file name (default: /tmp/fuzznuc_run.txt).
+
+  Arguments :
+
+  Bio::DOOP::DBSQL object
+  promoter type (500, 1000, 3000)
+  subset type (depends on reference species)
+  arrayref of clusters
+  temporary file name (default: /tmp/fuzznuc_run.txt)
 
 =cut
 
@@ -70,6 +77,7 @@ sub new {
   my $cluster_id_list      = shift;
   my $tmp_filename         = shift;
 
+  # TODO use File::Temp module
   if (!$tmp_filename) { $tmp_filename = "/tmp/fuzznuc_run.txt" }
   open TMP,">$tmp_filename";
   for my $cl_id (@{$cluster_id_list}){
@@ -94,9 +102,15 @@ sub new {
 
 =head2 new_by_file
 
-  Create new fuzznuc object from query file.
-  Arguments: Bio::DOOP::DBSQL object, promoter type (500, 1000, 3000), subset type (depends on reference species),
-  file that contain cluster ids, temp file name (default: /tmp/fuzznuc_run.txt).
+  Create new fuzznuc object from query file, containing cluster ids.
+
+  Arguments :
+  
+  Bio::DOOP::DBSQL object
+  promoter type (500, 1000, 3000)
+  subset type (depends on reference species)
+  file that contain cluster ids
+  temporary file name (default: /tmp/fuzznuc_run.txt)
 
 =cut
 
@@ -110,10 +124,11 @@ sub new_by_file {
   my $tmp_filename         = shift;
   my @cluster_id_list;
 
+  # TODO use File::Temp module
   if (!$tmp_filename) { $tmp_filename = "/tmp/fuzznuc_run.txt" }
 
   open CLUSTER_ID_FILE,$filename or cluck("No such file or directory!\n");
-  open TMP,">$tmp_filename" or cluck("Can not write to the tmp file!\n");
+  open TMP,">$tmp_filename" or cluck("Can't write to the temporary file!\n");
   while(<CLUSTER_ID_FILE>){
      chomp;
      my $cl_id = $_;
@@ -140,9 +155,12 @@ sub new_by_file {
 
 =head2 new_by_tmp
 
-  Create new Fuzznuc object from existing tmp file. It is good for
-  speed up the search with previously created tmp file.
-  Arguments: DBSQL object, tmp filename.
+  Create new Fuzznuc object from existing temporary file, containing query sequences in fasta format.
+
+  Arguments :
+
+  DBSQL object
+  temporary file name
 
 =cut
 
@@ -162,7 +180,10 @@ sub new_by_tmp {
 =head2 get_tmp_file_name
 
   Get the temporary file name.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 
@@ -173,8 +194,13 @@ sub get_tmp_file_name {
 
 =head2 get_emboss_version
 
-  Get the installed emboss version number
+  Get the installed emboss version number.
+
   $fuzznuc->get_emboss_version
+
+  Return type :
+
+  string
 
 =cut
 
@@ -185,9 +211,17 @@ sub get_emboss_version {
 
 =head2 run
 
-  Run mofext on temporary file, containing motifs.
-  Arguments: query pattern, mismatch, complement (0 or 1).
-  Return type: 0 -> success, -1 -> no result or error
+  Run fuzznuc on temporary file, containing sequences.
+
+  Arguments :
+
+  query pattern
+  mismatch number
+  complement (0 or 1)
+
+  Return type :
+
+  0 if success, -1 if no results or error happened
 
 =cut
 
@@ -209,18 +243,12 @@ sub run {
   my @parsed;
   my $strand;
 
-  if ($#result == -1){return(-1)} #No results. It is an error
+  if ($#result == -1) { return(-1) } #No results or error happened.
   for my $line (@result){
      if ($line =~ / Sequence: (\S+)/){
         $seq_id = $1;
      }
      if ($line =~ /\s+(\d+)\s+(\d+)\s+(\w+)\s+([0123456789.]+)\s+(\w+)/){
-     #        109     117 pattern1            1 TATAAAAAG
-     #if ($line =~ /\s+(\d+)\s+(\d+)\s+([1234567890.]+) (.+)/){
-     #itt majd megint le kell kezelni a kulonfele emboss verziokat
-     #ez most konkretan az 5os verziora vonatkozik
-	#aztat is nezni kell hogy melyik szalon van, hoppa bazmeg!!!
-	#es ezt csak annyival jelzi a teves, geci program, hogy a start vagy az end pozicio nagyobb
         $start  = $1;
 	$end    = $2;
 	$mism   = $4;
@@ -237,9 +265,18 @@ sub run {
 
 =head2 run_background
 
-  Run fuzznuc, but don not wait for the end
-  Arguents: query pattern, mismatch, complement, output file name
-  Return type: the process id
+  Run fuzznuc, but do not wait for completion.
+
+  Arguments :
+
+  query pattern
+  mismatch number
+  complement (0 or 1)
+  output filename
+
+  Return type :
+
+  process id
 
 =cut
 
@@ -277,12 +314,10 @@ sub get_results {
   my $hitseq;
   my $strand;
 
-  #open LOG, ">/var/tmp/CGI/DoOP/log/log.log";
   for my $line (@{$res}){
      ($seq_id,$start,$end,$mism,$hitseq,$strand) = split(/\s+/,$line);
     
      my $seq = Bio::DOOP::Sequence->new_from_dbid($self->{DB},$seq_id);
-     #print LOG "$seq $seq_id\n";
      push @fuzznuc_res,[$seq,$start,$end,$mism,$hitseq,$strand];
   }
 
@@ -291,11 +326,10 @@ sub get_results {
 
 =head2 get_results_from_file
 
-  Returns ... or -1 in case
-  of error.
-  This is a very uniq methods because it is not depend to the object. So you can fetch more
-  different results of different fuzznuc objects. Maybe it is going to out from this module
-  in the future.
+  Returns an arrayref of arrays of sequence objects or -1 if an error happened.
+
+  This is a very unique methods because it does not depend on the object. With it you can fetch
+  the results of different fuzznuc objects. Maybe it will go out from the module in the future.
 
 =cut
 
@@ -309,22 +343,24 @@ sub get_results_from_file {
   my $mism;
   my $hitseq;
   my @parsed;
+  my $strand;
 
-  open FILE,$filename or return(-1);
+  open FILE, $filename or return(-1);
   while(<FILE>){
      chomp;
      my $line = $_;
      if ($line =~ / Sequence: (\S+)/){
         $seq_id = $1;
      }
-     if ($line =~ /\s+(\d+)\s+(\d+) pattern1\s+([1234567890.]+) (.+)/){
+     if ($line =~ /\s+(\d+)\s+(\d+)\s+(\w+)\s+([0123456789.]+)\s+(\w+)/){
         $start  = $1;
 	$end    = $2;
-	$mism   = $3;
-	$hitseq = $4;
+	$mism   = $4;
+	$hitseq = $5;
 	$mism =~ s/\./0/;
-        my $cl = Bio::DOOP::Sequence->new($self->{DB},$seq_id);
-	push @parsed,[$cl,$start,$end,$mism,$hitseq];
+	$strand = $start < $end ? 1 : -1;
+        my $seq = Bio::DOOP::Sequence->new($self->{DB},$seq_id);
+	push @parsed, [$seq,$start,$end,$mism,$hitseq,$strand];
      }
   }
   close FILE;

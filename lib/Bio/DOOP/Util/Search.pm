@@ -19,7 +19,7 @@ our $VERSION = '0.12';
 
   use Bio::DOOP::DOOP;
 
-  $db = Bio::DOOP::DBSQL->connect("doopuser","dooppasswd","database","localhost");
+  $db = Bio::DOOP::DBSQL->connect("user","passwd","database","localhost");
   @motifs = @{Bio::DOOP::Util::Search::get_all_motifs_by_type($db,"V")};
 
 =head1 DESCRIPTION
@@ -31,7 +31,7 @@ our $VERSION = '0.12';
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
-=head1 SUBRUTINES
+=head1 METHODS
 
 =head2 get_all_motifs_by_type
 
@@ -89,7 +89,7 @@ sub get_all_cluster_by_gene_id  {
 
 =head2 get_all_cluster_by_keyword
 
-  Returns the arrayref of all clusters containing the keyword in its description, tss annotation or sequence xref.
+  Returns the arrayref of all clusters containing the keyword in their description or tss annotation.
 
 =cut
 
@@ -105,13 +105,6 @@ sub get_all_cluster_by_keyword {
   # Query from sequence_annot.
   my $ret = $db->query("SELECT DISTINCT(cluster.cluster_id) FROM cluster, sequence_annotation, sequence, subset_xref WHERE subset_xref.sequence_primary_id = sequence.sequence_primary_id AND sequence.sequence_annotation_primary_id = sequence_annotation.sequence_annotation_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_annotation.sequence_desc LIKE '%$keyword%';");
     for my $cluster (@$ret){
-          push @cluster_db_id,$$cluster[0];
-  }
-
-  # Query from sequence_xref.
-  # Do we really need this?
-  $ret = $db->query("SELECT DISTINCT(cluster.cluster_id) FROM cluster, sequence_xref, subset_xref WHERE subset_xref.sequence_primary_id = sequence_xref.sequence_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND sequence_xref.xref_id LIKE '%$keyword%';");
-  for my $cluster (@$ret){
           push @cluster_db_id,$$cluster[0];
   }
 
@@ -131,13 +124,13 @@ sub get_all_cluster_by_keyword {
   return(\@clusters);
 }
 
-=head2 get_all_cluster_by_type
+=head2 get_all_cluster_by_xref
 
   Returns the arrayref of clusters containing a given xref.
 
 =cut
 
-sub get_all_cluster_by_type {
+sub get_all_cluster_by_xref {
   my $db                   = shift;
   my $type                 = shift;
   my $value                = shift;
@@ -221,7 +214,7 @@ sub get_all_cluster_by_taxon_id {
 
 =head2 get_all_cluster_id_by_taxon_id
 
-  Returns the arrayref of clusters id containing the taxon id (NCBI).
+  Returns the arrayref of cluster ids containing the taxon id (NCBI).
 
 =cut
 

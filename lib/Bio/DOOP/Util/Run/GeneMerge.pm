@@ -6,7 +6,7 @@ use POSIX;
 
 =head1 NAME
 
-  Bio::GeneMerge - GeneMerge based GO analyzer
+  Bio::DOOP::Util::Run::GeneMerge - GeneMerge based GO analyzer
 
 =head1 VERSION
 
@@ -20,9 +20,9 @@ our $VERSION = '0.01';
 
   #!/usr/bin/perl -w
 
-  use Bio::GeneMerge;
+  use Bio::DOOP::DOOP;
 
-  $test = Bio::GeneMerge->new();
+  $test = Bio::DOOP::Util::Run::GeneMerge->new();
 
   if ($test->getDescFile("GO/use/GO.BP.use") < 0){
      print"Desc error\n"
@@ -48,18 +48,21 @@ our $VERSION = '0.01';
 
 =head1 DESCRIPTION
 
-  This is a module based on GeneMerge v1.2. Original program
-  created by Cristian I. Castillo-Davis (castill0@stat.umd.edu)
+  This is a module based on GeneMerge v1.2.
 
-  Post-genomic analysis, data mining, and hypotesis testing.
-  The original program is not too good for large scale analysis, 
-  because the design use a lot of I/O process. This version is
-  take the whole process into the memory.
+  Original program described in :
+
+  Cristian I. Castillo-Davis and Daniel L. Hartl 
+  GeneMerge—post-genomic analysis, data mining, and hypothesis testing
+  Bioinformatics Vol. 19 no. 7 2003, Pages 891-892
+
+  The original program is not really good for large scale analysis, 
+  because the design uses a lot of I/O processes. This version takes
+  everything into memory at start.
 
 =head1 AUTHORS
 
   Tibor Nagy, Godollo, Endre Sebestyen, Martonvasar,
-  Cristian I. Castillo-Davis, 
 
 =head1 METHODS
 
@@ -92,7 +95,7 @@ sub new {
 
 =head2 getAssocFile
 
-  The method load the GO association file and store it in memory.
+  The method loads the GO association file and stores it in memory.
 
 =cut
 
@@ -121,7 +124,7 @@ sub getAssocFile {
 
 =head2 getPopFile
 
-   The method load the Population file and store it in memory.
+   The method loads the Population file and stores it in memory.
 
 =cut
 
@@ -150,7 +153,7 @@ sub getPopFile {
 
 =head2 popFreq
 
-   The method calculate the population frequency.
+   The method calculates the population frequency.
    Do not use it directly.
 
 =cut
@@ -166,7 +169,7 @@ sub popFreq {
 
 =head2 getDescFile
 
-  The method load the GO description file.
+  The method loads the GO description file.
 
 =cut
 
@@ -229,7 +232,7 @@ sub getStudyFile {
    foreach my $StudyGeneAssocCountKey (keys %{$self->{HoStudyGeneAssocCount}}){
       my $P = $self->{HoPopAssocFreq}{$StudyGeneAssocCountKey};
       my $R = $self->{HoStudyGeneAssocCount}{$StudyGeneAssocCountKey};
-      if ($R != 1) { # The original code was: $R != '1'
+      if ($R != 1) {
          $PVal  = $self->hypergeometric($N,$P,$K,$R);
          $PValC = ($PVal * $self->{BonferroniCorr} >= 1) ? 1 : $PVal * $self->{BonferroniCorr};
       } else {
@@ -245,7 +248,7 @@ sub getStudyFile {
 
 =head2 getResults
 
-   The method give back all the results
+   The method gives back all the results.
 
 =cut
 
@@ -273,7 +276,7 @@ sub getResults {
 
 =head2 hypergeometric
 
-  It is an internal function to calculate the 
+  This is an internal function to calculate the 
   hypergeometric distribution. Do not use it directly.
 
 =cut

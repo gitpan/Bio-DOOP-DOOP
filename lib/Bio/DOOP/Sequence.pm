@@ -32,6 +32,7 @@ our $VERSION = '0.12';
 =head2 new
 
   $seq = Bio::DOOP::Sequence->new($db,"1234");
+
   The arguments are the following : Bio::DOOP::DBSQL object, sequence_primary_id
 
 =cut
@@ -42,7 +43,7 @@ sub new {
   my $db                   = shift;
   my $id                   = shift;
   my $i;
-  my $ret = $db->query("SELECT * FROM sequence WHERE sequence_primary_id = $id;");
+  my $ret = $db->query("SELECT * FROM sequence WHERE sequence_primary_id = \"$id\";");
   my @fields = @{$$ret[0]};
 
   $self->{DB}              = $db;
@@ -59,7 +60,7 @@ sub new {
 
   if (defined($self->{ANNOT})){
 
-     $ret = $db->query("SELECT * FROM sequence_annotation WHERE sequence_annotation_primary_id = ".$self->{ANNOT}.";");
+     $ret = $db->query("SELECT * FROM sequence_annotation WHERE sequence_annotation_primary_id = \"".$self->{ANNOT}."\";");
      @fields = @{$$ret[0]};
 
      $self->{MAINDBID}        = $fields[1];
@@ -68,22 +69,16 @@ sub new {
      $self->{GENENAME}        = $fields[4];
 
   }
-  else {
-	  #cluck"No annotation is available for this promoter sequence! You are on your own now.\n";
-  }
 
   if (defined($self->{DATA})) {
-     $ret = $db->query("SELECT * FROM sequence_data WHERE sequence_data_primary_id =".$self->{DATA}.";");
+     $ret = $db->query("SELECT * FROM sequence_data WHERE sequence_data_primary_id = \"".$self->{DATA}."\";");
      @fields = @{$$ret[0]};
 
      $self->{FASTA}           = $fields[2];
      $self->{BLAST}           = $fields[3];
   }
-  else {
-	  #cluck"No sequence data available! Where did it go?\n";
-  }
 
-  $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id =".$self->{TAXON}.";");
+  $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id = \"".$self->{TAXON}."\";");
   @fields = @{$$ret[0]};
 
   $self->{TAXID}           = $fields[1];
@@ -91,7 +86,7 @@ sub new {
   $self->{TAXCLASS}        = $fields[3];
 
   my %xref;
-  $ret = $db->query("SELECT xref_id,xref_type FROM sequence_xref WHERE sequence_primary_id = $id;");
+  $ret = $db->query("SELECT xref_id,xref_type FROM sequence_xref WHERE sequence_primary_id = \"$id\";");
   for($i = 0; $i < $#$ret+1; $i++){
 	  @fields = @{$$ret[$i]};
 	  push @{ $xref{$fields[1]} }, $fields[0];
@@ -131,7 +126,7 @@ sub new_from_dbid {
 
   if (defined($self->{ANNOT})){
 
-     $ret = $db->query("SELECT * FROM sequence_annotation WHERE sequence_annotation_primary_id = ".$self->{ANNOT}.";");
+     $ret = $db->query("SELECT * FROM sequence_annotation WHERE sequence_annotation_primary_id = \"".$self->{ANNOT}."\";");
      @fields = @{$$ret[0]};
 
      $self->{MAINDBID}        = $fields[1];
@@ -140,22 +135,16 @@ sub new_from_dbid {
      $self->{GENENAME}        = $fields[4];
 
   }
-  else {
-	#cluck"No annotation is available for this promoter sequence! You are on your own now.\n";
-  }
 
   if (defined($self->{DATA})) {
-     $ret = $db->query("SELECT * FROM sequence_data WHERE sequence_data_primary_id =".$self->{DATA}.";");
+     $ret = $db->query("SELECT * FROM sequence_data WHERE sequence_data_primary_id = \"".$self->{DATA}."\";");
      @fields = @{$$ret[0]};
 
      $self->{FASTA}           = $fields[2];
      $self->{BLAST}           = $fields[3];
   }
-  else {
-	  #cluck"No sequence data available! Where did it go?\n";
-  }
 
-  $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id =".$self->{TAXON}.";");
+  $ret = $db->query("SELECT * FROM taxon_annotation WHERE taxon_primary_id = \"".$self->{TAXON}."\";");
   @fields = @{$$ret[0]};
 
   $self->{TAXID}           = $fields[1];
@@ -298,6 +287,7 @@ sub get_data_main_db_id {
 =head2 get_utr_length
 
   $utr_length = $seq->get_utr_length;
+
   Returns the length of the 5' UTR included in the sequence.
 
 =cut
@@ -310,6 +300,7 @@ sub get_utr_length {
 =head2 get_desc
 
   print $seq->get_desc,"\n";
+
   Returns the description of the sequence.
 
 =cut
@@ -322,6 +313,7 @@ sub get_desc {
 =head2 get_gene_name
 
   $gene_name = $seq->get_gene_name;
+
   Returns the gene name of the promoter. If the gene is
   unknow or not annotated, it is empty.
 
@@ -335,6 +327,7 @@ sub get_gene_name {
 =head2 get_fasta
 
   print $seq->get_fasta;
+
   Returns the promoter sequence in FASTA format.
 
 =cut
@@ -361,6 +354,7 @@ sub get_raw_seq {
 =head2 get_blast
 
   print $seq->get_blast;
+
   This method is not yet implemented.
 
 =cut
@@ -373,6 +367,7 @@ sub get_blast {
 =head2 get_taxid
 
   $taxid = $seq->get_taxid;
+
   Returns the NCBI taxon ID of the sequence.
 
 =cut
@@ -385,6 +380,7 @@ sub get_taxid {
 =head2 get_taxon_name
 
   print $seq->get_taxon_name;
+
   Returns the scientific name of the sequence's taxon ID.
 
 =cut
@@ -397,7 +393,9 @@ sub get_taxon_name {
 =head2 get_taxon_class
 
   print $seq->get_taxon_class;
+
   Returns the taxonomic class of the sequence's taxon ID.
+
   Used internally, to create monophyletic sets of sequences
   in an orthologous cluster.
 
@@ -411,8 +409,11 @@ sub get_taxon_class {
 =head2 print_all_xref
 
   $seq->print_all_xref;
+
   Prints all the xrefs to other databases.
+
   Type of xref IDs : 
+
   go_id            : Gene Ontology ID
   ncbi_gene_id     : NCBI gene ID
   ncbi_cds_gi      : NCBI CDS GI
@@ -421,7 +422,7 @@ sub get_taxon_class {
   ncbi_rna_tr_id   : NCBI RNA transcript ID
   at_no            : At Number
 
-  20080704 valami nem stimmel errefele, pl a GO xref-eknel duplikalt adatokat ad vissza neha a metodus
+  TODO : sometimes it gives back duplicated data
 
 =cut
 
@@ -437,6 +438,7 @@ sub print_all_xref {
 =head2 get_all_xref_keys
 
   @keys = @{$seq->get_all_xref_keys};
+
   Returns the arrayref of xref names.
 
 =cut
@@ -451,6 +453,7 @@ sub get_all_xref_keys {
 =head2 get_xref_value
 
   @values = @{$seq->get_xref_value("go_id")};
+
   Returns the arrayref of a given xref's values'.
 
 =cut
@@ -470,6 +473,7 @@ sub get_xref_value {
 =head2 get_all_seq_features
 
   @seqfeat = @{$seq->get_all_seq_features};
+
   Returns the arrayref of all sequence features or -1 in case of error
 
 =cut
@@ -480,11 +484,10 @@ sub get_all_seq_features {
   my @seqfeatures;
 
   # The order of the sequence features is important to correctly draw the picture of the cluster.
-  my $query = "SELECT sequence_feature_primary_id FROM sequence_feature WHERE sequence_primary_id =".$self->{PRIMARY}." ORDER BY feature_start;";
+  my $query = "SELECT sequence_feature_primary_id FROM sequence_feature WHERE sequence_primary_id = \"".$self->{PRIMARY}."\" ORDER BY feature_start;";
   my $ref = $self->{DB}->query($query);
 
   if ($#$ref == -1){
-     #cluck"No sequence feature found!\n";
      return(-1);
   }
 
@@ -508,11 +511,10 @@ sub get_all_subsets {
   my @subsets;
 
   my $id    = $self->{PRIMARY};
-  my $query = "SELECT subset_primary_id FROM subset_xref WHERE sequence_primary_id = $id";
+  my $query = "SELECT subset_primary_id FROM subset_xref WHERE sequence_primary_id = \"$id\"";
   my $ref   = $self->{DB}->query($query);
 
   if ($#$ref == -1){
-     #cluck"No subset found! This is impossible!!\n";
      return(-1);
   }
 

@@ -44,7 +44,7 @@ if ($error == -1){
 }
 
 @res = @{$mofext->get_results};
-# Return the motif objects and the score, extended score.
+# Returns the motif objects, score and extended score.
 for $result (@res){
   print $$result[0]->get_id," ",$$result[1],"$$result[2]","\n";
 }
@@ -60,12 +60,18 @@ for $result (@res){
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
-=head1 SUBRUTINES
+=head1 METHODS
 
 =head2 new
 
   Create a new Mofext object.
-  Arguments: DBSQL object, promoter type (500,1000,3000), subset type (B,M,E,V in plants) arrayref of cluster ids.
+
+  Arguments :
+
+  DBSQL object
+  promoter type (500,1000,3000)
+  subset type (B,E,M,V in plants)
+  arrayref of cluster ids
 
 =cut
 
@@ -92,6 +98,7 @@ sub new {
 
   $self->{DB}              = $db;
   $self->{CLLIST}          = $cluster_id_list;
+  # TODO use File::Temp module
   $self->{TMP_FILE}        = "/tmp/mofext_run.txt";
   $self->{MOTIF_COLL}      = \@motif_collection;
 
@@ -101,8 +108,14 @@ sub new {
 
 =head2 new_by_file
 
-  Create a new Mofext object from a file.
-  Arguments: DBSQL object, promoter type (500, 1000, 3000), subset type (B,M,E,V in plants), name of the file with cluster ids.
+  Create a new Mofext object from query file, containing cluster ids.
+
+  Arguments :
+
+  DBSQL object
+  promoter type (500, 1000, 3000)
+  subset type (B,E,M,V in plants)
+  name of the file with cluster ids
 
 =cut
 
@@ -134,6 +147,7 @@ sub new_by_file {
 
   $self->{DB}              = $db;
   $self->{CLLIST}          = \@cluster_id_list;
+  # TODO use File::Temp module
   $self->{TMP_FILE}        = "/tmp/mofext_run.txt";
   $self->{MOTIF_COLL}      = \@motif_collection;
 
@@ -143,17 +157,22 @@ sub new_by_file {
 
 =head2 new_by_tmp
 
-  Create a new Mofext object from a existing tmp file. It is useful when you have a tmp file, and you want 
-  to use it over and over, or your tmp file is large (the new constructor is very slow when you use
-  large cluster lists). If you use this constructor, you don't need to use set_tmp_file_name and write_to_tmp.
-  Arguments: Bio::DOOP::DBSQL object, temporary file name.
-  Return type: none
+  Create a new Mofext object from an existing temporary file. It is useful when you have a temporary file,
+  and you want to use it over and over, or your temporary file is large (the new constructor is very slow when you use
+  large cluster lists). If you use this constructor, you don't need to use the set_tmp_file_name and write_to_tmp 
+  methods.
+
+  Arguments :
+
+  Bio::DOOP::DBSQL object
+  temporary file name
+
   Example:
 
   use Bio::DOOP::DOOP
-  $db      = Bio::DOOP::DBSQL->connect("username","pswd","doop-chordate-1_4","localhost");
+  $db      = Bio::DOOP::DBSQL->connect("user","pass","doop-chordate-1_4","localhost");
 
-  $mofext = Bio::DOOP::Util::Run::Mofext->new_by_tmp($db,"/adatok/prg/perl/DOOP/ize.txt");
+  $mofext = Bio::DOOP::Util::Run::Mofext->new_by_tmp($db,"/data/DOOP/temp.txt");
   $ret = $mofext->run('GGATCCTGGAT',10,0.95,'default_matrix.txt');
   @res = @{$mofext->get_results};
 
@@ -178,7 +197,10 @@ sub new_by_tmp {
 =head2 get_tmp_file_name
 
   Get the temporary file name.
-  Return type: string
+
+  Return type :
+
+  string
 
 =cut
 
@@ -190,8 +212,10 @@ sub get_tmp_file_name {
 =head2 set_tmp_file_name
 
   Set the temporary file name.
-  Arguments: temporary file name
-  Return type: none
+
+  Arguments :
+
+  temporary file name
 
 =cut
 
@@ -204,7 +228,10 @@ sub set_tmp_file_name {
 =head2 write_to_tmp
 
   Write out the collected motifs to the temporary file.
-  Return type: 0 -> success, -1 -> error
+
+  Return type :
+
+  0 if success, -1 in case of error.
 
 =cut
 
@@ -223,8 +250,17 @@ sub write_to_tmp {
 =head2 run
 
   Run mofext on temporary file, containing motifs.
-  Arguments: query sequence, wordsize, cutoff, matrix file path.
-  Return type: 0 -> success, -1 -> no result or error
+
+  Arguments :
+
+  query sequence
+  wordsize
+  cutoff
+  matrix file path/name
+
+  Return type :
+
+  0 if success, -1 in case of no result or error.
 
 =cut
 
@@ -251,8 +287,18 @@ sub run {
 =head2 run_background
 
   Run mofext, but do not wait for it to finish.
-  Arguments: query sequence, wordsize, cutoff, matrix file path, output file name.
-  Return type: the process id
+
+  Arguments :
+
+  query sequence
+  wordsize
+  cutoff
+  matrix file path/name
+  output file path/name
+
+  Return type :
+
+  process id
 
 =cut
 
@@ -276,8 +322,16 @@ sub run_background {
 
 =head2 get_results
 
-  Returns the arrayref of array of motif objects and score, extended score, full hit sequence,
-  alignment start position in the query sequence, alignment start position in the hit sequence.
+  Returns an arrayref of arrays containing the following :
+
+  motif object
+  score
+  extended score
+  full hit sequence
+  alignment start position in the query sequence
+  alignment start position in the hit sequence
+
+  for each hit
 
 =cut
 
@@ -298,7 +352,6 @@ sub get_results {
      chomp($line);
      ($id,$score,$extscore,$fullhit,$querystart,$hitstart) = split(/ /,$line);
      my $motif     = Bio::DOOP::Motif->new($self->{DB},$id);
-
      push @mofext_res, [$motif,$score,$extscore,$querysub,$fullhit,$querystart,$hitstart];
   }
 
@@ -307,10 +360,19 @@ sub get_results {
 
 =head2 get_results_from_file
 
-  Returns the arrayref of the array of motif objects and anything else like the get_results
-  method  or -1 in the case of an error.
+  Returns an arrayref of arrays containing the following :
+
+  motif object
+  score
+  extended score
+  full hit sequence
+  alignment start position in the query sequence
+  alignment start position in the hit sequence
+
+  for each hit or -1 in case of errors
+
   This is a very uniq method because it does not depend on the object. So you can fetch
-  different results of different mofext objects.
+  results of different mofext objects.
 
 =cut
 
@@ -330,11 +392,9 @@ sub get_results_from_file {
   open RES,$filename or return(-1);
   while(<RES>){
      my $line = $_;
-
      chomp($line);
      ($id,$score,$extscore,$fullhit,$querystart,$hitstart) = split(/ /,$line);
      my $motif     = Bio::DOOP::Motif->new($self->{DB},$id);
-
      push @mofext_res, [$motif,$score,$extscore,$querysub,$fullhit,$querystart,$hitstart];
   }
   close RES;

@@ -18,7 +18,7 @@ our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
-  $db  = Bio::DOOP::DBSQL->connect("doopuser","dooppass","database","localhost");
+  $db  = Bio::DOOP::DBSQL->connect("user","pass","database","localhost");
   $res = $db->query("SELECT * FROM sequence LIMIT 10");
   foreach (@$res) {
      @fields = @{$_};
@@ -28,8 +28,8 @@ our $VERSION = '0.05';
 =head1 DESCRIPTION
 
   This object provides low level access to the MySQL database. In most
-  cases you do not need to use it, because the DOOP API handles the database
-  queries. Still if you need some special query and the DOOP 
+  cases you do not need it, because the DOOP API handles the database
+  queries. Still, if you need some special query and the DOOP 
   API can't help you, use the query method to access the database.
 
 =head1 AUTHORS
@@ -40,7 +40,7 @@ our $VERSION = '0.05';
 
 =head2 connect
 
-  $db = Bio::DOOP::DBSQL->connect("doopuser","dooppass","database","localhost");
+  $db = Bio::DOOP::DBSQL->connect("user","pass","database","localhost");
 
   You can connect to the database with this method. The arguments are the 
   following : username, password, database name, host. The return value
