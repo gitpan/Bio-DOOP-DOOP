@@ -23,17 +23,24 @@ use Bio::DOOP::Graphics::Feature;
 
 =head1 VERSION
 
-Version 1.01
+Version 1.02
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 =head1 SYNOPSIS
 
   use Bio::DOOP::DOOP;
 
-  $db = Bio::DOOP::DBSQL->new("user","pass","database","localhost");
+  # to connect to the primary database uncomment the following lines
+  # $user = "promoter";
+  # $pass = "sql04CP";
+  # $database = "doop-chordate-1_4"; # for vertebratas
+  # $database = "doop-plant-1_6"; # for plants
+  # $host = "bioweb.abc.hu";
+
+  $db = Bio::DOOP::DBSQL->connect($user,$pass,$database,$host);
   $cluster = Bio::DOOP::Cluster->new($db,"8010109","500");
   @seqs = @{$cluster->get_all_seqs};
   foreach $seq (@seqs){
@@ -56,6 +63,11 @@ our $VERSION = '1.01';
   For more help, please see the documentation of the individual
   objects.
 
+  If you would like to connect to the database of Agricultural Biotechnology Center,
+  you can use the following syntax:
+
+  Bio::DOOP::DBSQL->connect("promoter", "sql04CP", "doop-choordate-1_4", "bioweb.abc.hu");
+
 =head1 AUTHORS
 
   Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
@@ -64,11 +76,12 @@ our $VERSION = '1.01';
 
 =head2 Bio::DOOP::DBSQL
 
-  Object for simple SQL queries.
+  Object for simple SQL queries. Use it to connect to the database.
+  This is the first module you should use.
 
 =head2 Bio::DOOP::Cluster
 
-  Object for the clusters.
+  Object for the clusters. Cluster is a homologue promoter collection.
 
 =head2 Bio::DOOP::ClusterSubset
 
@@ -105,7 +118,7 @@ our $VERSION = '1.01';
 
 =head2 Bio::DOOP::Util::Run::Fuzznuc
 
-  FUZZNUC wrapper.
+  FUZZNUC wrapper. Install Emboss to use this.
 
 =head2 Bio::DOOP::Util::Run::GeneMerge
 
@@ -114,7 +127,7 @@ our $VERSION = '1.01';
 
 =head2 Bio::DOOP::Util::Run::Admin
 
-  Module for controlling the different wrappers.
+  Module for controlling the Mofext, Fuzznuc wrapper processes.
 
 =head2 Bio::DOOP::Graphics::Feature
 
@@ -124,7 +137,7 @@ our $VERSION = '1.01';
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Tibor Nagy, all rights reserved.
+Copyright 2009 Tibor Nagy, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

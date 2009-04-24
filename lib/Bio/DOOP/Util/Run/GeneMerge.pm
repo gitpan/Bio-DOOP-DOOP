@@ -267,7 +267,7 @@ sub getResults {
       $result{'RawEs'}        = ${$self->{HoStudyGeneAssocPVal}{$goterm}}[0];
       $result{'EScore'}       = ${$self->{HoStudyGeneAssocPVal}{$goterm}}[1];
       $result{'Desc'}         = $self->{HoDesc}{$goterm};
-      $result{'Contrib'}      = @{$self->{HoAssocStudyGene}{$goterm}};
+      $result{'Contrib'}      = \@{$self->{HoAssocStudyGene}{$goterm}};
       push @results, \%result;
    }
 

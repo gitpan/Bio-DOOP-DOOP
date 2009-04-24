@@ -233,7 +233,7 @@ sub run {
 
   my $file = $self->{TMP_FILE};
 
-  my @result = `fuzznuc $file -pattern='$pattern' -pmismatch=$mismatch -complement=$complement -stdout -auto`;
+  my @result = `fuzznuc $file -pattern='$pattern' -sformat=fasta -pmismatch=$mismatch -complement=$complement -stdout -auto`;
   
   my $seq_id;
   my $start;
@@ -290,10 +290,38 @@ sub run_background {
   my $pid;
 
   unless($pid = fork){
-     `fuzznuc $file -pattern='$pattern' -pmismatch=$mismatch -complement=$complement -outfile=$outfile`;
+     `fuzznuc $file -pattern='$pattern' -pmismatch=$mismatch -sformat=fasta -complement=$complement -outfile=$outfile`;
   }
 
   return($pid);
+}
+
+=head2 get_raw_results
+
+   Returns an arrayref of arrays of the raw fuzznuc result without objects.
+   It is much faster because does not use the database.
+
+=cut
+
+sub get_raw_results {
+  my $self                = shift;
+
+  my @fuzznuc_res;
+  my $res = $self->{RESULT};
+  my $seq_id;
+  my $start;
+  my $end;
+  my $mism;
+  my $hitseq;
+  my $strand;
+
+  for my $line (@{$res}){
+     ($seq_id,$start,$end,$mism,$hitseq,$strand) = split(/\s+/,$line);
+
+     push @fuzznuc_res,[$seq_id,$start,$end,$mism,$hitseq,$strand];
+  }
+
+  return(\@fuzznuc_res);
 }
 
 =head2 get_results
