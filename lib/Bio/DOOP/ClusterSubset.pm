@@ -5,15 +5,15 @@ use warnings;
 
 =head1 NAME
 
-  Bio::DOOP::ClusterSubset - One subset of a cluster
+Bio::DOOP::ClusterSubset - One subset of a cluster
 
 =head1 VERSION
 
-Version 0.12
+Version 0.13
 
 =cut
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 =head1 SYNOPSIS
 
@@ -22,31 +22,26 @@ our $VERSION = '0.12';
 
 =head1 DESCRIPTION
 
-  This object represents one subset of a cluster. A subset is a set of homologous sequences,
-  hopefully monophyletic, grouped by evolutionary distance from the reference species (Arabidopsis
-  or human).
+This object represents one subset of a cluster. A subset is a set of homologous sequences,
+hopefully monophyletic, grouped by evolutionary distance from the reference species (Arabidopsis
+or human).
 
 =head1 AUTHORS
 
-  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
+Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
-=cut
-
 =head2 new
+
+Creates a new subset object from the subset primary id. You usually won't need this, as you will create
+the subsets from a Bio::DOOP::Cluster object, based on the subset type.
+  
+Return type: Bio::DOOP::ClusterSubset object
 
   $cluster_subset = Bio::DOOP::ClusterSubset->new($db,"123");
 
-  You can create the object with the new method.
-  
-  Arguments :
-
-  Bio::DOOP::DBSQL object
-  subset primary id
-
 =cut
-
 
 sub new {
   my $self                 = {};
@@ -88,13 +83,11 @@ sub new {
 
 =head2 get_id
 
-  print $cluster_subset->get_id;
-
-  Prints out the subset primary id. This is the internal ID from the MySQL database.
+Prints out the subset primary id. This is the internal ID from the MySQL database.
   
-  Return type :
+Return type: string
 
-  string
+  print $cluster_subset->get_id;
 
 =cut
 
@@ -105,13 +98,11 @@ sub get_id {
 
 =head2 get_type
 
+Prints out the subset type.
+
+Return type: string
+
   print $cluster_subset->get_type;
-
-  Prints out the subset type.
-
-  Return type :
-
-  string
 
 =cut
 
@@ -122,17 +113,13 @@ sub get_type {
 
 =head2 get_seqno
 
+Returns the number of sequences in the subset.
+
+Return type: string
+
   for(i = 0; i < $cluster_subset->get_seqno; i++){
       print $seq[$i];
   }
-
-  Prints out all sequences linked to the subset.
-
-  The get_seqno method returns the number of sequences in the subset.
-
-  Return type :
-
-  string
 
 =cut
 
@@ -143,15 +130,13 @@ sub get_seqno {
 
 =head2 get_featno
 
+Returns the total number of features (motifs, TSSs and other) in the subset.
+
+Return type: string
+
   if ($cluster_subset->get_featno > 4){
       print "We have lots of features!!!\n";
   }
-
-  The get_featno method returns the total number of features in the subset.
-
-  Return type :
-
-  string
 
 =cut
 
@@ -162,13 +147,11 @@ sub get_featno {
 
 =head2 get_motifno
 
+Returns the number of motifs in the subset.
+
+Return type: string
+
   $motifs = $cluster_subset->get_motifno;
-
-  The get_motifno method returns the number of motifs in the subset.
-
-  Return type :
-
-  string
 
 =cut
 
@@ -179,16 +162,16 @@ sub get_motifno {
 
 =head2 get_orig
 
+Returns 'y' if the subset is the same as the original cluster, 'n' if not.
+
+Return type: string ('y' or 'n')
+
   if ($cluster_subset->get_orig eq "y") {
       print "This is the original cluster!\n";
   }
   elsif ($cluster_subset->get_orig eq "n"){
       print "This is some smaller subset!\n";
   }
-
-  Return type :
-
-  string ('y' or 'n')
 
 =cut
 
@@ -199,13 +182,11 @@ sub get_orig {
 
 =head2 get_cluster
 
+Returns the ID of the cluster, from which the subset originates.
+
+Return type: string
+
   $cluster_id = $cluster_subset->get_cluster;
-
-  Returns the ID of the cluster, from which the subset originates.
-
-  Return type :
-
-  string
 
 =cut
 
@@ -216,13 +197,11 @@ sub get_cluster {
 
 =head2 get_dialign
 
+Prints out the dialign format alignment of the subset.
+
+Return type: string
+
   print $cluster_subset->get_dialign;
-
-  Prints out the dialign format alignment of the subset.
-
-  Return type :
-
-  string
 
 =cut
 
@@ -233,13 +212,11 @@ sub get_dialign {
 
 =head2 get_fasta_align
 
+Prints out the fasta format alignment of the subset.
+
+Return type: string
+
   print $cluster_subset->get_fasta_align;
-
-  Prints out the fasta format alignment of the subset.
-
-  Return type :
-
-  string
 
 =cut
 
@@ -250,13 +227,11 @@ sub get_fasta_align {
 
 =head2 get_all_motifs
 
+Returns the arrayref of all motifs associated with the subset.
+
+Return type: arrayref, the array containig Bio::DOOP::Motif objects
+
   @motifs = @{$cluster_subset->get_all_motifs};
-
-  Returns the arrayref of all motifs associated with the subset.
-
-  Return type :
-
-  arrayref, the array containig Bio::DOOP::Motif objects
 
 =cut
 
@@ -282,13 +257,16 @@ sub get_all_motifs {
 
 =head2 get_all_seqs
 
+Returns a sorted arrayref of all sequences associated with the subset.
+
+Sorting the sequences by the following criteria:
+The first sequence is always the reference species (Arabidopsis/Human).
+All other sequences are sorted first by the taxon_class (B E M V in the plants and 
+P R E H M N T F V C in the chordates ) and then by the alphabetical order.
+
+Return type: arrayref, the array containig Bio::DOOP::Sequence objects
+
   @seq = @{$cluster_subset->get_all_seqs};
-
-  Returns the arrayref of all sequences associated with the subset.
-
-  Return type :
-
-  arrayref, the array containig Bio::DOOP::Sequence objects
 
 =cut
 
@@ -306,11 +284,7 @@ sub get_all_seqs {
   for(@$ret){
 	  push @seqs,Bio::DOOP::Sequence->new($self->{DB},$_->[0]);
   }
-  # Sorting the sequences by the following criteria:
-  # The first sequence is always the reference species (Arabidopsis/Human).
-  # All other sequences are sorted first by the taxon_class (B E M V in the plants and 
-  # P R E H M N T F V C in the chordates ) and then by the alphabetical order.
-
+  
   my $seq;
   my $i;
   my %groups;

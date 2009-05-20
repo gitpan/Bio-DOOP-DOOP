@@ -5,15 +5,15 @@ use warnings;
 
 =head1 NAME
 
-  Bio::DOOP::Util::Filt - filter a cluster list.
+Bio::DOOP::Util::Filt - Filter a cluster list
 
 =head1 VERSION
 
-  Version 0.2
+Version 0.3
 
 =cut
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 =head1 SYNOPSIS
 
@@ -30,18 +30,18 @@ our $VERSION = '0.2';
 
 =head1 DESCRIPTION
 
-  This object filters a clusterlist. It is useful to find a smaller cluster set from a
-  large mofext or fuzznuc search result.
+This object filters a clusterlist. It is useful to find a smaller cluster set from a
+large mofext or fuzznuc search result.
 
 =head1 AUTHORS
 
-  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
+Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
 =head2 new
 
-  Create new Filter object from Cluster object array.
+Creates a new filter object from a cluster object array.
 
 =cut
 
@@ -62,7 +62,7 @@ sub new {
 
 =head2 new_by_list
 
-  Create new Filter class from cluster id array.
+Creates a new filter class from a cluster id array.
 
 =cut
 
@@ -92,7 +92,7 @@ sub new_by_list {
 
 =head2 new_by_id
 
-  Create new Filter class from cluster primary id array.
+Creates a new filter class from a cluster primary id array.
 
 =cut
 
@@ -120,9 +120,9 @@ sub new_by_id {
 
 =head2 filt_by_goid
 
-  @filtered = @{$filt->filt_by_goid("0006523")};
+Filter the cluster list by GO ids.
 
-  Filter the cluster list by GO id.
+  @filtered = @{$filt->filt_by_goid("0006523")};
 
 =cut
 

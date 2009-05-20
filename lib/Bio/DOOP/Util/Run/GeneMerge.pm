@@ -6,15 +6,15 @@ use POSIX;
 
 =head1 NAME
 
-  Bio::DOOP::Util::Run::GeneMerge - GeneMerge based GO analyzer
+Bio::DOOP::Util::Run::GeneMerge - GeneMerge based GO analyzer
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -48,27 +48,29 @@ our $VERSION = '0.01';
 
 =head1 DESCRIPTION
 
-  This is a module based on GeneMerge v1.2.
+This is a module based on GeneMerge v1.2.
 
-  Original program described in :
+Original program described in:
 
-  Cristian I. Castillo-Davis and Daniel L. Hartl 
-  GeneMerge—post-genomic analysis, data mining, and hypothesis testing
-  Bioinformatics Vol. 19 no. 7 2003, Pages 891-892
+Cristian I. Castillo-Davis and Daniel L. Hartl
+GeneMerge - post-genomic analysis, data mining, and hypothesis testing
+Bioinformatics Vol. 19 no. 7 2003, Pages 891-892
 
-  The original program is not really good for large scale analysis, 
-  because the design uses a lot of I/O processes. This version takes
-  everything into memory at start.
+The original program is not really good for large scale analysis, 
+because the design uses a lot of I/O processes. This version fetches
+everything into memory at start.
 
 =head1 AUTHORS
 
-  Tibor Nagy, Godollo, Endre Sebestyen, Martonvasar,
+Tibor Nagy, Godollo, Endre Sebestyen, Martonvasar,
 
 =head1 METHODS
 
 =head2 new
 
-  This is the constructor.
+Create new GeneMerge object.
+
+   $genemerge = Bio::DOOP::Util::Run::GeneMerge->new;
 
 =cut
 
@@ -95,7 +97,14 @@ sub new {
 
 =head2 getAssocFile
 
-  The method loads the GO association file and stores it in memory.
+The method loads the GO association file and stores it in memory.
+The file format is the following. Each line starts with a cluster id, and after some whitespace
+the associated GO ids are enumerated, separated by semicolons.
+
+81001020 GO:0016020;GO:0003674;GO:0008150                                                                                                                    
+81001110 GO:0005739;GO:0003674
+
+   $genemerge->getAssocFile('/tmp/assoc.txt');
 
 =cut
 
@@ -124,7 +133,14 @@ sub getAssocFile {
 
 =head2 getPopFile
 
-   The method loads the Population file and stores it in memory.
+The method loads the population file and stores it in memory.
+The file format is the following. Each line contains one and only one
+cluster id.
+
+81001020
+81001110
+
+   $genemerge->getPopFile('/tmp/pop.txt');
 
 =cut
 
@@ -153,8 +169,7 @@ sub getPopFile {
 
 =head2 popFreq
 
-   The method calculates the population frequency.
-   Do not use it directly.
+The method calculates the population frequency. Do not use it directly.
 
 =cut
 
@@ -169,7 +184,14 @@ sub popFreq {
 
 =head2 getDescFile
 
-  The method loads the GO description file.
+The method loads the GO description file.
+The file format is the following. Each line starts with the GO id, and separated by a tab,
+the description of the GO id.
+
+GO:0000007      low-affinity zinc ion transporter activity                                                                                                   
+GO:0000008      thioredoxin
+
+   $genemerge->getDescFile('/tmp/desc.txt');
 
 =cut
 
@@ -190,11 +212,22 @@ sub getDescFile {
 
 =head2 getStudyFile
 
-  The method loads the study data set.
+The method loads the study data set, counts GO frequencies, calculates P values
+based on the hypergeometric distribution, and corrects P values, based on the
+Bonferroni method.
+
+The file format of the study file is the following. Each line contains one and only one
+cluster id.
+
+81001020
+81001110
+
+   $genemerge->getStudyFile('/tmp/study.txt');
 
 =cut
 
 sub getStudyFile {
+   # TODO we should split this in 2 or 3.
    my $self                = shift;
    my $filename            = shift;
 
@@ -248,7 +281,20 @@ sub getStudyFile {
 
 =head2 getResults
 
-   The method gives back all the results.
+The method gives back all the results as an arrayref of hashes.
+
+  $results = $genemerge->getResults();
+  foreach $result (@{$results}) {
+    $goterm       = $$result{'GOterm'};
+    $popfreq      = $$result{'PopFreq'};
+    $popfrac      = $$result{'PopFrac'};
+    $studyfrac    = $$result{'StudyFrac'};
+    $studyfracall = $$result{'StudyFracAll'};
+    $raw_escore   = $$result{'RawEs'};
+    $escore       = $$result{'EScore'};
+    $desc         = $$result{'Desc'};
+    @contrib      = @{$$result{'Contrib'}};
+  }
 
 =cut
 
@@ -276,8 +322,7 @@ sub getResults {
 
 =head2 hypergeometric
 
-  This is an internal function to calculate the 
-  hypergeometric distribution. Do not use it directly.
+This is an internal function to calculate the hypergeometric distribution. Do not use it directly.
 
 =cut
 
@@ -318,8 +363,7 @@ sub hypergeometric {
 
 =head2 logNchooseK
 
-  Another internal function for the correct statistical results.
-  Do not use it directly.
+Another internal function for the correct statistical results. Do not use it directly.
 
 =cut
 
@@ -341,8 +385,7 @@ sub logNchooseK {
 
 =head2 lFactorial
 
-  Factorial calculating function.
-  Do not use it directly.
+Factorial calculating function. Do not use it directly.
 
 =cut
 

@@ -6,72 +6,75 @@ use Carp qw(cluck carp verbose);
 
 =head1 NAME
 
-  Bio::DOOP::Util::Run::Mofext - Mofext runner module.
+Bio::DOOP::Util::Run::Mofext - Mofext module
 
 =head1 VERSION
 
-  Version 0.16
+Version 0.17
 
 =cut
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 =head1 SYNOPSIS
 
-#!/usr/bin/perl -w
+   #!/usr/bin/perl -w
 
-use Bio::DOOP::DOOP
-$db     = Bio::DOOP::DBSQL->connect("user","pass","doop-plant-1_5","localhost");
+   use Bio::DOOP::DOOP;
 
-@list   = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680","81001680","81001690");
+   $db = Bio::DOOP::DBSQL->connect("user","pass","doop-plant-1_5","localhost");
 
-$mofext = Bio::DOOP::Util::Run::Mofext->new($db,'500','M',\@list);
+   @list = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680","81001680","81001690");
 
-$mofext->set_tmp_file_name("/data/DOOP/dummy.txt");
+   $mofext = Bio::DOOP::Util::Run::Mofext->new($db,'500','M',\@list);
 
-print $mofext->get_tmp_file_name,"\n";
+   $mofext->set_tmp_file_name("/data/DOOP/dummy.txt");
 
-$error = $mofext->write_to_tmp;
+   print $mofext->get_tmp_file_name,"\n";
 
-if($error != 0){
-   die "Write error!\n";
-}
+   $error = $mofext->write_to_tmp;
 
-$error = $mofext->run('TTGGGC' , 6 , 0.6 , '/data/default_matrix' );
+   if($error != 0){
+      die "Write error!\n";
+   }
 
-if ($error == -1){
-   die "No results or error!\n";
-}
+   $error = $mofext->run('TTGGGC' , 6 , 0.6 , '/data/default_matrix' );
 
-@res = @{$mofext->get_results};
-# Returns the motif objects, score and extended score.
-for $result (@res){
-  print $$result[0]->get_id," ",$$result[1],"$$result[2]","\n";
-}
+   if ($error == -1){
+      die "No results or error!\n";
+   }
 
+   @res = @{$mofext->get_results};
+
+   # Returns the motif objects, score and extended score.
+   for $result (@res){
+      print $$result[0]->get_id," ",$$result[1],"$$result[2]","\n";
+   }
 
 =head1 DESCRIPTION
 
-  Mofext is a fuzzy sequence pattern search tool developed by Tibor Nagy. This module 
-  is a wrapper object for mofext. It allows the user to search for similar motifs in the 
-  DOOP database.
+Mofext is a fuzzy sequence pattern search tool developed by Tibor Nagy. This module 
+is a wrapper object for mofext. It allows the user to search for similar motifs in the 
+DOOP database.
 
 =head1 AUTHORS
 
-  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
+Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
 =head2 new
 
-  Create a new Mofext object.
+Create new Mofext object.
 
-  Arguments :
+Arguments:
 
-  DBSQL object
-  promoter type (500,1000,3000)
-  subset type (B,E,M,V in plants)
-  arrayref of cluster ids
+1. Bio::DOOP::DBSQL object
+2. promoter type (500, 1000, 3000)
+3. subset type (depends on reference species)
+4. arrayref of cluster ids
+
+   $mofext = Bio::DOOP::Util::Run::Mofext->new($db,500,'B',\@list);
 
 =cut
 
@@ -108,14 +111,16 @@ sub new {
 
 =head2 new_by_file
 
-  Create a new Mofext object from query file, containing cluster ids.
+Create a new Mofext object from query file, containing cluster ids, one per line.
 
-  Arguments :
+Arguments:
 
-  DBSQL object
-  promoter type (500, 1000, 3000)
-  subset type (B,E,M,V in plants)
-  name of the file with cluster ids
+1. Bio::DOOP::DBSQL object
+2. promoter type (500, 1000, 3000)
+3. subset type (depends on reference species)
+4. name of file with cluster ids
+
+   $mofext = Bio::DOOP::Util::Run::Mofext->new_by_file($db,500,'B','/tmp/clusters.txt');
 
 =cut
 
@@ -157,29 +162,16 @@ sub new_by_file {
 
 =head2 new_by_tmp
 
-  Create a new Mofext object from an existing temporary file. It is useful when you have a temporary file,
-  and you want to use it over and over, or your temporary file is large (the new constructor is very slow when you use
-  large cluster lists). If you use this constructor, you don't need to use the set_tmp_file_name and write_to_tmp 
-  methods.
+Create a new Mofext object from an existing temporary file containing conserved motifs. It is useful in some cases,
+because the new constructor is very slow when you use large cluster lists. If you use this constructor, you don't 
+need to use the set_tmp_file_name and write_to_tmp methods.
 
-  Arguments :
+Arguments:
 
-  Bio::DOOP::DBSQL object
-  temporary file name
+1. Bio::DOOP::DBSQL object
+2. temporary file name
 
-  Example:
-
-  use Bio::DOOP::DOOP
-  $db      = Bio::DOOP::DBSQL->connect("user","pass","doop-chordate-1_4","localhost");
-
-  $mofext = Bio::DOOP::Util::Run::Mofext->new_by_tmp($db,"/data/DOOP/temp.txt");
-  $ret = $mofext->run('GGATCCTGGAT',10,0.95,'default_matrix.txt');
-  @res = @{$mofext->get_results};
-
-  for $res (@res){
-    print $$res[0]->get_id," ",$$res[1],"\n";
-  }
-
+   $mofext = Bio::DOOP::Util::Run::Mofext->new_by_tmp($db,"/tmp/motifs.txt");
 
 =cut
 
@@ -196,11 +188,9 @@ sub new_by_tmp {
 
 =head2 get_tmp_file_name
 
-  Get the temporary file name.
+Get the name of the temporary file containing the motifs.
 
-  Return type :
-
-  string
+   $tmp_name = $mofext->get_tmp_file_name;
 
 =cut
 
@@ -211,11 +201,9 @@ sub get_tmp_file_name {
 
 =head2 set_tmp_file_name
 
-  Set the temporary file name.
+Set the temporary file name.
 
-  Arguments :
-
-  temporary file name
+   $mofext->set_tmp_file_name('/tmp/motifs.txt');
 
 =cut
 
@@ -227,11 +215,9 @@ sub set_tmp_file_name {
 
 =head2 write_to_tmp
 
-  Write out the collected motifs to the temporary file.
+Write out the collected motifs to the temporary file.
 
-  Return type :
-
-  0 if success, -1 in case of error.
+   $write_error = $mofext->write_to_tmp;
 
 =cut
 
@@ -249,18 +235,31 @@ sub write_to_tmp {
 
 =head2 run
 
-  Run mofext on temporary file, containing motifs.
+Runs mofext, returns 0 on success, otherwise -1.
 
-  Arguments :
+Arguments:
 
-  query sequence
-  wordsize
-  cutoff
-  matrix file path/name
+1. query sequence
+2. wordsize
+3. cutoff
+4. matrix file path/name
 
-  Return type :
+A typical matrix looks like this:
 
-  0 if success, -1 in case of no result or error.
+11  A   T   G   C   S   W   R   Y   K   M   N
+A   5  -4  -4  -4  -4   1   1  -4  -4   1  -2
+T  -4   5  -4  -4  -4   1  -4   1   1  -4  -2
+G  -4  -4   5  -4   1  -4   1  -4   1  -4  -2
+C  -4  -4  -4   5   1  -4  -4   1  -4   1  -2
+S  -4  -4   1   1  -1  -4  -2  -2  -2  -2  -1
+W   1   1  -4  -4  -4  -1  -2  -2  -2  -2  -1
+R   1  -4   1  -4  -2  -2  -1  -4  -2  -2  -1
+Y  -4   1  -4   1  -2  -2  -4  -1  -2  -2  -1
+K  -4   1   1  -4  -2  -2  -2  -2  -1  -4  -1
+M   1  -4  -4   1  -2  -2  -2  -2  -4  -1  -1
+N  -2  -2  -2  -2  -1  -1  -1  -1  -1  -1  -1
+
+   $mofext_error = $mofext->run('AAGTKSAAT','7','90','/data/run/matrix.txt')
 
 =cut
 
@@ -286,19 +285,17 @@ sub run {
 
 =head2 run_background
 
-  Run mofext, but do not wait for it to finish.
+Runs mofext in background, returns the process id.
 
-  Arguments :
+Arguments:
 
-  query sequence
-  wordsize
-  cutoff
-  matrix file path/name
-  output file path/name
+1. query sequence
+2. wordsize
+3. cutoff
+4. matrix file path/name
+5. output file path/name
 
-  Return type :
-
-  process id
+   $mofext_pid = $mofext->run_background('AAGTKSAAT','7','90','/data/run/matrix.txt','/data/run/mofext_results.txt');
 
 =cut
 
@@ -322,16 +319,18 @@ sub run_background {
 
 =head2 get_results
 
-  Returns an arrayref of arrays containing the following :
+Returns an arrayref of arrays with motif objects and other information of the results.
 
-  motif object
-  score
-  extended score
-  full hit sequence
-  alignment start position in the query sequence
-  alignment start position in the hit sequence
+The results contain the following:
 
-  for each hit
+1. Bio::DOOP::Motif object
+2. motif score
+3. motif extended score
+4. full hit sequence
+5. alignment start position in the query sequence
+6. alignment start position in the hit sequence
+
+   @result = @{$mofext->get_results};
 
 =cut
 
@@ -360,19 +359,19 @@ sub get_results {
 
 =head2 get_results_from_file
 
-  Returns an arrayref of arrays containing the following :
+Returns an arrayref of arrays with motif objects and other information of the results
+from a results file. With this method you can fetch the results of different mofext objects.
 
-  motif object
-  score
-  extended score
-  full hit sequence
-  alignment start position in the query sequence
-  alignment start position in the hit sequence
+The results contain the following:
 
-  for each hit or -1 in case of errors
+1. Bio::DOOP::Motif object
+2. motif score
+3. motif extended score
+4. full hit sequence
+5. alignment start position in the query sequence
+6. alignment start position in the hit sequence
 
-  This is a very uniq method because it does not depend on the object. So you can fetch
-  results of different mofext objects.
+   @result = @{$mofext->get_results_from_file};
 
 =cut
 

@@ -6,33 +6,35 @@ use Proc::ProcessTable;
 
 =head1 NAME
 
-  Bio::DOOP::Util::Run::Admin - Manage the running mofext or fuzznuc processes.
+Bio::DOOP::Util::Run::Admin - Manage the running mofext or fuzznuc processes
 
 =head1 VERSION
 
-  Version 0.2
+Version 0.3
 
 =cut
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
 
-  This class manages the Run objects (Run::Mofext and Run::Fuzznuc).
+This class manages the Run objects (Bio::DOOP::Run::Mofext and Bio::DOOP::Run::Fuzznuc).
 
 =head1 AUTHORS
 
-  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
+Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
 =head2 new
 
-  $admin = Bio::DOOP::Util::Run::Admin->new;
+Creates a new Admin class.
 
-  Create a new Admin class.
+Return type: Bio::DOOP::Util::Run::Admin object
+
+  $admin = Bio::DOOP::Util::Run::Admin->new;
 
 =cut
 
@@ -58,11 +60,11 @@ sub new {
 
 =head2 get_run_pids
 
+Returns the arrayref of running pids.
+
   for my $i (@{$admin->get_run_pids}){
      $admin->kill($i,9);
   }
-
-  Returns the arrayref of running pids.
 
 =cut
 
@@ -73,13 +75,11 @@ sub get_run_pids {
 
 =head2 kill
 
+Sends specified signal to a process given by the first arguments.
+
+Return type: none
+
   $admin->kill(1234,SIGINT);
-
-  Send specified signal to a process given by the first arguments.
-
-  Return type :
-
-  none
 
 =cut
 
@@ -97,13 +97,11 @@ sub kill {
 
 =head2 nice
 
+Sets the priority of the process.
+
+Return type: none
+
   $admin->nice(1234,19);
-
-  Set the priority of the process.
-
-  Return type :
-
-  none
 
 =cut
 

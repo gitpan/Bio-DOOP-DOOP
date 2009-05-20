@@ -5,15 +5,15 @@ use warnings;
 
 =head1 NAME
 
-  Bio::DOOP::Util::Search - useful methods for easy search.
+Bio::DOOP::Util::Search - Useful methods for easy search
 
 =head1 VERSION
 
-  Version 0.12
+Version 0.13
 
 =cut
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 =head1 SYNOPSIS
 
@@ -24,18 +24,18 @@ our $VERSION = '0.12';
 
 =head1 DESCRIPTION
 
-  Collection of utilities handling large queries. Most of
-  the methods return arrayrefs of motifs, sequences or clusters.
+Collection of utilities handling large queries. Most of
+the methods return arrayrefs of motifs, sequences or clusters.
 
 =head1 AUTHORS
 
-  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
+Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
 =head2 get_all_motifs_by_type
 
-  Returns the arrayref of motifs with the type specified in the arguments.
+Returns the arrayref of motifs with the type specified in the arguments.
 
 =cut
 
@@ -53,7 +53,7 @@ sub get_all_motifs_by_type {
 
 =head2 get_all_original_subset
 
-  Returns the arrayref of all original subsets.
+Returns the arrayref of all original subsets.
 
 =cut
 
@@ -69,7 +69,7 @@ sub get_all_original_subset {
 
 =head2 get_all_cluster_by_gene_id
 
-  Returns the arrayref of all clusters defined by the gene id.
+Returns the arrayref of all Bio::DOOP::Cluster objects, defined by a gene id.
 
 =cut
 
@@ -89,7 +89,7 @@ sub get_all_cluster_by_gene_id  {
 
 =head2 get_all_cluster_by_keyword
 
-  Returns the arrayref of all clusters containing the keyword in their description or tss annotation.
+Returns the arrayref of all Bio::DOOP::Cluster objects, containing the keyword in their description or tss annotation.
 
 =cut
 
@@ -109,10 +109,11 @@ sub get_all_cluster_by_keyword {
   }
 
   # Query from tss_annot.
-  $ret = $db->query("SELECT DISTINCT(cluster.cluster_id) FROM cluster, tss_annotation, sequence_feature, subset_xref WHERE subset_xref.sequence_primary_id = sequence_feature.sequence_primary_id AND sequence_feature.tss_primary_id = tss_annotation.tss_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND tss_annotation.tss_desc LIKE '%$keyword%';");
-  for my $cluster (@$ret){
-          push @cluster_db_id,$$cluster[0];
-  }
+  # NO
+  #$ret = $db->query("SELECT DISTINCT(cluster.cluster_id) FROM cluster, tss_annotation, sequence_feature, subset_xref WHERE subset_xref.sequence_primary_id = sequence_feature.sequence_primary_id AND sequence_feature.tss_primary_id = tss_annotation.tss_primary_id AND cluster.cluster_primary_id = subset_xref.cluster_primary_id AND tss_annotation.tss_desc LIKE '%$keyword%';");
+  #for my $cluster (@$ret){
+  #        push @cluster_db_id,$$cluster[0];
+  #}
 
   #Remove the redundant cluster_db_ids.
   my @cluster_id_uniq = grep { ! $seen{ $_ }++ } @cluster_db_id;
@@ -126,7 +127,7 @@ sub get_all_cluster_by_keyword {
 
 =head2 get_all_cluster_by_xref
 
-  Returns the arrayref of clusters containing a given xref.
+Returns the arrayref of Bio::DOOP::Clsuter objects, containing a given xref.
 
 =cut
 
@@ -149,8 +150,8 @@ sub get_all_cluster_by_xref {
 
 =head2 get_all_cluster_by_taxon_name
 
-  Returns the arrayref of clusters containing the taxon name.
-  Don't use this, use get_all_cluster_by_taxon_id with NCBI IDs.
+Returns the arrayref of Bio::DOOP::Cluster objects containing a taxon name.
+Don't use this, use get_all_cluster_by_taxon_id with NCBI IDs!
 
 =cut
 
@@ -171,8 +172,8 @@ sub get_all_cluster_by_taxon_name {
 
 =head2 get_all_cluster_id_by_taxon_name
 
-  Returns the arrayref of cluster ids containing the taxon name.
-  Don't use this, use get_all_cluster_by_taxon_id with NCBI IDs.
+Returns the arrayref of cluster ids containing the taxon name.
+Don't use this, use get_all_cluster_by_taxon_id with NCBI IDs!
 
 =cut
 
@@ -193,7 +194,7 @@ sub get_all_cluster_id_by_taxon_name {
 
 =head2 get_all_cluster_by_taxon_id
 
-  Returns the arrayref of clusters containing the taxon id (NCBI).
+Returns the arrayref of Bio::DOOP::Cluster objects, containing an NCBI taxon id.
 
 =cut
 
@@ -214,7 +215,7 @@ sub get_all_cluster_by_taxon_id {
 
 =head2 get_all_cluster_id_by_taxon_id
 
-  Returns the arrayref of cluster ids containing the taxon id (NCBI).
+Returns the arrayref of cluster ids containing an NCBI taxon id.
 
 =cut
 
@@ -235,7 +236,7 @@ sub get_all_cluster_id_by_taxon_id {
 
 =head2 get_all_cluster_by_sequence_id
   
-  Returns the arrayref of clusters containing the given sequence id (fake GI).
+Returns the arrayref of Bio::DOOP::Cluster objects, containing a given sequence id (fake GI).
 
 =cut
 
@@ -256,7 +257,7 @@ sub get_all_cluster_by_sequence_id {
 
 =head2 get_all_cluster_by_atno
 
-  Returns the arrayref of clusters containing the given At Number.
+Returns the arrayref of Bio::DOOP::Cluster objects, containing a given At Number.
 
 =cut
 
@@ -277,7 +278,7 @@ sub get_all_cluster_by_atno {
 
 =head2 get_all_seq_by_motifid
 
-  Returns the arrayref of sequences containing the given motif id.
+Returns the arrayref of Bio::DOOP::Sequence objects, containing a given motif id.
 
 =cut
 
@@ -297,7 +298,7 @@ sub get_all_seq_by_motifid {
 
 =head2 get_all_cluster_by_go_id
 
-  Returns the arrayref of clusters containing the given GO ID.
+Returns the arrayref of Bio::DOOP::Cluster objects, containing a given GO ID.
 
 =cut
 sub get_all_cluster_by_go_id {
@@ -317,7 +318,7 @@ sub get_all_cluster_by_go_id {
 
 =head2 get_all_cluster_by_ensno
 
-  Returns the arrayref of clusters containing the given ENSEMBL gene ID.
+Returns the arrayref of Bio::DOOP::Cluster objects, containing a given ENSEMBL gene ID.
 
 =cut
 
@@ -338,8 +339,9 @@ sub get_all_cluster_by_ensno {
 
 =head2 get_all_cluster_id
 
-	Returns an arrayref of all the cluster IDs of a given promoter/subset category.
-	For example returns all clusters with 1000 bp E type subsets.
+Returns an arrayref of all the cluster IDs of a given promoter/subset category.
+For example returns all clusters with 1000 bp E type subsets.
+
 =cut
 
 sub get_all_cluster_id {

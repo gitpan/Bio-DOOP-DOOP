@@ -6,65 +6,66 @@ use Carp qw(cluck carp verbose);
 
 =head1 NAME
 
-  Bio::DOOP::Util::Run::Fuzznuc - Fuzznuc runner module.
+Bio::DOOP::Util::Run::Fuzznuc - Fuzznuc module
 
 =head1 VERSION
 
-  Version 0.4
+Version 0.7
 
 =cut
 
-our $VERSION = '0.6';
+our $VERSION = '0.7';
 
 =head1 SYNOPSIS
 
-#!/usr/bin/perl -w
+   #!/usr/bin/perl -w
 
-use Bio::DOOP::DOOP;
-$db     = Bio::DOOP::DBSQL->connect("user","pass","doop-plant-1_5","localhost");
+   use Bio::DOOP::DOOP;
 
-@list   = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680");
+   $db = Bio::DOOP::DBSQL->connect("user","pass","doop-plant-1_5","localhost");
 
-$fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,'500','M',\@list,"/data/DOOP/dummy.txt");
+   @list = ("81001020","81001110","81001200","81001225","81001230","81001290","81001470","81001580","81001610","81001620","81001680");
 
-print $fuzznuc->get_tmp_file_name,"\n";
+   $fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,'500','M',\@list,"/data/DOOP/dummy.txt");
 
-$error = $fuzznuc->run('TTGGGC' , 1 , 0);
+   print $fuzznuc->get_tmp_file_name,"\n";
 
-if ($error == -1){
-   die "No results or error!\n";
-}
+   $error = $fuzznuc->run('TTGGGC' , 1 , 0);
 
-@res = @{$fuzznuc->get_results};
+   if ($error == -1){
+      die "No results or error!\n";
+   }
 
-for $result (@res){
-  print $$result[0]->get_id,"| ",$$result[1]," ",$$result[2]," ",$$result[3]," ",$$result[4],"\n";
-}
+   @res = @{$fuzznuc->get_results};
+
+   for $result (@res){
+      print $$result[0]->get_id,"| ",$$result[1]," ",$$result[2]," ",$$result[3]," ",$$result[4],"\n";
+   }
 
 =head1 DESCRIPTION
 
-  This module is a wrapper for the EMBOSS (http://emboss.sourceforge.net) program fuzznuc. You can search
-  patterns in the promoter sequences.
+This module is a wrapper for the EMBOSS (http://emboss.sourceforge.net) program fuzznuc. You can search
+for patterns in the promoter sequences.
 
 =head1 AUTHORS
 
-  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
+Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
 =head2 new
 
-  $fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,500,'M',@list,'/tmp/tmpfile');
+Create new Fuzznuc object.
 
-  Create new Fuzznuc object.
+Arguments:
 
-  Arguments :
+1. Bio::DOOP::DBSQL object
+2. promoter type (500, 1000, 3000)
+3. subset type (depends on reference species)
+4. arrayref of clusters
+5. temporary file name (default: /tmp/fuzznuc_run.txt, will contain fasta sequences)
 
-  Bio::DOOP::DBSQL object
-  promoter type (500, 1000, 3000)
-  subset type (depends on reference species)
-  arrayref of clusters
-  temporary file name (default: /tmp/fuzznuc_run.txt)
+  $fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,500,'M',\@list,'/tmp/tmpfile');
 
 =cut
 
@@ -102,15 +103,17 @@ sub new {
 
 =head2 new_by_file
 
-  Create new fuzznuc object from query file, containing cluster ids.
+Create new fuzznuc object from query file, containing cluster ids.
 
-  Arguments :
+Arguments:
   
-  Bio::DOOP::DBSQL object
-  promoter type (500, 1000, 3000)
-  subset type (depends on reference species)
-  file that contain cluster ids
-  temporary file name (default: /tmp/fuzznuc_run.txt)
+1. Bio::DOOP::DBSQL object
+2. promoter type (500, 1000, 3000)
+3. subset type (depends on reference species)
+4. file containing cluster ids
+5. temporary file name (default: /tmp/fuzznuc_run.txt, will contain fasta sequences)
+
+  $fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,500,'M','/tmp/clusters.txt','/tmp/tmpfile');
 
 =cut
 
@@ -155,12 +158,15 @@ sub new_by_file {
 
 =head2 new_by_tmp
 
-  Create new Fuzznuc object from existing temporary file, containing query sequences in fasta format.
+Create new fuzznuc object from existing temporary file,
+containing query sequences in fasta format.
 
-  Arguments :
+Arguments:
 
-  DBSQL object
-  temporary file name
+1. Bio::DOOP::DBSQL object
+2. file containing fasta sequences
+
+  $fuzznuc = Bio::DOOP::Util::Run::Fuzznuc->new($db,'/tmp/sequences.fasta');
 
 =cut
 
@@ -179,11 +185,9 @@ sub new_by_tmp {
 
 =head2 get_tmp_file_name
 
-  Get the temporary file name.
+Get the temporary file name.
 
-  Return type :
-
-  string
+   $tempname = $fuzznuc->get_tmp_file_name;
 
 =cut
 
@@ -194,13 +198,9 @@ sub get_tmp_file_name {
 
 =head2 get_emboss_version
 
-  Get the installed emboss version number.
+Get the installed emboss version.
 
-  $fuzznuc->get_emboss_version
-
-  Return type :
-
-  string
+   $version = $fuzznuc->get_emboss_version;
 
 =cut
 
@@ -211,17 +211,15 @@ sub get_emboss_version {
 
 =head2 run
 
-  Run fuzznuc on temporary file, containing sequences.
+Runs fuzznuc, returns 0 on success, otherwise -1.
 
-  Arguments :
+Arguments :
 
-  query pattern
-  mismatch number
-  complement (0 or 1)
+1. query pattern
+2. mismatch number
+3. complement (0 or 1)
 
-  Return type :
-
-  0 if success, -1 if no results or error happened
+   $fuzznuc_error = $fuzznuc->run('AACCAGGTT','1','1');
 
 =cut
 
@@ -243,7 +241,7 @@ sub run {
   my @parsed;
   my $strand;
 
-  if ($#result == -1) { return(-1) } #No results or error happened.
+  if ($#result == -1) { return(-1) } #No results or an error happened.
   for my $line (@result){
      if ($line =~ / Sequence: (\S+)/){
         $seq_id = $1;
@@ -265,18 +263,16 @@ sub run {
 
 =head2 run_background
 
-  Run fuzznuc, but do not wait for completion.
+Runs fuzznuc in background, returns the process id.
 
-  Arguments :
+Arguments :
 
-  query pattern
-  mismatch number
-  complement (0 or 1)
-  output filename
+1. query pattern
+2. mismatch number
+3. complement (0 or 1)
+4. output filename
 
-  Return type :
-
-  process id
+   $fuzznuc_pid = $fuzznuc->run_background('AACCAGGTT','1','1','/tmp/fuzznuc_result.txt');
 
 =cut
 
@@ -298,8 +294,19 @@ sub run_background {
 
 =head2 get_raw_results
 
-   Returns an arrayref of arrays of the raw fuzznuc result without objects.
-   It is much faster because does not use the database.
+Returns an arrayref of arrays with the raw fuzznuc results, without Bio::DOOP objects.
+This is much faster as it does not use the database.
+
+The results contain the following:
+
+1. sequence ID
+2. hit start
+3. hit end
+4. mismatch number
+5. hit sequence
+6. hit strand
+
+   @result = @{$fuzznuc->get_raw_results};
 
 =cut
 
@@ -326,7 +333,18 @@ sub get_raw_results {
 
 =head2 get_results
 
-  Returns an arrayref of arrays of sequence objects.
+Returns an arrayref of arrays with sequence objects and other information of the results.
+
+The results contain the following:
+
+1. Bio::DOOP::Sequence object
+2. hit start
+3. hit end
+4. mismatch number
+5. hit sequence
+6. hit strand
+
+   @result = @{$fuzznuc->get_raw_results};
 
 =cut
 
@@ -354,10 +372,19 @@ sub get_results {
 
 =head2 get_results_from_file
 
-  Returns an arrayref of arrays of sequence objects or -1 if an error happened.
+Returns an arrayref of arrays with sequence objects and other information of the results
+from a results file. With this method you can fetch the results of different fuzznuc objects.
 
-  This is a very unique methods because it does not depend on the object. With it you can fetch
-  the results of different fuzznuc objects. Maybe it will go out from the module in the future.
+The results contain the following:
+
+1. Bio::DOOP::Sequence object
+2. hit start
+3. hit end
+4. mismatch number
+5. hit sequence
+6. hit strand
+
+   @result = @{$fuzznuc->get_results_from_file};
 
 =cut
 

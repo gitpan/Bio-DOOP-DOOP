@@ -1,18 +1,20 @@
 Revision history for Bio-DOOP-DOOP
+1.03    2009/05/20
+	Moar documentation and some minor corrections.
 1.02    2009/04/23
-        Fuzznuc and Mofext wrapper changed
+        Fuzznuc and Mofext wrapper changed.
         Documentation extended with useful informations about
         connecting to our database.
 1.01    2008/08/29
         Help messages corrections.
 1.00    2008/08/05
-        GeneMerge module added. Some minor changes to optimize the MySQL querys
+        GeneMerge module added. Some minor changes to optimize the MySQL queries.
 0.29    2008/06/22
-        Modifying the draw_fuzz_result
+        Modifying the draw_fuzz_result.
 0.28    2007/09/18
-        Grammatical corrections. Thanx for Endre
+        Grammatical corrections. Thanx for Endre.
 0.27    2007/07/06
-        The Mofext object and the Fuzznuc object now have the same methods. Easy to use. Correct some
+        The Mofext object and the Fuzznuc object now have the same easy to use methods. Corrected some
         documentation errors.
 0.26    2007/06/24
         New methods in the Graphics::Feature (draw_fuzz_result), Util::Run::Fuzznuc (new_by_tmp).

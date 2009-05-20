@@ -6,44 +6,39 @@ use GD;
 
 =head1 NAME
 
-  Bio::DOOP::Graphics::Feature - graphical representation of the features.
-
-=head1 SYNOPSIS
+Bio::DOOP::Graphics::Feature - Graphical representation of the features
 
 =head1 VERSION
 
-Version 0.17
+Version 0.18
 
 =cut
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
+
+=head1 SYNOPSIS
 
 =head1 DESCRIPTION
 
-  This object represents a picture that contains all the sequence features of a subset.
-  The module is quick enough to use it in your CGI scripts. You can also use it to visualize
-  the subset.
+This object represents a picture that contains all the sequences and sequence features of a subset.
+The module is fast enough to use it in your CGI scripts. You can also use it to visualize
+the subset.
 
 =head1 AUTHOR
 
-  Tibor Nagy, Godollo, Hungary
+Tibor Nagy, Godollo, Hungary
 
 =head1 METHODS
 
 =head2 create
 
-  $pic = Bio::DOOP::Graphics::Feature->create($db,"1234");
+Creates a new picture. Later you can add your own graphical elements to it.
 
-  Create a new picture. Later you can add your own graphical elements to it.
+Arguments: Bio::DOOP::DBSQL object and subset primary id.
 
-  Arguments :
+Return type: Bio::DOOP::Graphics::Feature object
 
-  1. Bio::DOOP::DBSQL object
-  2. subset primary id
-
-  Return type :
-
-  Bio::DOOP::Graphics::Feature object
+  $picture = Bio::DOOP::Graphics::Feature->create($db,"1234");
 
 =cut
 
@@ -93,12 +88,12 @@ sub create {
 
 =head2 add_color
 
-  Add an RGB color to the specified element.
+Add an RGB color to the specified element.
+
+The available elements are the following : background, label, strip, utr, motif, tss, frame, fuzzres.
 
   $image->add_color("background",200,200,200);
   $image->set_colors;
-
-  The available elements are the following : background, label, strip, utr, motif, tss, frame, fuzzres.
 
 =cut
 
@@ -115,8 +110,8 @@ sub add_color {
 
 =head2 set_colors
 
-  Set all the colors. Allocate colors previously with add_color. Use this method only ONCE after you set
-  all the colors. If you use it more than once, results will be strange.
+Sets all colors. Allocate colors previously with add_color. Use this method only ONCE after you set
+all the colors. If you use it more than once, the results will be strange.
 
 =cut
 
@@ -146,7 +141,7 @@ sub set_colors {
 
 =head2 add_scale
 
-  Draws the scale on the picture.
+Draws the scale on the picture.
 
 =cut
 
@@ -182,7 +177,7 @@ sub add_scale {
 
 =head2 add_bck_lines
 
-  Draws scale lines through the whole image background.
+Draws scale lines through the whole image background.
 
 =cut
 
@@ -199,7 +194,7 @@ sub add_bck_lines {
 
 =head2 add_seq
 
-  Draws a specified sequence on the picture. This is internal code, so do not use it directly.
+Draws a specified sequence on the picture. This is internal code, do not use it directly.
 
 =cut
 
@@ -246,7 +241,7 @@ sub add_seq {
       # Draw motifs.
       if( ($feat->get_type eq "con") && ($feat->get_subsetid eq $self->{SUBSET_ID})){
 	  $motif_count = $feat->get_motifid - $min_motif_id + 1;
-          # This code helps to make three rows for the motifs
+          # This code helps to make three rows for the motifs.
 	  my $label_length = (length($motif_count) + 1) * 6; # Label width with gdSmallFont
           my %motif_element = ($feat->get_motifid => [ $x1 - $len + $feat->get_start,
                                                        $motif_Y + $shift_factor,
@@ -286,7 +281,7 @@ sub add_seq {
 
 =head2 add_all_seq
 
-  Draws all sequences of the subset. The first one is the reference species.
+Draws all sequences of the subset. The first one is the reference species.
 
 =cut
 
@@ -301,12 +296,12 @@ sub add_all_seq {
 
 =head2 get_png
 
+Returns the png image. Use this when you finish the work and would like to see the result.
+
   open IMAGE,">picture.png";
   binmode IMAGE;
   print IMAGE $image->get_png;
   close IMAGE;
-
-  Returns the png image. Use this when you finish the work and would like to see the result.
 
 =cut
 
@@ -318,7 +313,7 @@ sub get_png {
 
 =head2 get_image
 
-  Returns the drawn image pointer. Useful for adding your own GD methods for unique picture manipulation.
+Returns the drawn image pointer. Useful for adding your own GD methods for unique picture manipulation.
 
 =cut
 
@@ -329,8 +324,8 @@ sub get_image {
 
 =head2 get_map
 
-  Returns a hash of arrays of hash of arrays reference that contains the map information.
-  Here is a real world example of how to handle this method :
+Returns a hash of arrays of hash of arrays reference that contains the image map information.
+Here is a real world example of how to handle this method :
 
   use Bio::DOOP::DOOP;
 
@@ -347,8 +342,8 @@ sub get_image {
     }
   }
   
-  It is a somewhat difficult, but if you are familiar with references and nested data structures, you
-  will understand it.
+It is somewhat difficult, but if you are familiar with references and nested data structures, you
+will understand it.
 
 =cut
 
@@ -359,7 +354,7 @@ sub get_map {
 
 =head2 get_motif_map
 
-  Returns only the arrayref of motif hashes.
+Returns only the arrayref of motif hashes.
 
 =cut
 
@@ -370,13 +365,9 @@ sub get_motif_map {
 
 =head2 get_motif_id_by_coord
 
+With this, you can get a motif id, if you specify the coordinates of a pixel.
+
   $motif_id = $image->get_motif_id_by_coord(100,200);
-
-  Maybe this is the most useful method. You can get a motif id, if you specify the coordinates of a pixel.
-
-  Return type :
-
-  string
 
 =cut
 
@@ -399,17 +390,13 @@ sub get_motif_id_by_coord {
 
 =head2 draw_motif_frame
 
+This method draws a frame around a given motif.
+
+Arguments: motif primary id
+
+Return type: 0 if success, -1 if the given motif id is not in the picture.
+
   $image->draw_motif_frame($motifid);
-
-  This method draws a frame around a given motif.
-
-  Arguments :
-
-  motif primary id
-
-  Return type :
-
-  0 if success, -1 if the given motif id is not in the picture.
 
 =cut
 
@@ -441,20 +428,16 @@ sub draw_motif_frame {
 
 =head2 draw_fuzz_result
 
+You can draw the fuzznuc result on the picture with this method.
+
+Arguments : sequence primary id, start position, end position
+
+To set drawing color, you can use the setcolor("fuzzres",$r,$g,$b) method.
+The method shows the orientation. The arrow always points to the start position.
+
+Return value : 0 if success, -1 if the given sequence id can't be found.
+
   $image->draw_fuzz_result(357,20,70);
-
-  You can draw a fuzznuc result with this method.
-
-  Arguments :
-
-  sequence primary id, start position, end position
-
-  To set drawing color, you can use the setcolor("fuzzres",$r,$g,$b) method.
-  The method shows the orientation. The arrow always points to the start position.
-
-  Return value :
-
-  0 if success, -1 if the given sequence id can't be found.
 
 =cut
 

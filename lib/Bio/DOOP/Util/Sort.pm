@@ -5,15 +5,15 @@ use warnings;
 
 =head1 NAME
 
-  Bio::DOOP::Util::Sort - sort an array of arrays.
+Bio::DOOP::Util::Sort - Sort an array of arrays
 
 =head1 VERSION
 
-  Version 0.2
+Version 0.3
 
 =cut
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 =head1 SYNOPSIS
 
@@ -23,21 +23,20 @@ our $VERSION = '0.2';
 
 =head1 DESCRIPTION
 
-  This class can sort any type of array of arrays. It can be used to sort the
-  mofext or fuzznuc results, but can sort other data.
+This class can sort any type of array of arrays. It can be used to sort the
+mofext or fuzznuc results, but can sort other data.
 
 =head1 AUTHORS
 
-  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
+Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
 =head2 new
 
-  $mofext_sort = Bio::DOOP::Util::Sort->new($db,\@mofext_result);
+Creates a Sort class from an array of arrays type data structure.
 
-  Create a Sort class.
-  Arguments: Bio::DOOP::DBSQL, array of array (practically it is a table)
+  $mofext_sort = Bio::DOOP::Util::Sort->new($db,\@mofext_result);
 
 =cut
 
@@ -56,10 +55,11 @@ sub new {
 
 =head2 sort_by_column
 
-  @ret = $mofext_sort->sort_by_column(0,"asc");
+Sort a given array by column. (Warning, the first column is zero!)
 
-  Sort a given array by column. (Warning, the first column is zero!)
-  Return type: sorted array of arrays
+Return type: sorted array of arrays
+
+  @ret = $mofext_sort->sort_by_column(0,"asc");
 
 =cut
 
@@ -69,7 +69,7 @@ sub sort_by_column {
    my $orient              = shift;
    my @ret;
    
-   if( ($orient eq "1") || ($orient eq "asc") || ($orient eq "ascendent")){
+   if( ($orient eq "1") || ($orient eq "asc") || ($orient eq "ascending")){
        @ret = sort { $$a[$column] <=> $$b[$column] } @{$self->{ARRAY}};
    }
    else{

@@ -5,15 +5,15 @@ use warnings;
 
 =head1 NAME
 
-  Bio::DOOP::Motif - DOOP database motif object
+Bio::DOOP::Motif - DOOP database motif object
 
 =head1 VERSION
 
-Version 0.6
+Version 0.7
 
 =cut
 
-our $VERSION = '0.6';
+our $VERSION = '0.7';
 
 =head1 SYNOPSIS
 
@@ -25,26 +25,22 @@ our $VERSION = '0.6';
 
 =head1 DESCRIPTION
 
-  This object represents the conserved motifs.
-  You should not use the constructor directly, but
-  sometimes it can be useful. In most cases you
-  get this object from other objects.
+This object represents an evolutionary conserved motif from a subset.
 
 =head1 AUTHORS
 
-  Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
+Tibor Nagy, Godollo, Hungary and Endre Sebestyen, Martonvasar, Hungary
 
 =head1 METHODS
 
-=cut
-
 =head2 new
 
-  $motif = Bio::DOOP::Motif->new($db,"1234");
- 
-  You can create the object with the new method.
+Creates a new motif object from the motif primary id. You usually won't need this, as
+you will get this object from other objects.
 
-  The arguments are the following : Bio::DOOP::DBSQL object, motif_primary_id
+Return type: Bio::DOOP::Motif object.
+
+  $motif = Bio::DOOP::Motif->new($db,"1234");
 
 =cut
 
@@ -75,11 +71,11 @@ sub new {
 
 =head2 type
 
+Returns the type of the motif.
+
+Return type : string
+  
   $motif_type = $motif->type;
-
-  Returns the type of the motif.
-
-  Return type : string
 
 =cut
 
@@ -90,11 +86,11 @@ sub type {
 
 =head2 seq
 
+Returns the consensus sequence of the motif.
+
+Return type: string
+
   $motif_seq = $motif->seq;
-
-  Returns the consensus sequence of the motif.
-
-  Return type : string
 
 =cut
 
@@ -105,11 +101,11 @@ sub seq {
 
 =head2 start
 
+Returns the start position of the motif.
+
+Return type: string
+
   $start = $motif->start;
-
-  Returns the start position of the motif.
-
-  Return type : string
 
 =cut
 
@@ -120,11 +116,11 @@ sub start {
 
 =head2 end
 
+Returns the end position of the motif.
+
+Return type: string;
+  
   $end = $motif->end;
-
-  Returns the end position of the motif.
-
-  Return type : string;
 
 =cut
 
@@ -135,11 +131,11 @@ sub end {
 
 =head2 length
 
+Returns the length of the motif.
+
+Return type: string
+
   $length = $motif->length;
-
-  Returns the length of the motif.
-
-  Return type : string
 
 =cut
 
@@ -150,11 +146,11 @@ sub length {
 
 =head2 get_id
 
+Returns the primary ID of the motif. This is the internal ID from the MySQL database.
+
+Return type: string
+
   $primary_id = $motif->get_id;
-
-  Returns the primary ID of the motif. This is the internal ID from the MySQL database.
-
-  Return type : string
 
 =cut
 
@@ -165,11 +161,11 @@ sub get_id {
 
 =head2 get_subset_id
 
+Returns the motif subset primary id.
+
+Return type: string
+
   $subset_id = $motif->get_subset_id;
-
-  Returns the motif subset primary id.
-
-  Return type : string
 
 =cut
 
@@ -180,11 +176,12 @@ sub get_subset_id {
 
 =head2 get_seqfeats
 
+Returns all the sequence features, associated with the motif. This basically means all the sequence
+regions from which the motif was generated.
+
+Return type: arrayref, the array containing Bio::DOOP::SequenceFeature objects.
+
   @feats = @{$motif->get_seqfeats}
-
-  Returns all the sequence features, associated with the motif.
-
-  Return type : arrayref, the array containing Bio::DOOP::SequenceFeature objects.
 
 =cut
 
