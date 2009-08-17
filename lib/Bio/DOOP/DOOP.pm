@@ -14,7 +14,6 @@ use Bio::DOOP::Util::Filt;
 use Bio::DOOP::Util::Run::Mofext;
 use Bio::DOOP::Util::Run::Fuzznuc;
 use Bio::DOOP::Util::Run::GeneMerge;
-use Bio::DOOP::Util::Run::Admin;
 use Bio::DOOP::Graphics::Feature;
 
 =head1 NAME
@@ -23,11 +22,11 @@ Bio::DOOP::DOOP - DOOP API main module
 
 =head1 VERSION
 
-Version 1.03
+Version 1.04
 
 =cut
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 =head1 SYNOPSIS
 
@@ -124,10 +123,6 @@ FUZZNUC wrapper. Install EMBOSS to use this.
 =head2 Bio::DOOP::Util::Run::GeneMerge
 
 GeneOntology analyzer, based on the program GeneMerge.
-
-=head2 Bio::DOOP::Util::Run::Admin
-
-Module for controlling the MOFEXT and FUZZNUC wrapper processes.
 
 =head2 Bio::DOOP::Graphics::Feature
 

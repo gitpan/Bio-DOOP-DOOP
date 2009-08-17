@@ -1,4 +1,8 @@
 Revision history for Bio-DOOP-DOOP
+1.04	2009/08/17
+	Purge Proc:Processtable from module & deps.
+	Remove Bio::DOOP::Util::Run::Admin module.
+	Other minor corrections.
 1.03    2009/05/20
 	Moar documentation and some minor corrections.
 1.02    2009/04/23
